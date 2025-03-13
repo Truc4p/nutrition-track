@@ -7,52 +7,7 @@ from typing import Optional, List
 import spacy
 from spacy.tokens import Token
 from word2number import w2n
-import requests 
-
-# Token = spacy.tokens.token.Token
-
-# @csrf_exempt
-# def process_text_and_get_nutrition(request):
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body.decode('utf-8'))
-#             nlp_response = requests.post('http://localhost:8000/nlp/process_text/', data=request.body)
-#             nlp_data = nlp_response.json()
-#             ingredients = nlp_data.get('ingredients', [])
-#             ingredient_names = []
-#             for ingredient in ingredients:
-#                 ingredient_names.append(ingredient.get('food_name', ''))
-#             ingredient_names_query_param = ','.join(ingredient_names)
-#             ingredients_response = requests.get(f'http://localhost:8000/api/get_ingredients_by_names/?ingredient_names={ingredient_names_query_param}')
-#             ureg = pint.UnitRegistry()
-#             conversion_factor_formatter = "{conversion_factor:.3f}"
-#             quantity_formatter = "{quantity:.2f}"
-
-#             ingredients_data = ingredients_response.json()
-#             modified_ingredients_data = []
-
-#             for ingredient_data in ingredients_data:
-#                 for nlp_ingredient_dict in ingredients:
-#                     if nlp_ingredient_dict['food_name'].lower() in ingredient_data.get('name', '').lower():
-#                         modified_ingredient_data = ingredient_data
-#                         quantity = nlp_ingredient_dict.get('quantity', None)
-#                         measurement_type = nlp_ingredient_dict.get('measurement_type', None)
-#                         serving_size = ingredient_data.get('serving_size', '1.0')
-#                         measurement_unit = ingredient_data.get('measurement_unit', None)
-#                         modified_ingredient_data['quantity'] = quantity_formatter.format(quantity=quantity)
-#                         modified_ingredient_data['measurement_type'] = measurement_type
-#                         if measurement_type and measurement_unit and ureg.is_unit_defined(measurement_type):
-#                             conversion = ureg(f'{measurement_type}').to(f'{measurement_unit}').magnitude * float(quantity) / float(serving_size)
-#                             conversion_factor = conversion
-#                             modified_ingredient_data['conversion_factor'] = conversion_factor_formatter.format(conversion_factor=conversion_factor)
-#                         else:
-#                             modified_ingredient_data['conversion_factor'] = quantity_formatter.format(quantity=quantity)
-#                         modified_ingredients_data.append(modified_ingredient_data)
-
-#             return JsonResponse({'result': ingredients_data})
-#         except json.JSONDecodeError:
-#             return JsonResponse({'error': 'Invalid JSON data'}, status=400)
-#     return JsonResponse({'error': 'Invalid request method'}, status=400)
+import requests
 
 @csrf_exempt
 def process_text_and_get_nutrition(request):
@@ -64,6 +19,7 @@ def process_text_and_get_nutrition(request):
             nlp_data = nlp_response.json()
             print("NLP response data:", nlp_data)  # Debugging line
             ingredients = nlp_data.get('ingredients', [])
+            print("Extracted ingredients:", ingredients)  # Debugging line
             ingredient_names = []
             for ingredient in ingredients:
                 ingredient_names.append(ingredient.get('food_name', ''))
@@ -95,7 +51,7 @@ def process_text_and_get_nutrition(request):
                             modified_ingredient_data['conversion_factor'] = quantity_formatter.format(quantity=quantity)
                         modified_ingredients_data.append(modified_ingredient_data)
 
-            return JsonResponse({'result': ingredients_data})
+            return JsonResponse({'result': modified_ingredients_data})
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
@@ -106,8 +62,12 @@ def process_text(request):
         try:
             json_data = json.loads(request.body.decode('utf-8'))
             text_value = json_data.get('text', None)
+            print("Text value:", text_value)  # Debugging line
             if text_value:
-                ingredients = process_tokens_to_foods(tokenize_by_quantity(text_value))
+                tokenized_text = tokenize_by_quantity(text_value)
+                print("Tokenized text:", tokenized_text)  # Debugging line
+                ingredients = process_tokens_to_foods(tokenized_text)
+                print("Processed ingredients:", ingredients)  # Debugging line
                 return JsonResponse({'ingredients': ingredients})
             else:
                 return JsonResponse({"error": "No 'text' found in the JSON data"}, status=400)
@@ -146,9 +106,12 @@ def tokenize_by_quantity(text: str) -> List[List[Token]]:
     current_tokens_total = []
     current_quantity = None
 
+    print("Document tokens:", [token.text for token in doc])  # Debugging line
+
     for token in doc:
         if token.pos_ == 'DET':
             determiner_quantity = determiner_to_quantity(token.text)
+            print(f"Determiner found: {token.text}, quantity: {determiner_quantity}")  # Debugging line
             if not determiner_quantity:
                 current_quantity = f'{determiner_quantity}'
                 current_tokens.append(token)
@@ -163,6 +126,8 @@ def tokenize_by_quantity(text: str) -> List[List[Token]]:
         else:
             if current_quantity is not None and token.pos_ not in ('PUNCT', 'CCONJ') and token.text not in ('\n', 'with'):
                 current_tokens.append(token)
+
+    print("Current tokens total:", current_tokens_total)  # Debugging line
 
     return current_tokens_total
 
