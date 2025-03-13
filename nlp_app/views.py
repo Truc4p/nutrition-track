@@ -76,15 +76,19 @@ def process_text(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def process_tokens_to_foods(tokenized_text: List[List[Token]]) -> List[dict]:
-    # This is a placeholder implementation. Replace it with your actual logic.
     foods = []
     for token_list in tokenized_text:
-        food = {
-            'food_name': ' '.join([token.text for token in token_list]),
-            'quantity': 1,  # Replace with actual quantity extraction logic
-            'measurement_type': 'unit'  # Replace with actual measurement type extraction logic
-        }
-        foods.append(food)
+        food_name_tokens = [token for token in token_list if token.pos_ == 'NOUN']
+        if food_name_tokens:
+            food_name = ' '.join([token.text for token in food_name_tokens])
+            quantity = next((token.text for token in token_list if token.pos_ == 'NUM'), 1)
+            measurement_type = next((token.text for token in token_list if token.pos_ == 'NOUN' and token != food_name_tokens[0]), 'unit')
+            food = {
+                'food_name': food_name,
+                'quantity': quantity,
+                'measurement_type': measurement_type
+            }
+            foods.append(food)
     return foods
 
 ## Helpers
@@ -109,17 +113,11 @@ def tokenize_by_quantity(text: str) -> List[List[Token]]:
     print("Document tokens:", [token.text for token in doc])  # Debugging line
 
     for token in doc:
-        if token.pos_ == 'DET':
-            determiner_quantity = determiner_to_quantity(token.text)
-            print(f"Determiner found: {token.text}, quantity: {determiner_quantity}")  # Debugging line
-            if not determiner_quantity:
-                current_quantity = f'{determiner_quantity}'
-                current_tokens.append(token)
-            else:
-                current_tokens_total.append(current_tokens)
-                current_tokens = [token]
-                current_quantity = f'{determiner_quantity}'
-        elif token.pos_ == 'PUNCT' and current_quantity:
+        if token.pos_ == 'NUM':
+            current_quantity = token.text
+            current_tokens.append(token)
+        elif token.pos_ == 'NOUN' and current_quantity:
+            current_tokens.append(token)
             current_tokens_total.append(current_tokens)
             current_tokens = []
             current_quantity = None
