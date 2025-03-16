@@ -75,20 +75,18 @@ def process_text(request):
             return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def process_tokens_to_foods(tokenized_text: List[List[Token]]) -> List[dict]:
+def process_tokens_to_foods(tokenized_text: List[List[object]]) -> List[dict]:
     foods = []
     for token_list in tokenized_text:
-        food_name_tokens = [token for token in token_list if token.pos_ == 'NOUN']
-        if food_name_tokens:
-            food_name = ' '.join([token.text for token in food_name_tokens])
-            quantity = next((token.text for token in token_list if token.pos_ == 'NUM'), 1)
-            measurement_type = next((token.text for token in token_list if token.pos_ == 'NOUN' and token != food_name_tokens[0]), 'unit')
-            food = {
-                'food_name': food_name,
-                'quantity': quantity,
-                'measurement_type': measurement_type
-            }
-            foods.append(food)
+        quantity = token_list[0]
+        measurement_type = token_list[1]
+        food_name = token_list[2]
+        food = {
+            'food_name': food_name,
+            'quantity': quantity,
+            'measurement_type': measurement_type
+        }
+        foods.append(food)
     return foods
 
 ## Helpers
@@ -103,31 +101,26 @@ def get_value_with_lower_case_dict_key(key, dict: dict):
     else:
         return None
 
-def tokenize_by_quantity(text: str) -> List[List[Token]]:
-    nlp = spacy.load("en_core_web_sm")
-    doc = nlp(text)
-    current_tokens = []
-    current_tokens_total = []
-    current_quantity = None
+import re
 
-    print("Document tokens:", [token.text for token in doc])  # Debugging line
-
-    for token in doc:
-        if token.pos_ == 'NUM':
-            current_quantity = token.text
-            current_tokens.append(token)
-        elif token.pos_ == 'NOUN' and current_quantity:
-            current_tokens.append(token)
-            current_tokens_total.append(current_tokens)
-            current_tokens = []
-            current_quantity = None
-        else:
-            if current_quantity is not None and token.pos_ not in ('PUNCT', 'CCONJ') and token.text not in ('\n', 'with'):
-                current_tokens.append(token)
-
-    print("Current tokens total:", current_tokens_total)  # Debugging line
-
-    return current_tokens_total
+def tokenize_by_quantity(text):
+    # Enhanced regex to handle missing units properly and remove 'of'
+    pattern = re.compile(r"(\d+(?:\.\d+)?)\s+(?:([a-zA-Z]+)\s+)?(?:of\s+)?([a-zA-Z\s]+?)(?=\,|\.|$)")
+    
+    # Find all matches
+    matches = pattern.findall(text)
+    
+    # Convert matches into a structured list
+    tokenized_result = []
+    for quantity, unit, food in matches:
+        food = food.strip()
+        # Assign 'units' if no valid unit is detected
+        if not unit:
+            unit = "units"
+        # food = food.rstrip('s')  # Convert plurals to singular
+        tokenized_result.append([int(quantity) if quantity.isdigit() else float(quantity), unit, food])
+    
+    return tokenized_result
 
 def is_unit_defined(unit_str: str) -> bool:
     ureg = pint.UnitRegistry()

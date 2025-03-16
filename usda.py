@@ -86,9 +86,9 @@ def main():
     
     food_names = [
         'Chicken Breast',
-        'Tomatoes',
-        'Broccoli',
-        'Salmon',
+        'Wheat Bread',
+        'Egg',
+        'Spinach',
         # 'Almonds',
         # 'Bananas',
         # 'Eggs',
