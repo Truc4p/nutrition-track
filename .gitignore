@@ -1,0 +1,13 @@
+# Ignore virtual environment
+venv/
+
+# Python cache
+*.pyc
+__pycache__/
+
+# Logs and environment files
+*.log
+.env
+
+# SQLite database (if you're using it for dev)
+db.sqlite3
