@@ -15,7 +15,13 @@ class IngredientListCreateView(generics.ListCreateAPIView):
 
 @api_view(['GET'])
 def get_ingredients_by_names(request):
-    names = request.query_params.getlist('names')
-    ingredients = IngredientFact.objects.filter(name__in=names)
-    serializer = IngredientSerializer(ingredients, many=True)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        names = request.GET.get('names', '')
+        print("Received names query param:", names)  # Debugging line
+        names_list = names.split(',')
+        print("Names list:", names_list)  # Debugging line
+        ingredients = IngredientFact.objects.filter(name__in=names_list)
+        ingredients_data = list(ingredients.values())
+        print("Ingredients data:", ingredients_data)  # Debugging line
+        return JsonResponse(ingredients_data, safe=False)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
