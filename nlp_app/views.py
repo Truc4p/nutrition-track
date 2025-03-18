@@ -10,7 +10,6 @@ from word2number import w2n
 import requests
 import re
 
-
 @csrf_exempt
 def process_text_and_get_nutrition(request):
     if request.method == 'POST':
@@ -56,18 +55,21 @@ def process_text_and_get_nutrition(request):
                         modified_ingredient_data['quantity'] = quantity_formatter.format(
                             quantity=quantity)
                         modified_ingredient_data['measurement_type'] = measurement_type
-                        if measurement_type and measurement_unit and ureg.is_unit_defined(measurement_type):
-                            conversion = ureg(f'{measurement_type}').to(
-                                f'{measurement_unit}').magnitude * float(quantity) / float(serving_size)
-                            conversion_factor = conversion
-                            modified_ingredient_data['conversion_factor'] = conversion_factor_formatter.format(
-                                conversion_factor=conversion_factor)
+                        if measurement_type and measurement_unit:
+                            try:
+                                conversion = ureg(f'{measurement_type}').to(
+                                    f'{measurement_unit}').magnitude * float(quantity) / float(serving_size)
+                                conversion_factor = conversion
+                                modified_ingredient_data['conversion_factor'] = conversion_factor_formatter.format(
+                                    conversion_factor=conversion_factor)
+                            except pint.errors.UndefinedUnitError:
+                                modified_ingredient_data['conversion_factor'] = quantity_formatter.format(
+                                    quantity=quantity)
                         else:
                             modified_ingredient_data['conversion_factor'] = quantity_formatter.format(
                                 quantity=quantity)
                         modified_ingredients_data.append(
                             modified_ingredient_data)
-
             return JsonResponse({'result': modified_ingredients_data})
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON data'}, status=400)

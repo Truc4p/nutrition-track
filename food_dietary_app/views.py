@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from rest_framework import generics
 from .models import IngredientFact
 from .serializers import IngredientSerializer
+from django.db.models import Q
 
 # Create your views here.
 class IngredientListCreateView(generics.ListCreateAPIView):
@@ -20,7 +21,14 @@ def get_ingredients_by_names(request):
         print("Received names query param:", names)  # Debugging line
         names_list = names.split(',')
         print("Names list:", names_list)  # Debugging line
-        ingredients = IngredientFact.objects.filter(name__in=names_list)
+        
+        # Use case-insensitive matching
+        query = Q()
+        for name in names_list:
+            query |= Q(name__iexact=name.strip())
+        
+        ingredients = IngredientFact.objects.filter(query)
+        
         ingredients_data = list(ingredients.values())
         print("Ingredients data:", ingredients_data)  # Debugging line
         return JsonResponse(ingredients_data, safe=False)
