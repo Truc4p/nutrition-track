@@ -9,6 +9,7 @@ from spacy.tokens import Token
 from word2number import w2n
 import requests
 import re
+import inflect
 
 @csrf_exempt
 def process_text_and_get_nutrition(request):
@@ -112,7 +113,6 @@ def process_tokens_to_foods(tokenized_text: List[List[object]]) -> List[dict]:
 
 # Helpers
 
-
 def determiner_to_quantity(determiner: str) -> Optional[float]:
     determiner_dict = {'a': 1.0, 'an': 1.0, 'few': 2.0,
                        'some': 2.0, 'many': 5.0, 'several': 7.0}
@@ -125,7 +125,9 @@ def get_value_with_lower_case_dict_key(key, dict: dict):
         return dict[lowercase_key]
     else:
         return None
-
+    
+# Initialize the inflect engine
+p = inflect.engine()
 
 def tokenize_by_quantity(text):
     # Enhanced regex to handle missing units properly and remove 'of'
@@ -141,13 +143,12 @@ def tokenize_by_quantity(text):
         food = food.strip()
         # Assign 'units' if no valid unit is detected
         if not unit:
-            unit = "units"
-        # food = food.rstrip('s')  # Convert plurals to singular
+            unit = ""
+        # Convert plurals to singular
+        food = p.singular_noun(food) or food
         tokenized_result.append(
             [int(quantity) if quantity.isdigit() else float(quantity), unit, food])
-
     return tokenized_result
-
 
 def is_unit_defined(unit_str: str) -> bool:
     ureg = pint.UnitRegistry()
