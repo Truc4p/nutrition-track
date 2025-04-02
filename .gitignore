@@ -9,5 +9,5 @@ __pycache__/
 *.log
 .env
 
-# SQLite database (if you're using it for dev)
-db.sqlite3
+# postgreSQL database 
+db.postgreSQL
