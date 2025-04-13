@@ -181,6 +181,55 @@ function updateUI() {
     totalCaloriesSpan.textContent = totalCalories.toFixed(2);
 
     totalsSection.style.display = 'block'; // Show totals
+
+    // --- Render Chart ---
+    const ctx = document.getElementById('nutrition-chart').getContext('2d');
+    const chartData = {
+        labels: ['Fats', 'Carbs', 'Protein', 'Fiber', 'Cholesterol', 'Calories'],
+        datasets: [{
+            label: 'Nutrition Totals',
+            data: [totalFats, totalCarbs, totalProtein, totalFiber, totalCholesterol, totalCalories],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)', // Fats
+                'rgba(54, 162, 235, 0.2)', // Carbs
+                'rgba(75, 192, 192, 0.2)', // Protein
+                'rgba(153, 102, 255, 0.2)', // Fiber
+                'rgba(255, 159, 64, 0.2)', // Cholesterol
+                'rgba(255, 206, 86, 0.2)'  // Calories
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 206, 86, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    };
+
+    // Destroy existing chart instance if it exists
+    if (window.nutritionChart) {
+        window.nutritionChart.destroy();
+    }
+
+    // Create new chart instance
+    window.nutritionChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: chartOptions
+    });
 }
 
 // --- Initial Setup ---

@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nutrition Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
     <div class="container">
         <h1>What did you eat today?</h1>
@@ -20,7 +24,7 @@
         <div class="results">
             <h2 id="results-header">Foods</h2>
             <ul id="food-list">
-                </ul>
+            </ul>
 
             <div id="totals-section" style="display: none;">
                 <h3>Totals</h3>
@@ -31,9 +35,14 @@
                 <div class="total-item"><span>Cholesterol:</span> <span id="total-cholesterol">0.00</span></div>
                 <div class="total-item"><span>Calories:</span> <span id="total-calories">0.00</span></div>
             </div>
+
+            <div id="chart-container" style="width: 100%; max-width: 600px; margin: 20px auto;">
+                <canvas id="nutrition-chart"></canvas>
+            </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
