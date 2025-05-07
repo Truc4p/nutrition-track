@@ -13,6 +13,168 @@ const totalFiberSpan = document.getElementById('total-fiber');
 const totalCholesterolSpan = document.getElementById('total-cholesterol');
 const totalCaloriesSpan = document.getElementById('total-calories');
 
+const weightInput = document.getElementById('weight');
+const heightInput = document.getElementById('height');
+const ageInput = document.getElementById('age');
+const goalInput = document.getElementById('goal');
+const recommendButton = document.getElementById('recommend-button');
+const askButton = document.getElementById('ask-button');
+const healthConditionInput = document.getElementById('health-condition');
+const askText = document.getElementById('ask-text');
+const recommendationText = document.getElementById('recommendation-text');
+
+// recommendButton.addEventListener('click', async () => {
+//     const weight = parseFloat(weightInput.value);
+//     const height = parseFloat(heightInput.value);
+//     const age = parseInt(ageInput.value, 10);
+//     const goal = goalInput.value;
+
+//     if (!weight || !height || !age || !goal) {
+//         alert("Please fill in all fields.");
+//         return;
+//     }
+
+//     try {
+//         const recommendation = await getNutritionRecommendation(weight, height, age, goal);
+//         recommendationText.textContent = recommendation;
+//     } catch (error) {
+//         console.error("Error fetching recommendation:", error);
+//         recommendationText.textContent = "Failed to get recommendation. Please try again.";
+//     }
+// });
+
+// async function getNutritionRecommendation(weight, height, age, goal) {
+//     const API_URL = "http://127.0.0.1:5000/ai/recommend_nutrition"; // Replace with your AI API endpoint
+
+//     const response = await fetch(API_URL, {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ weight, height, age, goal }),
+//     });
+
+//     if (!response.ok) {
+//         throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+
+//     const data = await response.json();
+//     return data.recommendation; // Assuming the API returns a "recommendation" field
+// }
+
+askButton.addEventListener('click', async () => {
+    const healthConditionInput = document.getElementById('health-conditions'); // Corrected ID
+
+    if (!healthConditionInput || !healthConditionInput.value.trim()) { // Check if the value is empty
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    try {
+        const recommendation = await getNutritionRecommendation(healthConditionInput.value.trim()); // Pass the value
+        askText.textContent = recommendation;
+    } catch (error) {
+        console.error("Error fetching recommendation:", error);
+        askText.textContent = "Failed to get recommendation. Please try again.";
+    }
+});
+
+async function getNutritionRecommendation(healthCondition) {
+    const API_URL = "http://127.0.0.1:5000/ai/recommend_nutrition"; // Replace with your AI API endpoint
+
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ healthCondition }), // Send the value
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.recommendation; // Assuming the API returns a "recommendation" field
+}
+
+
+recommendButton.addEventListener('click', async () => {
+    const weight = parseFloat(weightInput.value);
+    const height = parseFloat(heightInput.value);
+    const age = parseInt(ageInput.value, 10);
+    const gender = document.getElementById('gender').value;
+    const activityLevel = document.getElementById('activity-level').value;
+    const goal = document.getElementById('goal').value;
+
+    if (!weight || !height || !age || !gender || !activityLevel || !goal) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    try {
+        const recommendation = calculateNutrition(weight, height, age, gender, activityLevel);
+        recommendationText.innerHTML = `
+            <strong>Calories:</strong> ${recommendation.calories.toFixed(2)} kcal<br>
+            <strong>Fats:</strong> ${recommendation.fats.min.toFixed(2)}g - ${recommendation.fats.max.toFixed(2)}g<br>
+            <strong>Carbs:</strong> ${recommendation.carbs.min.toFixed(2)}g - ${recommendation.carbs.max.toFixed(2)}g<br>
+            <strong>Protein:</strong> ${recommendation.protein.min.toFixed(2)}g - ${recommendation.protein.max.toFixed(2)}g<br>
+            <strong>Fiber:</strong> ${recommendation.fiber.toFixed(2)}g<br>
+            <strong>Cholesterol:</strong> ${recommendation.cholesterol.toFixed(2)}mg
+        `;
+    } catch (error) {
+        console.error("Error calculating recommendation:", error);
+        recommendationText.textContent = "Failed to calculate recommendation. Please try again.";
+    }
+});
+
+function calculateNutrition(weight, height, age, gender, activityLevel) {
+    // Mifflin-St Jeor Equation for BMR
+    const bmr =
+        gender === "male"
+            ? 10 * weight + 6.25 * height - 5 * age + 5
+            : 10 * weight + 6.25 * height - 5 * age - 161;
+
+    // Activity level multipliers
+    const activityMultipliers = {
+        sedentary: 1.2,
+        "lightly-active": 1.375,
+        "moderately-active": 1.55,
+        "very-active": 1.725,
+        athlete: 1.9,
+    };
+
+    const calories = bmr * activityMultipliers[activityLevel];
+
+    // Adjust calories based on goal
+    if (goal === "loss") {
+        calories -= 500; // Subtract 500 calories for weight loss
+    } else if (goal === "gain") {
+        calories += 500; // Add 500 calories for weight gain
+    }
+
+    // AMDR (Acceptable Macronutrient Distribution Ranges) for macronutrients
+    const fats = {
+        min: (calories * 0.2) / 9, // 20% of calories
+        max: (calories * 0.35) / 9, // 35% of calories
+    };
+    const carbs = {
+        min: (calories * 0.45) / 4, // 45% of calories
+        max: (calories * 0.65) / 4, // 65% of calories
+    };
+    const protein = {
+        min: (calories * 0.1) / 4, // 10% of calories
+        max: (calories * 0.35) / 4, // 35% of calories
+    };
+
+    // RDA/AI for fiber and cholesterol
+    const fiber = gender === "male" ? 38 : 25; // RDA: 38g for men, 25g for women
+    const cholesterol = 300; // AI: ≤300mg per day
+
+    return { calories, fats, carbs, protein, fiber, cholesterol };
+}
+
+
 // --- State ---
 let foods = [];
 let isLoading = false;
