@@ -26,16 +26,16 @@ app.get('/', (req, res) => {
 
 // Endpoint to handle recommendations
 app.post('/ai/recommend_nutrition', async (req, res) => {
-    const { weight, height, age, goal } = req.body;
+    const { healthCondition } = req.body;
 
     console.log('Request body:', req.body);
 
-    if (!weight || !height || !age || !goal) {
+    if (!healthCondition) {
         console.error('Missing required fields');
-        return res.status(400).json({ error: 'Missing required fields: weight, height, age, or goal.' });
+        return res.status(400).json({ error: 'Missing required fields: healthCondition.' });
     }
 
-    const prompt = `Based on a weight of ${weight}kg, height of ${height}cm, age of ${age}, and a goal to ${goal} weight, recommend daily intake of fats, carbs, protein, fiber, cholesterol, and calories.`;
+    const prompt = `Based on health conditions of ${healthCondition}, recommend daily intake of nutritions.`;
 
     try {
         const response = await fetch(GEMINI_API_URL, {
