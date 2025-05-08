@@ -122,6 +122,7 @@ recommendButton.addEventListener('click', async () => {
             <strong>Fiber:</strong> ${recommendation.fiber.toFixed(2)}g<br>
             <strong>Cholesterol:</strong> ${recommendation.cholesterol.toFixed(2)}mg
         `;
+        updateUI(); // Re-render the UI with the new recommendation
     } catch (error) {
         console.error("Error calculating recommendation:", error);
         recommendationText.textContent = "Failed to calculate recommendation. Please try again.";
@@ -204,6 +205,7 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
 // --- State ---
 let foods = [];
 let isLoading = false;
+let recommendation = null; // Add a global variable for recommendation
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
 
 // --- Event Listeners ---
@@ -374,27 +376,62 @@ function updateUI() {
     const ctx = document.getElementById('nutrition-chart').getContext('2d');
     const chartData = {
         labels: ['Fats', 'Carbs', 'Protein', 'Fiber', 'Cholesterol', 'Calories'],
-        datasets: [{
-            label: 'Nutrition Totals',
-            data: [totalFats, totalCarbs, totalProtein, totalFiber, totalCholesterol, totalCalories],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)', // Fats
-                'rgba(54, 162, 235, 0.2)', // Carbs
-                'rgba(75, 192, 192, 0.2)', // Protein
-                'rgba(153, 102, 255, 0.2)', // Fiber
-                'rgba(255, 159, 64, 0.2)', // Cholesterol
-                'rgba(255, 206, 86, 0.2)'  // Calories
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255, 206, 86, 1)'
-            ],
-            borderWidth: 1
-        }]
+        datasets: [
+            {
+                label: 'Nutrition Totals',
+                data: [totalFats, totalCarbs, totalProtein, totalFiber, totalCholesterol, totalCalories],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)', // Fats
+                    'rgba(54, 162, 235, 0.2)', // Carbs
+                    'rgba(75, 192, 192, 0.2)', // Protein
+                    'rgba(153, 102, 255, 0.2)', // Fiber
+                    'rgba(255, 159, 64, 0.2)', // Cholesterol
+                    'rgba(255, 206, 86, 0.2)'  // Calories
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            },
+            ...(recommendation
+                ? [
+                      {
+                          label: 'Recommended Nutrition',
+                          data: [
+                              recommendation.fats.max,
+                              recommendation.carbs.max,
+                              recommendation.protein.max,
+                              recommendation.fiber,
+                              recommendation.cholesterol,
+                              recommendation.calories
+                          ],
+                          backgroundColor: [
+                              'rgba(54, 162, 235, 0.2)', // Fats
+                              'rgba(75, 192, 192, 0.2)', // Carbs
+                              'rgba(153, 102, 255, 0.2)', // Protein
+                              'rgba(255, 159, 64, 0.2)', // Fiber
+                              'rgba(255, 99, 132, 0.2)', // Cholesterol
+                              'rgba(255, 206, 86, 0.2)'  // Calories
+                          ],
+                          borderColor: [
+                              'rgba(54, 162, 235, 1)',
+                              'rgba(75, 192, 192, 1)',
+                              'rgba(153, 102, 255, 1)',
+                              'rgba(255, 159, 64, 1)',
+                              'rgba(255, 99, 132, 1)',
+                              'rgba(255, 206, 86, 1)'
+                          ],
+                          borderWidth: 1,
+                          borderDash: [5, 5] // Dashed line for distinction
+                      }
+                  ]
+                : []) // If recommendation is null, skip this dataset
+        ]
     };
 
     const chartOptions = {
