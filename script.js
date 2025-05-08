@@ -16,12 +16,12 @@ const totalCaloriesSpan = document.getElementById('total-calories');
 const weightInput = document.getElementById('weight');
 const heightInput = document.getElementById('height');
 const ageInput = document.getElementById('age');
-const goalInput = document.getElementById('goal');
 const recommendButton = document.getElementById('recommend-button');
 const askButton = document.getElementById('ask-button');
-const healthConditionInput = document.getElementById('health-condition');
 const askText = document.getElementById('ask-text');
 const recommendationText = document.getElementById('recommendation-text');
+const goal = document.getElementById('goal').value;
+const healthCondition = document.getElementById('health-condition')
 
 // recommendButton.addEventListener('click', async () => {
 //     const weight = parseFloat(weightInput.value);
@@ -63,15 +63,14 @@ const recommendationText = document.getElementById('recommendation-text');
 // }
 
 askButton.addEventListener('click', async () => {
-    const healthConditionInput = document.getElementById('health-conditions'); // Corrected ID
 
-    if (!healthConditionInput || !healthConditionInput.value.trim()) { // Check if the value is empty
+    if (!healthCondition || !healthCondition.value.trim()) { // Check if the value is empty
         alert("Please fill in all fields.");
         return;
     }
 
     try {
-        const recommendation = await getNutritionRecommendation(healthConditionInput.value.trim()); // Pass the value
+        const recommendation = await getNutritionRecommendation(healthCondition.value.trim()); // Pass the value
         askText.textContent = recommendation;
     } catch (error) {
         console.error("Error fetching recommendation:", error);
@@ -106,14 +105,15 @@ recommendButton.addEventListener('click', async () => {
     const gender = document.getElementById('gender').value;
     const activityLevel = document.getElementById('activity-level').value;
     const goal = document.getElementById('goal').value;
+    const healthCondition = document.getElementById('health-condition'); // Get health condition value
 
-    if (!weight || !height || !age || !gender || !activityLevel || !goal) {
+    if (!weight || !height || !age || !gender || !activityLevel || !goal || !healthCondition) {
         alert("Please fill in all fields.");
         return;
     }
 
     try {
-        const recommendation = calculateNutrition(weight, height, age, gender, activityLevel);
+        const recommendation = calculateNutrition(weight, height, age, gender, activityLevel, healthCondition); // Pass healthCondition
         recommendationText.innerHTML = `
             <strong>Calories:</strong> ${recommendation.calories.toFixed(2)} kcal<br>
             <strong>Fats:</strong> ${recommendation.fats.min.toFixed(2)}g - ${recommendation.fats.max.toFixed(2)}g<br>
@@ -128,7 +128,7 @@ recommendButton.addEventListener('click', async () => {
     }
 });
 
-function calculateNutrition(weight, height, age, gender, activityLevel) {
+function calculateNutrition(weight, height, age, gender, activityLevel, healthCondition) {
     // Mifflin-St Jeor Equation for BMR
     const bmr =
         gender === "male"
@@ -168,12 +168,37 @@ function calculateNutrition(weight, height, age, gender, activityLevel) {
     };
 
     // RDA/AI for fiber and cholesterol
-    const fiber = gender === "male" ? 38 : 25; // RDA: 38g for men, 25g for women
-    const cholesterol = 300; // AI: ≤300mg per day
+    let fiber;
+    if (age >= 1 && age <= 3) {
+        fiber = 14; // Children 1-3 years
+    } else if (age >= 4 && age <= 8) {
+        fiber = 18; // Children 4-8 years
+    } else if (age >= 9 && age <= 13) {
+        fiber = gender === "male" ? 24 : 20; // Boys 9-13: 24g, Girls 9-13: 20g
+    } else if (age >= 14 && age <= 18) {
+        fiber = gender === "male" ? 28 : 22; // Boys 14-18: 28g, Girls 14-18: 22g
+    } else if (age >= 19 && age <= 50) {
+        if (gender === "male") {
+            fiber = 30; // Men 19-50: 30-38g
+        } else if (gender === "female") {
+            fiber = 25; // Women 19-50: 25-28g
+        } else {
+            fiber = 28; // Pregnancy: 25-28g, Lactation: 27-30g
+        }
+    } else if (age >= 51) {
+        fiber = gender === "male" ? 30 : 21; // Men 51+: 30g, Women 51+: 21-25g
+    } else {
+        fiber = 0; // Default if age is not valid
+    }
+
+    // Cholesterol recommendation
+    let cholesterol = 300; // General recommendation
+    if (healthCondition === "heart disease" || healthCondition === "diabetes") {
+        cholesterol = 200; // Limit for individuals with heart disease or diabetes
+    }
 
     return { calories, fats, carbs, protein, fiber, cholesterol };
 }
-
 
 // --- State ---
 let foods = [];
