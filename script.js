@@ -23,81 +23,6 @@ const recommendationText = document.getElementById('recommendation-text');
 const goal = document.getElementById('goal').value;
 const healthCondition = document.getElementById('health-condition').value.trim();
 
-// recommendButton.addEventListener('click', async () => {
-//     const weight = parseFloat(weightInput.value);
-//     const height = parseFloat(heightInput.value);
-//     const age = parseInt(ageInput.value, 10);
-//     const goal = goalInput.value;
-
-//     if (!weight || !height || !age || !goal) {
-//         alert("Please fill in all fields.");
-//         return;
-//     }
-
-//     try {
-//         const recommendation = await getNutritionRecommendation(weight, height, age, goal);
-//         recommendationText.textContent = recommendation;
-//     } catch (error) {
-//         console.error("Error fetching recommendation:", error);
-//         recommendationText.textContent = "Failed to get recommendation. Please try again.";
-//     }
-// });
-
-// async function getNutritionRecommendation(weight, height, age, goal) {
-//     const API_URL = "http://127.0.0.1:5000/ai/recommend_nutrition"; // Replace with your AI API endpoint
-
-//     const response = await fetch(API_URL, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ weight, height, age, goal }),
-//     });
-
-//     if (!response.ok) {
-//         throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-
-//     const data = await response.json();
-//     return data.recommendation; // Assuming the API returns a "recommendation" field
-// }
-
-askButton.addEventListener('click', async () => {
-
-    if (!healthCondition) { // Check if the value is empty
-        alert("Please fill in all fields.");
-        return;
-    }
-
-    try {
-        const recommendation = await getNutritionRecommendation(healthCondition); // Pass the value
-        askText.textContent = recommendation;
-    } catch (error) {
-        console.error("Error fetching recommendation:", error);
-        askText.textContent = "Failed to get recommendation. Please try again.";
-    }
-});
-
-async function getNutritionRecommendation(healthCondition) {
-    const API_URL = "http://127.0.0.1:5000/ai/recommend_nutrition"; // Replace with your AI API endpoint
-
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ healthCondition }), // Send the value
-    });
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.recommendation; // Assuming the API returns a "recommendation" field
-}
-
-
 recommendButton.addEventListener('click', async () => {
     const weight = parseFloat(weightInput.value);
     const height = parseFloat(heightInput.value);
@@ -105,7 +30,7 @@ recommendButton.addEventListener('click', async () => {
     const gender = document.getElementById('gender').value;
     const activityLevel = document.getElementById('activity-level').value;
     const goal = document.getElementById('goal').value;
-    const healthCondition = document.getElementById('health-condition').value.trim(); // Correctly retrieve the value
+    const healthCondition = document.getElementById('health-condition').value.trim();
 
     if (!weight || !height || !age || !gender || !activityLevel || !goal) {
         alert("Please fill in all fields.");
@@ -113,7 +38,12 @@ recommendButton.addEventListener('click', async () => {
     }
 
     try {
-        const recommendation = calculateNutrition(weight, height, age, gender, activityLevel, healthCondition); // Pass healthCondition
+        // Update the global recommendation variable
+        recommendation = calculateNutrition(weight, height, age, gender, activityLevel, healthCondition);
+
+        // Add console.log to debug the recommendation variable
+        console.log("Recommendation data:", recommendation);
+
         recommendationText.innerHTML = `
             <strong>Calories:</strong> ${recommendation.calories.toFixed(2)} kcal<br>
             <strong>Fats:</strong> ${recommendation.fats.min.toFixed(2)}g - ${recommendation.fats.max.toFixed(2)}g<br>
@@ -122,7 +52,9 @@ recommendButton.addEventListener('click', async () => {
             <strong>Fiber:</strong> ${recommendation.fiber.toFixed(2)}g<br>
             <strong>Cholesterol:</strong> ${recommendation.cholesterol.toFixed(2)}mg
         `;
-        updateUI(); // Re-render the UI with the new recommendation
+        
+        renderRecommendedNutritionChart(); // Render the new chart
+
     } catch (error) {
         console.error("Error calculating recommendation:", error);
         recommendationText.textContent = "Failed to calculate recommendation. Please try again.";
@@ -200,6 +132,41 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
     }
 
     return { calories, fats, carbs, protein, fiber, cholesterol };
+}
+
+askButton.addEventListener('click', async () => {
+
+    if (!healthCondition) { // Check if the value is empty
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    try {
+        const recommendation = await getNutritionRecommendation(healthCondition); // Pass the value
+        askText.textContent = recommendation;
+    } catch (error) {
+        console.error("Error fetching recommendation:", error);
+        askText.textContent = "Failed to get recommendation. Please try again.";
+    }
+});
+
+async function getNutritionRecommendation(healthCondition) {
+    const API_URL = "http://127.0.0.1:5000/ai/recommend_nutrition"; // Replace with your AI API endpoint
+
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ healthCondition }), // Send the value
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.recommendation; // Assuming the API returns a "recommendation" field
 }
 
 // --- State ---
@@ -398,39 +365,39 @@ function updateUI() {
                 ],
                 borderWidth: 1
             },
-            ...(recommendation
-                ? [
-                      {
-                          label: 'Recommended Nutrition',
-                          data: [
-                              recommendation.fats.max,
-                              recommendation.carbs.max,
-                              recommendation.protein.max,
-                              recommendation.fiber,
-                              recommendation.cholesterol,
-                              recommendation.calories
-                          ],
-                          backgroundColor: [
-                              'rgba(54, 162, 235, 0.2)', // Fats
-                              'rgba(75, 192, 192, 0.2)', // Carbs
-                              'rgba(153, 102, 255, 0.2)', // Protein
-                              'rgba(255, 159, 64, 0.2)', // Fiber
-                              'rgba(255, 99, 132, 0.2)', // Cholesterol
-                              'rgba(255, 206, 86, 0.2)'  // Calories
-                          ],
-                          borderColor: [
-                              'rgba(54, 162, 235, 1)',
-                              'rgba(75, 192, 192, 1)',
-                              'rgba(153, 102, 255, 1)',
-                              'rgba(255, 159, 64, 1)',
-                              'rgba(255, 99, 132, 1)',
-                              'rgba(255, 206, 86, 1)'
-                          ],
-                          borderWidth: 1,
-                          borderDash: [5, 5] // Dashed line for distinction
-                      }
-                  ]
-                : []) // If recommendation is null, skip this dataset
+            // ...(recommendation
+            //     ? [
+            //           {
+            //               label: 'Recommended Nutrition',
+            //               data: [
+            //                   recommendation.fats.max,
+            //                   recommendation.carbs.max,
+            //                   recommendation.protein.max,
+            //                   recommendation.fiber,
+            //                   recommendation.cholesterol,
+            //                   recommendation.calories
+            //               ],
+            //               backgroundColor: [
+            //                   'rgba(54, 162, 235, 0.2)', // Fats
+            //                   'rgba(75, 192, 192, 0.2)', // Carbs
+            //                   'rgba(153, 102, 255, 0.2)', // Protein
+            //                   'rgba(255, 159, 64, 0.2)', // Fiber
+            //                   'rgba(255, 99, 132, 0.2)', // Cholesterol
+            //                   'rgba(255, 206, 86, 0.2)'  // Calories
+            //               ],
+            //               borderColor: [
+            //                   'rgba(54, 162, 235, 1)',
+            //                   'rgba(75, 192, 192, 1)',
+            //                   'rgba(153, 102, 255, 1)',
+            //                   'rgba(255, 159, 64, 1)',
+            //                   'rgba(255, 99, 132, 1)',
+            //                   'rgba(255, 206, 86, 1)'
+            //               ],
+            //               borderWidth: 1,
+            //               borderDash: [5, 5] // Dashed line for distinction
+            //           }
+            //       ]
+            //     : []) // If recommendation is null, skip this dataset
         ]
     };
 
@@ -451,6 +418,71 @@ function updateUI() {
 
     // Create new chart instance
     window.nutritionChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: chartOptions
+    });
+}
+
+
+function renderRecommendedNutritionChart() {
+    if (!recommendation) {
+        console.error("Recommendation data is not available.");
+        return;
+    }
+
+    const ctx = document.getElementById('recommended-nutrition-chart').getContext('2d');
+    const chartData = {
+        labels: ['Fats', 'Carbs', 'Protein', 'Fiber', 'Cholesterol', 'Calories'],
+        datasets: [
+            {
+                label: 'Recommended Nutrition',
+                data: [
+                    recommendation.fats.max,
+                    recommendation.carbs.max,
+                    recommendation.protein.max,
+                    recommendation.fiber,
+                    recommendation.cholesterol,
+                    recommendation.calories
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)', // Fats
+                    'rgba(54, 162, 235, 0.2)', // Carbs
+                    'rgba(75, 192, 192, 0.2)', // Protein
+                    'rgba(153, 102, 255, 0.2)', // Fiber
+                    'rgba(255, 159, 64, 0.2)', // Cholesterol
+                    'rgba(255, 206, 86, 0.2)'  // Calories
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }
+        ]
+    };
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    };
+
+    // Destroy existing chart instance if it exists
+    if (window.recommendedNutritionChart) {
+        window.recommendedNutritionChart.destroy();
+    }
+
+    // Create new chart instance
+    window.recommendedNutritionChart = new Chart(ctx, {
         type: 'bar',
         data: chartData,
         options: chartOptions
