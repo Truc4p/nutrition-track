@@ -21,7 +21,7 @@ const askButton = document.getElementById('ask-button');
 const askText = document.getElementById('ask-text');
 const recommendationText = document.getElementById('recommendation-text');
 const goal = document.getElementById('goal').value;
-const healthCondition = document.getElementById('health-condition')
+const healthCondition = document.getElementById('health-condition').value.trim();
 
 // recommendButton.addEventListener('click', async () => {
 //     const weight = parseFloat(weightInput.value);
@@ -64,13 +64,13 @@ const healthCondition = document.getElementById('health-condition')
 
 askButton.addEventListener('click', async () => {
 
-    if (!healthCondition || !healthCondition.value.trim()) { // Check if the value is empty
+    if (!healthCondition) { // Check if the value is empty
         alert("Please fill in all fields.");
         return;
     }
 
     try {
-        const recommendation = await getNutritionRecommendation(healthCondition.value.trim()); // Pass the value
+        const recommendation = await getNutritionRecommendation(healthCondition); // Pass the value
         askText.textContent = recommendation;
     } catch (error) {
         console.error("Error fetching recommendation:", error);
@@ -105,9 +105,9 @@ recommendButton.addEventListener('click', async () => {
     const gender = document.getElementById('gender').value;
     const activityLevel = document.getElementById('activity-level').value;
     const goal = document.getElementById('goal').value;
-    const healthCondition = document.getElementById('health-condition'); // Get health condition value
+    const healthCondition = document.getElementById('health-condition').value.trim(); // Correctly retrieve the value
 
-    if (!weight || !height || !age || !gender || !activityLevel || !goal || !healthCondition) {
+    if (!weight || !height || !age || !gender || !activityLevel || !goal) {
         alert("Please fill in all fields.");
         return;
     }
@@ -193,7 +193,8 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
 
     // Cholesterol recommendation
     let cholesterol = 300; // General recommendation
-    if (healthCondition === "heart disease" || healthCondition === "diabetes") {
+    const conditions = ["heart disease", "diabetes"];
+    if (conditions.includes(healthCondition.toLowerCase())) {
         cholesterol = 200; // Limit for individuals with heart disease or diabetes
     }
 
