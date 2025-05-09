@@ -45,13 +45,19 @@ recommendButton.addEventListener('click', async () => {
         console.log("Recommendation data:", recommendation);
 
         recommendationText.innerHTML = `
-            <strong>Calories:</strong> ${recommendation.calories.toFixed(2)} kcal<br>
-            <strong>Fats:</strong> ${recommendation.fats.min.toFixed(2)}g - ${recommendation.fats.max.toFixed(2)}g<br>
-            <strong>Carbs:</strong> ${recommendation.carbs.min.toFixed(2)}g - ${recommendation.carbs.max.toFixed(2)}g<br>
-            <strong>Protein:</strong> ${recommendation.protein.min.toFixed(2)}g - ${recommendation.protein.max.toFixed(2)}g<br>
-            <strong>Fiber:</strong> ${recommendation.fiber.toFixed(2)}g<br>
-            <strong>Cholesterol:</strong> ${recommendation.cholesterol.toFixed(2)}mg
+            <strong>Calories:</strong> ${formatValue(recommendation.calories)} kcal<br>
+            <strong>Fats:</strong> ${formatValue(recommendation.fats.min)}g - ${formatValue(recommendation.fats.max)}g<br>
+            <strong>Carbs:</strong> ${formatValue(recommendation.carbs.min)}g - ${formatValue(recommendation.carbs.max)}g<br>
+            <strong>Protein:</strong> ${formatValue(recommendation.protein.min)}g - ${formatValue(recommendation.protein.max)}g<br>
+            <strong>Fiber:</strong> ${formatValue(recommendation.fiber)}g<br>
+            <strong>Cholesterol:</strong> ${formatValue(recommendation.cholesterol)}mg
         `;
+
+        // Utility function to format values
+        function formatValue(value) {
+            const roundedValue = parseFloat(value.toFixed(2)); // Round to 2 decimal places
+            return roundedValue % 1 === 0 ? roundedValue.toFixed(0) : roundedValue.toFixed(2); // Show as integer if no decimal part
+        }
         
         renderRecommendedNutritionChart(); // Render the new chart
 
@@ -408,8 +414,42 @@ function updateUI() {
             y: {
                 beginAtZero: true
             }
+        },
+        plugins: {
+            tooltip: {
+                enabled: true // Keep tooltips enabled
+            },
+            datalabels: {
+                display: true,
+                color: 'black',
+                font: {
+                    weight: 'bold'
+                },
+                formatter: (value) => value.toFixed(2) // Format the value if needed
+            }
         }
     };
+    
+    // Add this plugin to render values on top of bars
+    Chart.register({
+        id: 'value-on-top',
+        afterDatasetsDraw(chart) {
+            const { ctx, data } = chart;
+            chart.data.datasets.forEach((dataset, i) => {
+                const meta = chart.getDatasetMeta(i);
+                meta.data.forEach((bar, index) => {
+                    const value = dataset.data[index];
+                    const roundedValue = parseFloat(value.toFixed(2)); // Round to 2 decimal places
+                    if (roundedValue !== 0) { // Only show if not 0.00
+                        ctx.fillStyle = 'black';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(roundedValue, bar.x, bar.y - 5); // Position the text above the bar
+                    }
+                });
+            });
+        }
+    });
 
     // Destroy existing chart instance if it exists
     if (window.nutritionChart) {
@@ -473,8 +513,42 @@ function renderRecommendedNutritionChart() {
             y: {
                 beginAtZero: true
             }
+        },
+        plugins: {
+            tooltip: {
+                enabled: true // Keep tooltips enabled
+            },
+            datalabels: {
+                display: true,
+                color: 'black',
+                font: {
+                    weight: 'bold'
+                },
+                formatter: (value) => value.toFixed(2) // Format the value if needed
+            }
         }
     };
+
+    // Add this plugin to render values on top of bars
+    Chart.register({
+        id: 'value-on-top',
+        afterDatasetsDraw(chart) {
+            const { ctx, data } = chart;
+            chart.data.datasets.forEach((dataset, i) => {
+                const meta = chart.getDatasetMeta(i);
+                meta.data.forEach((bar, index) => {
+                    const value = dataset.data[index];
+                    const roundedValue = parseFloat(value.toFixed(2)); // Round to 2 decimal places
+                    if (roundedValue !== 0) { // Only show if not 0.00
+                        ctx.fillStyle = 'black';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(roundedValue, bar.x, bar.y - 5); // Position the text above the bar
+                    }
+                });
+            });
+        }
+    });
 
     // Destroy existing chart instance if it exists
     if (window.recommendedNutritionChart) {
