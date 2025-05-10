@@ -45,28 +45,20 @@
                 <label for="health-condition">Do you have any diagnosed health conditions?</label>
                 <textarea id="health-condition" placeholder="e.g., Diabetes, Hypertension">Diabetes</textarea>
                 <button id="recommend-button">Get Recommendation</button>
-    
+
                 <div id="recommendation-output">
                     <h3>Recommended Daily Intake</h3>
-                    <p id="recommendation-text">Fill in your details and click "Get Recommendation" to see your daily intake.</p>
+                    <p id="recommendation-text">Fill in your details and click "Get Recommendation" to see your daily
+                        intake.</p>
                 </div>
-    
-                <button id="ask-button">Ask</button>
-                <p id="ask-text">Fill in your details and click "Ask" to see your daily intake.</p>
+
             </div>
-    
+
             <div id="chart-container" style="width: 100%; max-width: 600px; margin: 20px auto; height: 500px;">
                 <canvas id="recommended-nutrition-chart"></canvas>
             </div>
-
-            <div class="container" id="chatbot-container">
-                <h3>Chat with Nutrition Assistant</h3>
-                <div id="chat-messages" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
-                <textarea id="chat-input" placeholder="Type your message here..." style="width: 100%; height: 50px;"></textarea>
-                <button id="send-button">Send</button>
-            </div>
         </div>
-    
+
         <!-- Right Section -->
         <div class="right-section">
             <div class="container">
@@ -94,8 +86,20 @@
             </div>
         </div>
     </div>
+
+
+    <div class="container" id="chatbot-container">
+        <h3>Chat with Nutrition Assistant</h3>
+        <div id="chat-messages"
+            style="height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px;"></div>
+        <textarea id="chat-input" placeholder="Type your message here..." style="width: 100%; height: 50px;"></textarea>
+        <button id="send-button">Send</button>
+    </div>
+
+
     
     <script src="script.js"></script>
+
 </body>
 
 </html>

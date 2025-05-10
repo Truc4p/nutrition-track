@@ -17,15 +17,83 @@ const weightInput = document.getElementById('weight');
 const heightInput = document.getElementById('height');
 const ageInput = document.getElementById('age');
 const recommendButton = document.getElementById('recommend-button');
-const askButton = document.getElementById('ask-button');
-const askText = document.getElementById('ask-text');
 const recommendationText = document.getElementById('recommendation-text');
 const goal = document.getElementById('goal').value;
 const healthCondition = document.getElementById('health-condition').value.trim();
 
-const chatMessages = document.getElementById('chat-messages');
-const chatInput = document.getElementById('chat-input');
-const sendButton = document.getElementById('send-button');
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button');
+
+    // CHATBOT
+    if (sendButton) {
+        sendButton.addEventListener('click', async () => {
+            const userMessage = chatInput.value.trim();
+            if (!userMessage) return;
+
+            // Display user message in the chat
+            appendMessage('You', userMessage);
+
+            // Clear input field
+            chatInput.value = '';
+
+            try {
+                // Send user message to the chatbot.js server
+                const response = await fetch(GEMINI_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userMessage }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Display chatbot response in the chat
+                appendMessage('Nutrition Assistant', data.recommendation || 'No response received.');
+            } catch (error) {
+                console.error('Error communicating with chatbot server:', error);
+                appendMessage('Nutrition Assistant', 'Sorry, I could not process your request. Please try again later.');
+            }
+        });
+    }
+
+    function appendMessage(sender, message) {
+        const messageDiv = document.createElement('div');
+        const isUser = sender === 'You';
+        messageDiv.className = isUser ? 'user-message' : 'chatbot-message';
+        messageDiv.innerHTML = `<strong>${sender}:</strong> ${formatResponse(message)}`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the latest message
+    }
+
+    function formatResponse(response) {
+        return response
+            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold
+            .replace(/\n/g, '<br>') // Line breaks
+            .replace(/\* (.*?)\n/g, '<ul><li>$1</li></ul>'); // Bullets
+    }
+
+    // --- Event Listeners ---
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendButton.click();
+            }
+        });
+    }
+});
+
+
+
 
 recommendButton.addEventListener('click', async () => {
     const weight = parseFloat(weightInput.value);
@@ -144,47 +212,6 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
     return { calories, fats, carbs, protein, fiber, cholesterol };
 }
 
-
-sendButton.addEventListener('click', async () => {
-    const userMessage = chatInput.value.trim();
-    if (!userMessage) return;
-
-    // Display user message in the chat
-    appendMessage('You', userMessage);
-
-    // Clear input field
-    chatInput.value = '';
-
-    try {
-        // Send user message to the chatbot.js server
-        const response = await fetch(GEMINI_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userMessage }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // Display chatbot response in the chat
-        appendMessage('Nutrition Assistant', data.recommendation || 'No response received.');
-    } catch (error) {
-        console.error('Error communicating with chatbot server:', error);
-        appendMessage('Nutrition Assistant', 'Sorry, I could not process your request. Please try again later.');
-    }
-});
-
-function appendMessage(sender, message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the latest message
-}
 
 
 
@@ -385,39 +412,6 @@ function updateUI() {
                 ],
                 borderWidth: 1
             },
-            // ...(recommendation
-            //     ? [
-            //           {
-            //               label: 'Recommended Nutrition',
-            //               data: [
-            //                   recommendation.fats.max,
-            //                   recommendation.carbs.max,
-            //                   recommendation.protein.max,
-            //                   recommendation.fiber,
-            //                   recommendation.cholesterol,
-            //                   recommendation.calories
-            //               ],
-            //               backgroundColor: [
-            //                   'rgba(54, 162, 235, 0.2)', // Fats
-            //                   'rgba(75, 192, 192, 0.2)', // Carbs
-            //                   'rgba(153, 102, 255, 0.2)', // Protein
-            //                   'rgba(255, 159, 64, 0.2)', // Fiber
-            //                   'rgba(255, 99, 132, 0.2)', // Cholesterol
-            //                   'rgba(255, 206, 86, 0.2)'  // Calories
-            //               ],
-            //               borderColor: [
-            //                   'rgba(54, 162, 235, 1)',
-            //                   'rgba(75, 192, 192, 1)',
-            //                   'rgba(153, 102, 255, 1)',
-            //                   'rgba(255, 159, 64, 1)',
-            //                   'rgba(255, 99, 132, 1)',
-            //                   'rgba(255, 206, 86, 1)'
-            //               ],
-            //               borderWidth: 1,
-            //               borderDash: [5, 5] // Dashed line for distinction
-            //           }
-            //       ]
-            //     : []) // If recommendation is null, skip this dataset
         ]
     };
 

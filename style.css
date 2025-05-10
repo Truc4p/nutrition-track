@@ -1,3 +1,30 @@
+.user-message {
+    text-align: right;
+    background-color: #e0f7fa;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 10px;
+    align-self: flex-end;
+    max-width: 70%;
+}
+
+.chatbot-message {
+    text-align: left;
+    background-color: #f1f8e9;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 10px;
+    align-self: flex-start;
+    max-width: 70%;
+}
+
+/* Ensure the chat container uses flexbox */
+#chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 #chatbot-container {
     margin-top: 20px;
     width: 100%;
