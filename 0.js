@@ -25,17 +25,17 @@ app.get('/', (req, res) => {
 });
 
 // Endpoint to handle recommendations
-app.post('/ai/chat', async (req, res) => {
-    const { userMessage } = req.body;
+app.post('/ai/recommend_nutrition', async (req, res) => {
+    const { healthCondition } = req.body;
 
     console.log('Request body:', req.body);
 
-    if (!userMessage) {
+    if (!healthCondition) {
         console.error('Missing required fields');
-        return res.status(400).json({ error: 'Missing required fields: userMessage.' });
+        return res.status(400).json({ error: 'Missing required fields: healthCondition.' });
     }
 
-    const prompt = `Answer ${userMessage}`;
+    const prompt = `Based on health conditions of ${healthCondition}, recommend daily intake of nutritions.`;
 
     try {
         const response = await fetch(GEMINI_API_URL, {
@@ -51,21 +51,17 @@ app.post('/ai/chat', async (req, res) => {
                 ],
             }),
         });
-
+    
         if (!response.ok) {
             const errorText = await response.text(); // Log the full error response
             console.error('Gemini API error:', response.status, response.statusText, errorText);
             throw new Error(`Gemini API error: ${response.statusText}`);
         }
-
+    
         const data = await response.json();
         console.log('Gemini API response:', JSON.stringify(data, null, 2));
-
-        // Extract the recommendation from the response
-        const recommendation =
-            data.candidates && data.candidates[0]?.content?.parts[0]?.text
-                ? data.candidates[0].content.parts[0].text
-                : 'No recommendation available.';
+    
+        const recommendation = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No recommendation available.';
         res.json({ recommendation });
     } catch (error) {
         console.error('Error fetching recommendation:', error);
