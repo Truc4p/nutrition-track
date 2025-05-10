@@ -23,6 +23,10 @@ const recommendationText = document.getElementById('recommendation-text');
 const goal = document.getElementById('goal').value;
 const healthCondition = document.getElementById('health-condition').value.trim();
 
+const chatMessages = document.getElementById('chat-messages');
+const chatInput = document.getElementById('chat-input');
+const sendButton = document.getElementById('send-button');
+
 recommendButton.addEventListener('click', async () => {
     const weight = parseFloat(weightInput.value);
     const height = parseFloat(heightInput.value);
@@ -58,7 +62,7 @@ recommendButton.addEventListener('click', async () => {
             const roundedValue = parseFloat(value.toFixed(2)); // Round to 2 decimal places
             return roundedValue % 1 === 0 ? roundedValue.toFixed(0) : roundedValue.toFixed(2); // Show as integer if no decimal part
         }
-        
+
         renderRecommendedNutritionChart(); // Render the new chart
 
     } catch (error) {
@@ -140,46 +144,56 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
     return { calories, fats, carbs, protein, fiber, cholesterol };
 }
 
-askButton.addEventListener('click', async () => {
 
-    if (!healthCondition) { // Check if the value is empty
-        alert("Please fill in all fields.");
-        return;
-    }
+sendButton.addEventListener('click', async () => {
+    const userMessage = chatInput.value.trim();
+    if (!userMessage) return;
+
+    // Display user message in the chat
+    appendMessage('You', userMessage);
+
+    // Clear input field
+    chatInput.value = '';
 
     try {
-        const recommendation = await getNutritionRecommendation(healthCondition); // Pass the value
-        askText.textContent = recommendation;
+        // Send user message to the chatbot.js server
+        const response = await fetch(GEMINI_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userMessage }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Display chatbot response in the chat
+        appendMessage('Nutrition Assistant', data.recommendation || 'No response received.');
     } catch (error) {
-        console.error("Error fetching recommendation:", error);
-        askText.textContent = "Failed to get recommendation. Please try again.";
+        console.error('Error communicating with chatbot server:', error);
+        appendMessage('Nutrition Assistant', 'Sorry, I could not process your request. Please try again later.');
     }
 });
 
-async function getNutritionRecommendation(healthCondition) {
-    const API_URL = "http://127.0.0.1:5000/ai/recommend_nutrition"; // Replace with your AI API endpoint
-
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ healthCondition }), // Send the value
-    });
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.recommendation; // Assuming the API returns a "recommendation" field
+function appendMessage(sender, message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the latest message
 }
+
+
 
 // --- State ---
 let foods = [];
 let isLoading = false;
 let recommendation = null; // Add a global variable for recommendation
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
+const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/"; // Update with your actual API URL
 
 // --- Event Listeners ---
 foodInput.addEventListener('input', handleInputChange);
@@ -429,7 +443,7 @@ function updateUI() {
             }
         }
     };
-    
+
     // Add this plugin to render values on top of bars
     Chart.register({
         id: 'value-on-top',

@@ -11,7 +11,6 @@
 </head>
 
 <body>
-    
     <div class="two-sections">
         <!-- Left Section -->
         <div class="left-section">
@@ -58,6 +57,13 @@
     
             <div id="chart-container" style="width: 100%; max-width: 600px; margin: 20px auto; height: 500px;">
                 <canvas id="recommended-nutrition-chart"></canvas>
+            </div>
+
+            <div class="container" id="chatbot-container">
+                <h3>Chat with Nutrition Assistant</h3>
+                <div id="chat-messages" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
+                <textarea id="chat-input" placeholder="Type your message here..." style="width: 100%; height: 50px;"></textarea>
+                <button id="send-button">Send</button>
             </div>
         </div>
     

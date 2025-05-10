@@ -1,3 +1,36 @@
+#chatbot-container {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+#chat-messages {
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#chat-input {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#send-button {
+    margin-top: 10px;
+    width: 100%;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+#send-button:hover {
+    background-color: #0056b3;
+}
+
 .two-sections {
     display: flex;
     gap: 20px;
