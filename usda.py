@@ -11,71 +11,37 @@ def get_usda_nutrition(api_key, food_name):
     try:
         response = requests.get(base_url, params=params)
         data = response.json()
+        
+        # Extract nutrition data for the first food item
         if 'foods' in data and data['foods']:
-            foods_for_analysis = data['foods'][:5]
-            fats_list = []
-            saturated_fats_list = []
-            carbohydrates_list = []
-            protein_list = []
-            fiber_list = []
-            cholesterol_list = []
-            serving_size_list = []
-            measurement_unit_list = []
+            first_food = data['foods'][0]  # Get the first food item
+            print(first_food)  # Debug: Inspect the structure of the first food item
 
-            for food in foods_for_analysis:
-                nutrients = food['foodNutrients']
+            nutrients = {n.get('nutrientName', '').lower(): n.get('value', 'N/A') for n in first_food.get('foodNutrients', [])}
 
-                fats_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Total lipid (fat)'), 0))
-                saturated_fats_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Fatty acids, total saturated'), 0))
-                carbohydrates_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Carbohydrate, by difference'), 0))
-                protein_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Protein'), 0))
-                fiber_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Fiber, total dietary'), 0))
-                cholesterol_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Cholesterol'), 0))
+            # Hardcode serving size and measurement unit
+            serving_size = 100
+            measurement_unit = 'g'
 
-                # ✅ Use top-level food fields for serving size
-                serving_size_list.append(food.get('servingSize', 100))
-                measurement_unit_list.append(food.get('servingSizeUnit', 'g'))
-                
-
-            for food in foods_for_analysis:
-                nutrients = food['foodNutrients']
-                
-                fats_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Total lipid (fat)'), 0))
-                saturated_fats_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Fatty acids, total saturated'), 0))
-                carbohydrates_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Carbohydrate, by difference'), 0))
-                protein_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Protein'), 0))
-                fiber_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Fiber, total dietary'), 0))
-                cholesterol_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Cholesterol'), 0))
-                
-                serving_size_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Serving Size'), 100))
-                measurement_unit_list.append(next((nutrient['unitName'] for nutrient in nutrients if nutrient['nutrientName'] == 'Serving Size'), 'g'))
-
-            median_fats = statistics.median(fats_list)
-            median_saturated_fats = statistics.median(saturated_fats_list)
-            median_carbohydrates = statistics.median(carbohydrates_list)
-            median_protein = statistics.median(protein_list)
-            median_fiber = statistics.median(fiber_list)
-            median_cholesterol = statistics.median(cholesterol_list)
-            median_serving_size = statistics.median(serving_size_list)
-            median_measurement_unit = statistics.median(measurement_unit_list)
-            
             return {
-                'name': food_name,
-                'total_fat': median_fats,
-                'saturated_fat': median_saturated_fats,
-                'carbohydrates': median_carbohydrates,
-                'protein': median_protein,
-                'fiber': median_fiber,
-                'cholesterol': median_cholesterol,
-                'serving_size': median_serving_size,
-                'measurement_unit': median_measurement_unit
+                'name': first_food.get('description', 'No description available'),
+                'total_fat': nutrients.get('total lipid (fat)', 'N/A'),
+                'saturated_fat': nutrients.get('fatty acids, total saturated', 'N/A'),
+                'carbohydrates': nutrients.get('carbohydrate, by difference', 'N/A'),
+                'protein': nutrients.get('protein', 'N/A'),
+                'fiber': nutrients.get('fiber, total dietary', 'N/A'),
+                'cholesterol': nutrients.get('cholesterol', 'N/A'),
+                'serving_size': serving_size,
+                'measurement_unit': measurement_unit
             }
         else:
             print(f"No foods found for {food_name}")
+            return None
     
     except Exception as e:
         print(f"An error occurred: {e}")
-        
+        return None
+            
 def save_to_csv(file_path, data):
     try:
         with open(file_path, mode='w', newline='') as file:
@@ -101,36 +67,12 @@ def main():
     api_key = "7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx"
     
     food_names = [
-        'Chicken Breast',
-        'Wheat Bread',
+        # 'Chicken Breast',
+        # 'Wheat Bread',
         'Egg',
-        'Spinach',
-        # 'Almonds',
-        # 'Bananas',
-        # 'Eggs',
         # 'Spinach',
-        # 'Sweet Potatoes',
-        # 'Avocado',
-        # 'Blueberries',
-        # 'Brown Rice',
-        # 'Greek Yogurt',
-        # 'Quinoa',
-        # 'Oats',
-        # 'Apples',
-        # 'Carrots',
-        # 'Bell Peppers',
-        # 'Strawberries',
-        # 'Lentils',
-        # 'Chickpeas',
-        # 'Kale',
-        # 'Oranges',
-        # 'Pineapple',
-        # 'Mango',
-        # 'Cucumber',
-        # 'Zucchini',
-        # 'Cauliflower',
-        # 'Brussels Sprouts',
-        # 'Asparagus'
+        # 'Bananas',
+        'Avocado',
     ]
 
     nutrition_data_list = fetch_nutrition_data(api_key=api_key, food_list=food_names)
