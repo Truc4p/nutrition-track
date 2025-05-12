@@ -11,7 +11,8 @@ const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/
 
 // Enable CORS with proper configuration
 app.use(cors({
-    origin: 'http://127.0.0.1:5500', // Allow requests from this origin
+    origin: '*', // Allow all origins
+    // origin: 'http://127.0.0.1:5500', // Allow requests from this origin
     methods: ['GET', 'POST', 'OPTIONS'], // Allow these HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
 }));
