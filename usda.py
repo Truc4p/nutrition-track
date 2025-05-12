@@ -15,7 +15,7 @@ def get_usda_nutrition(api_key, food_name):
         # Extract nutrition data for the first food item
         if 'foods' in data and data['foods']:
             first_food = data['foods'][0]  # Get the first food item
-            print(first_food)  # Debug: Inspect the structure of the first food item
+            # print(first_food)  # Debug: Inspect the structure of the first food item
 
             nutrients = {n.get('nutrientName', '').lower(): n.get('value', 'N/A') for n in first_food.get('foodNutrients', [])}
 
@@ -67,12 +67,12 @@ def main():
     api_key = "7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx"
     
     food_names = [
-        # 'Chicken Breast',
-        # 'Wheat Bread',
-        'Egg',
-        # 'Spinach',
-        # 'Bananas',
-        'Avocado',
+        'Chicken, broiler or fryers, breast, skinless, boneless, meat only, cooked, braised',
+        # 'Bread, whole-wheat, commercially prepared',
+        'Eggs, Grade A, Large, egg whole',
+        # 'Spinach, baby',
+        # 'Bananas, ripe and slightly ripe, raw',
+        # 'Avocado, Hass, peeled, raw',
     ]
 
     nutrition_data_list = fetch_nutrition_data(api_key=api_key, food_list=food_names)
