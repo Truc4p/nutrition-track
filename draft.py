@@ -1,3 +1,10 @@
+'Chicken, broiler or fryers, breast, skinless, boneless, meat only, cooked, braised',
+'Eggs, Grade A, Large, egg whole',
+        # 'Bread, whole-wheat, commercially prepared',
+        # 'Spinach, baby',
+        # 'Bananas, ripe and slightly ripe, raw',
+        # 'Avocado, Hass, peeled, raw',
+
 import csv
 import requests
 import statistics
@@ -24,21 +31,6 @@ def get_usda_nutrition(api_key, food_name):
 
             for food in foods_for_analysis:
                 nutrients = food['foodNutrients']
-
-                fats_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Total lipid (fat)'), 0))
-                saturated_fats_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Fatty acids, total saturated'), 0))
-                carbohydrates_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Carbohydrate, by difference'), 0))
-                protein_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Protein'), 0))
-                fiber_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Fiber, total dietary'), 0))
-                cholesterol_list.append(next((n['value'] for n in nutrients if n['nutrientName'] == 'Cholesterol'), 0))
-
-                # Use top-level food fields for serving size
-                serving_size_list.append(food.get('servingSize', 100))
-                measurement_unit_list.append(food.get('servingSizeUnit', 'g'))
-                
-
-            for food in foods_for_analysis:
-                nutrients = food['foodNutrients']
                 
                 fats_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Total lipid (fat)'), 0))
                 saturated_fats_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Fatty acids, total saturated'), 0))
@@ -46,7 +38,7 @@ def get_usda_nutrition(api_key, food_name):
                 protein_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Protein'), 0))
                 fiber_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Fiber, total dietary'), 0))
                 cholesterol_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Cholesterol'), 0))
-                
+
                 serving_size_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Serving Size'), 100))
                 measurement_unit_list.append(next((nutrient['unitName'] for nutrient in nutrients if nutrient['nutrientName'] == 'Serving Size'), 'g'))
 
