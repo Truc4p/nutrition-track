@@ -21,7 +21,6 @@ const recommendationText = document.getElementById('recommendation-text');
 const goal = document.getElementById('goal').value;
 const healthCondition = document.getElementById('health-condition').value.trim();
 
-
 document.addEventListener('DOMContentLoaded', () => {
 
     const chatMessages = document.getElementById('chat-messages');
@@ -91,9 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-
-
 
 recommendButton.addEventListener('click', async () => {
     const weight = parseFloat(weightInput.value);
@@ -220,7 +216,8 @@ let foods = [];
 let isLoading = false;
 let recommendation = null; // Add a global variable for recommendation
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
-const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/"; // Update with your actual API URL
+const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/"; 
+// const GWEN_API_URL = "http://127.0.0.1:1234/v1/chat/completions";
 
 // --- Event Listeners ---
 foodInput.addEventListener('input', handleInputChange);
