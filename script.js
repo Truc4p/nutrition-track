@@ -91,15 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
-
-
-
-
-
-
-
-
 recommendButton.addEventListener('click', async () => {
     const weight = parseFloat(weightInput.value);
     const height = parseFloat(heightInput.value);
