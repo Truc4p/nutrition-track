@@ -302,8 +302,8 @@ ul#food-list li:last-child {
 
 #food-details {
     width: 100%;
-    min-height: 150px;
-    max-height: 200px;
+    min-height: 500px;
+    max-height: 600px;
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 6px;
