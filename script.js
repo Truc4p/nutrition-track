@@ -91,6 +91,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+
+
+
+
+
+
+
+
+
 recommendButton.addEventListener('click', async () => {
     const weight = parseFloat(weightInput.value);
     const height = parseFloat(heightInput.value);
@@ -217,7 +226,9 @@ let isLoading = false;
 let recommendation = null; // Add a global variable for recommendation
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
 const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/"; 
-// const GWEN_API_URL = "http://127.0.0.1:1234/v1/chat/completions";
+// const QWEN_API_URL = "http://127.0.0.1:1234/v1/chat/completions";
+
+const QWEN_API_URL = "http://localhost:8000/chat";
 
 // --- Event Listeners ---
 foodInput.addEventListener('input', handleInputChange);
