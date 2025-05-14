@@ -320,3 +320,112 @@ ul#food-list li:last-child {
     background-color: #f9f9f9;
     cursor: default;
 }
+
+.food-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#food-quantity {
+    width: 120px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.added-foods-container {
+    margin-top: 30px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.added-foods-container h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+#added-foods-list {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.added-food-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.added-food-item:last-child {
+    border-bottom: none;
+}
+
+.food-item-details {
+    flex: 1;
+}
+
+.food-item-name {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.food-item-quantity {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.remove-food {
+    color: #dc3545;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.remove-food:hover {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 4px;
+}
+
+#total-nutrition {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+#total-nutrition h4 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.nutrition-total-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 14px;
+}
+
+#clear-foods-button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#clear-foods-button:hover {
+    background-color: #c82333;
+}

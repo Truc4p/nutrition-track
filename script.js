@@ -74,10 +74,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatResponse(response) {
+        if (!response) return '';
+        
         return response
-            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold
-            .replace(/\n/g, '<br>') // Line breaks
-            .replace(/\* (.*?)\n/g, '<ul><li>$1</li></ul>'); // Bullets
+            // Headers
+            .replace(/#{3}(.*?)(?:\n|$)/g, '<h3>$1</h3>') // h3
+            .replace(/#{2}(.*?)(?:\n|$)/g, '<h2>$1</h2>') // h2
+            .replace(/#{1}(.*?)(?:\n|$)/g, '<h1>$1</h1>') // h1
+            
+            // Text formatting
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+            .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+            .replace(/`(.*?)`/g, '<code>$1</code>') // Inline code
+            .replace(/~~(.*?)~~/g, '<del>$1</del>') // Strikethrough
+            
+            // Lists
+            .replace(/^\s*[-*+]\s+(.*?)(?:\n|$)/gm, '<li>$1</li>') // Unordered list items
+            .replace(/^\s*\d+\.\s+(.*?)(?:\n|$)/gm, '<li>$1</li>') // Ordered list items
+            .replace(/(<li>.*?<\/li>)\n?/gs, '<ul>$1</ul>') // Wrap list items in ul
+            
+            // Links and Images
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>') // Links
+            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">') // Images
+            
+            // Line breaks and paragraphs
+            .replace(/\n{2,}/g, '</p><p>') // Double line breaks to paragraphs
+            .replace(/\n/g, '<br>') // Single line breaks
+            
+            // Wrap in paragraphs if not already wrapped
+            .replace(/^(.+)$/, '<p>$1</p>')
+            
+            // Clean up any empty paragraphs
+            .replace(/<p>\s*<\/p>/g, '')
+            
+            // Fix nested paragraph issues
+            .replace(/<p>(<h[1-3]>.*?<\/h[1-3]>)<\/p>/g, '$1')
+            .replace(/<p>(<ul>.*?<\/ul>)<\/p>/g, '$1');
     }
 
     // --- Event Listeners ---
@@ -218,10 +250,18 @@ let recommendation = null; // Add a global variable for recommendation
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
 const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/"; 
 
+// Add these variables at the top with other declarations
+let selectedFood = null;
+let addedFoods = [];
+
 // --- Event Listeners ---
 foodInput.addEventListener('input', handleInputChange);
 submitButton.addEventListener('click', handleSubmit);
 resetButton.addEventListener('click', handleReset);
+
+// Add these event listeners after other initialization code
+document.getElementById('add-food-button').addEventListener('click', addSelectedFood);
+document.getElementById('clear-foods-button').addEventListener('click', clearAddedFoods);
 
 // --- Functions ---
 
@@ -663,6 +703,7 @@ function displaySearchResults(foods) {
 
 function displayNutritionDetails(food) {
     const nutrients = food.foodNutrients || [];
+    selectedFood = food; // Store the selected food
     
     // Create a formatted nutrition string
     let nutritionText = `${food.description}\n\nNutrition Facts per 100g:\n`;
@@ -689,6 +730,105 @@ function displayNutritionDetails(food) {
 
     // Update the food details with the detailed nutrition information
     document.getElementById('food-details').value = nutritionText;
+}
+
+function addSelectedFood() {
+    if (!selectedFood) {
+        alert('Please select a food first');
+        return;
+    }
+
+    const quantity = parseFloat(document.getElementById('food-quantity').value);
+    if (!quantity || quantity <= 0) {
+        alert('Please enter a valid quantity');
+        return;
+    }
+
+    // Add food with its nutrients and quantity
+    const foodWithQuantity = {
+        ...selectedFood,
+        quantity: quantity,
+        id: Date.now() // Unique ID for removal
+    };
+
+    addedFoods.push(foodWithQuantity);
+    updateAddedFoodsList();
+    calculateTotalNutrition();
+}
+
+function updateAddedFoodsList() {
+    const addedFoodsList = document.getElementById('added-foods-list');
+    addedFoodsList.innerHTML = '';
+
+    addedFoods.forEach(food => {
+        const foodItem = document.createElement('div');
+        foodItem.className = 'added-food-item';
+        
+        foodItem.innerHTML = `
+            <div class="food-item-details">
+                <div class="food-item-name">${food.description}</div>
+                <div class="food-item-quantity">${food.quantity}g</div>
+            </div>
+            <button class="remove-food" onclick="removeFood(${food.id})">Remove</button>
+        `;
+        
+        addedFoodsList.appendChild(foodItem);
+    });
+}
+
+function removeFood(foodId) {
+    addedFoods = addedFoods.filter(food => food.id !== foodId);
+    updateAddedFoodsList();
+    calculateTotalNutrition();
+}
+
+function clearAddedFoods() {
+    addedFoods = [];
+    updateAddedFoodsList();
+    calculateTotalNutrition();
+}
+
+function calculateTotalNutrition() {
+    const nutritionTotals = {};
+
+    addedFoods.forEach(food => {
+        const multiplier = food.quantity / 100; // Convert to proportion of 100g
+        food.foodNutrients.forEach(nutrient => {
+            if (nutrient.value && nutrient.value !== 0) {
+                const key = `${nutrient.nutrientName}_${nutrient.unitName}`;
+                if (!nutritionTotals[key]) {
+                    nutritionTotals[key] = {
+                        name: nutrient.nutrientName,
+                        value: 0,
+                        unit: nutrient.unitName
+                    };
+                }
+                nutritionTotals[key].value += nutrient.value * multiplier;
+            }
+        });
+    });
+
+    displayTotalNutrition(nutritionTotals);
+}
+
+function displayTotalNutrition(totals) {
+    const nutritionTotalsDiv = document.getElementById('nutrition-totals');
+    nutritionTotalsDiv.innerHTML = '';
+
+    // Sort nutrients by name
+    const sortedTotals = Object.values(totals).sort((a, b) => 
+        a.name.localeCompare(b.name)
+    );
+
+    sortedTotals.forEach(nutrient => {
+        const totalItem = document.createElement('div');
+        totalItem.className = 'nutrition-total-item';
+        totalItem.innerHTML = `
+            <span>${nutrient.name}:</span>
+            <span>${nutrient.value.toFixed(2)} ${nutrient.unit.toLowerCase()}</span>
+        `;
+        nutritionTotalsDiv.appendChild(totalItem);
+    });
 }
 
 // --- Initial Setup ---
