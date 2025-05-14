@@ -1,0 +1,343 @@
+// DOM Elements for search functionality
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('food-search-input');
+    const searchButton = document.getElementById('search-button');
+    const searchResults = document.getElementById('search-results');
+    const foodDetails = document.getElementById('food-details');
+    const foodQuantity = document.getElementById('food-quantity');
+    const addFoodButton = document.getElementById('add-food-button');
+    const addedFoodsList = document.getElementById('added-foods-list');
+    const nutritionTotals = document.getElementById('nutrition-totals');
+    const clearFoodsButton = document.getElementById('clear-foods-button');
+
+    // USDA API Configuration
+    const USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx';
+    const USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search';
+
+    let selectedFood = null;
+    let addedFoods = [];
+    let searchTimeout;
+
+    // Event listeners
+    if (searchButton) {
+        searchButton.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                searchFoods(query);
+            }
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = this.value.trim();
+            
+            if (searchTerm.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                searchFoods(searchTerm);
+            }, 500);
+        });
+
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query) {
+                    searchFoods(query);
+                }
+            }
+        });
+    }
+
+    if (addFoodButton) {
+        addFoodButton.addEventListener('click', addSelectedFood);
+    }
+
+    if (clearFoodsButton) {
+        clearFoodsButton.addEventListener('click', clearAddedFoods);
+    }
+
+    // Functions
+    async function searchFoods(query) {
+        try {
+            const response = await fetch(`${USDA_API_URL}?api_key=${USDA_API_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    query: query,
+                    pageSize: 30,
+                    dataType: ["Survey (FNDDS)"],
+                    sortBy: "dataType.keyword",
+                    sortOrder: "asc"
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            displaySearchResults(data.foods || []);
+        } catch (error) {
+            console.error('Error searching foods:', error);
+            searchResults.innerHTML = '<p class="error">Error searching foods. Please try again.</p>';
+        }
+    }
+
+    function displaySearchResults(foods) {
+        searchResults.style.display = 'block';
+        if (foods.length === 0) {
+            searchResults.innerHTML = '<p>No foods found.</p>';
+            return;
+        }
+
+        searchResults.innerHTML = foods.map(food => {
+            // Find calories for display in search results
+            const calories = food.foodNutrients?.find(n => 
+                n.nutrientName.toLowerCase().includes('energy'))?.value || 0;
+            
+            return `
+                <div class="search-result-item" onclick='displayNutritionDetails(${JSON.stringify({
+                    description: food.description,
+                    brandOwner: food.brandOwner,
+                    fdcId: food.fdcId,
+                    dataType: food.dataType,
+                    servingSize: food.servingSize,
+                    servingSizeUnit: food.servingSizeUnit,
+                    foodNutrients: food.foodNutrients
+                }).replace(/'/g, "&apos;")})'> 
+                    <div class="food-name">${food.description}</div>
+                    <div class="food-brand">${food.brandOwner || 'Generic'}</div>
+                    <div class="food-calories">${calories.toFixed(1)} kcal/100g</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Make displayNutritionDetails available globally
+    window.displayNutritionDetails = function(food) {
+        selectedFood = food;
+        const nutrients = food.foodNutrients || [];
+
+        // Sort nutrients alphabetically by name for better readability
+        const sortedNutrients = nutrients.sort((a, b) => 
+            a.nutrientName.localeCompare(b.nutrientName)
+        );
+
+        // Create the detailed nutrition information
+        let nutritionText = `${food.description}\n`;
+        nutritionText += `FDC ID: ${food.fdcId}\n`;
+        if (food.brandOwner) {
+            nutritionText += `Brand: ${food.brandOwner}\n`;
+        }
+        if (food.servingSize) {
+            nutritionText += `Serving Size: ${food.servingSize}${food.servingSizeUnit || 'g'}\n`;
+        }
+        nutritionText += `Data Type: ${food.dataType}\n\n`;
+
+        nutritionText += `Nutrition Facts (per 100g):\n`;
+        
+        // Group nutrients by category
+        const categories = {
+            'Proximates': [],
+            'Minerals': [],
+            'Vitamins': [],
+            'Lipids': [],
+            'Protein': [],
+            'Carbohydrates': [],
+            'Other': []
+        };
+
+        // Categorize nutrients
+        sortedNutrients.forEach(nutrient => {
+            if (!nutrient.value || nutrient.value === 0) return; // Skip nutrients with no value
+
+            const name = nutrient.nutrientName;
+            const value = nutrient.value;
+            const unit = nutrient.unitName.toLowerCase();
+            const nutrientInfo = `${name}: ${value.toFixed(2)} ${unit}`;
+
+            if (name.includes('Vitamin')) {
+                categories['Vitamins'].push(nutrientInfo);
+            } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
+                      name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
+                      name.includes('Sodium') || name.includes('Phosphorus')) {
+                categories['Minerals'].push(nutrientInfo);
+            } else if (name.includes('Protein') || name.includes('Amino')) {
+                categories['Protein'].push(nutrientInfo);
+            } else if (name.includes('Carbohydrate') || name.includes('Fiber') || name.includes('Sugar')) {
+                categories['Carbohydrates'].push(nutrientInfo);
+            } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
+                categories['Lipids'].push(nutrientInfo);
+            } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash')) {
+                categories['Proximates'].push(nutrientInfo);
+            } else {
+                categories['Other'].push(nutrientInfo);
+            }
+        });
+
+        // Add each category to the nutrition text
+        Object.entries(categories).forEach(([category, nutrients]) => {
+            if (nutrients.length > 0) {
+                nutritionText += `\n${category}:\n`;
+                nutritionText += nutrients.map(n => `- ${n}`).join('\n');
+                nutritionText += '\n';
+            }
+        });
+
+        // Add source information
+        nutritionText += `\nSource: USDA Food Data Central`;
+
+        // Update the food details textarea
+        foodDetails.value = nutritionText.trim();
+
+        // Adjust textarea height to show all content
+        foodDetails.style.height = 'auto';
+        foodDetails.style.height = (foodDetails.scrollHeight + 5) + 'px';
+    };
+
+    function addSelectedFood() {
+        if (!selectedFood) return;
+
+        const quantity = parseFloat(foodQuantity.value);
+        if (isNaN(quantity) || quantity <= 0) {
+            alert('Please enter a valid quantity.');
+            return;
+        }
+
+        // Store all the food information including all nutrients
+        const foodWithQuantity = {
+            id: Date.now(),
+            name: selectedFood.description,
+            quantity: quantity,
+            foodNutrients: selectedFood.foodNutrients // Store all nutrients
+        };
+
+        addedFoods.push(foodWithQuantity);
+        updateAddedFoodsList();
+        calculateTotalNutrition();
+    }
+
+    function updateAddedFoodsList() {
+        addedFoodsList.innerHTML = addedFoods.map(food => {
+            // Find energy/calories for display
+            const calories = food.foodNutrients.find(n => 
+                n.nutrientName.toLowerCase().includes('energy'))?.value || 0;
+            
+            return `
+                <div class="added-food-item">
+                    <div class="food-item-details">
+                        <div class="food-item-name">${food.name}</div>
+                        <div class="food-item-quantity">${food.quantity}g (${(calories * food.quantity / 100).toFixed(0)} kcal)</div>
+                    </div>
+                    <button class="remove-food" onclick="removeFood(${food.id})">Remove</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Make removeFood available globally
+    window.removeFood = function(foodId) {
+        addedFoods = addedFoods.filter(food => food.id !== foodId);
+        updateAddedFoodsList();
+        calculateTotalNutrition();
+    }
+
+    function clearAddedFoods() {
+        addedFoods = [];
+        updateAddedFoodsList();
+        calculateTotalNutrition();
+    }
+
+    function calculateTotalNutrition() {
+        // Create an object to store all nutrients
+        const totals = {};
+
+        addedFoods.forEach(food => {
+            const multiplier = food.quantity / 100; // Convert to per 100g
+            
+            // Get all nutrients from the food
+            const nutrients = food.foodNutrients || [];
+            nutrients.forEach(nutrient => {
+                if (!nutrient.value || nutrient.value === 0) return; // Skip empty values
+
+                const key = `${nutrient.nutrientName}_${nutrient.unitName}`; // Create unique key for each nutrient
+                if (!totals[key]) {
+                    totals[key] = {
+                        name: nutrient.nutrientName,
+                        value: 0,
+                        unit: nutrient.unitName.toLowerCase()
+                    };
+                }
+                totals[key].value += nutrient.value * multiplier;
+            });
+        });
+
+        displayTotalNutrition(totals);
+    }
+
+    function displayTotalNutrition(totals) {
+        // Group nutrients by category
+        const categories = {
+            'Proximates': [],
+            'Minerals': [],
+            'Vitamins': [],
+            'Lipids': [],
+            'Protein': [],
+            'Carbohydrates': [],
+            'Other': []
+        };
+
+        // Sort and categorize nutrients
+        Object.values(totals)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .forEach(nutrient => {
+                const name = nutrient.name;
+                const value = nutrient.value;
+                const unit = nutrient.unit;
+                const nutrientInfo = `
+                    <div class="nutrition-total-item">
+                        <span class="nutrient-name">${name}:</span>
+                        <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
+                    </div>`;
+
+                if (name.includes('Vitamin')) {
+                    categories['Vitamins'].push(nutrientInfo);
+                } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
+                          name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
+                          name.includes('Sodium') || name.includes('Phosphorus')) {
+                    categories['Minerals'].push(nutrientInfo);
+                } else if (name.includes('Protein') || name.includes('Amino')) {
+                    categories['Protein'].push(nutrientInfo);
+                } else if (name.includes('Carbohydrate') || name.includes('Fiber') || name.includes('Sugar')) {
+                    categories['Carbohydrates'].push(nutrientInfo);
+                } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
+                    categories['Lipids'].push(nutrientInfo);
+                } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash')) {
+                    categories['Proximates'].push(nutrientInfo);
+                } else {
+                    categories['Other'].push(nutrientInfo);
+                }
+            });
+
+        // Build the HTML
+        let html = '';
+        Object.entries(categories).forEach(([category, nutrients]) => {
+            if (nutrients.length > 0) {
+                html += `
+                    <div class="nutrition-category">
+                        <h4 class="category-title">${category}</h4>
+                        ${nutrients.join('')}
+                    </div>`;
+            }
+        });
+
+        nutritionTotals.innerHTML = html;
+    }
+}); 

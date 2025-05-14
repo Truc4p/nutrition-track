@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Search - Nutrition Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Nutrition Tracker</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="search.html" class="active">Food Search</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="container" id="food-search-container">
+            <h3>Search Foods</h3>
+            <div class="search-box">
+                <input type="text" id="food-search-input" placeholder="Search for a food (e.g., apple, chicken)">
+                <button id="search-button">Search</button>
+            </div>
+            <div id="search-results" class="search-results">
+                <!-- Search results will appear here -->
+            </div>
+            <div class="food-details-container">
+                <h3>Nutrition Facts</h3>
+                <textarea id="food-details" readonly></textarea>
+                <div class="food-actions">
+                    <input type="number" id="food-quantity" placeholder="Quantity (g)" value="100" min="0" step="1">
+                    <button id="add-food-button">Add Food</button>
+                </div>
+            </div>
+            <div class="added-foods-container">
+                <h3>Added Foods</h3>
+                <div id="added-foods-list"></div>
+                <div id="total-nutrition">
+                    <h4>Total Nutrition</h4>
+                    <div id="nutrition-totals"></div>
+                </div>
+                <button id="clear-foods-button">Clear All Foods</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="search.js"></script>
+</body>
+
+</html> 
