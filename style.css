@@ -193,11 +193,97 @@ ul#food-list li:last-child {
 }
 
 .food-details {
-    text-align: left;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.food-details h4 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+.food-details .nutrient-category {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.food-details .nutrient-category h4 {
+    color: #2c3e50;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #4CAF50;
+}
+
+.food-details .nutrient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.food-details .nutrient-item:last-child {
+    border-bottom: none;
+}
+
+.food-details .nutrient-name {
+    color: #333;
+    font-size: 1.1em;
+    flex: 1;
+}
+
+.food-details .nutrient-value {
+    color: #666;
+    font-size: 1.1em;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: right;
+}
+
+#food-details {
+    width: 100%;
+    font-size: 0.9em;
+    line-height: 1.4;
+    color: #444;
+}
+
+.nutrient-category {
+    margin: 10px 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.nutrient-category:last-child {
+    border-bottom: none;
+}
+
+.nutrient-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+}
+
+.nutrient-name {
+    color: #666;
+}
+
+.nutrient-value {
+    font-weight: 500;
+    color: #333;
 }
 
 .food-name {
-    font-size: 1em; /* .body */
+    font-size: 1.2em;
     font-weight: 500;
     margin-bottom: 4px;
 }
@@ -247,17 +333,17 @@ ul#food-list li:last-child {
 
 #food-search-input {
     flex: 1;
-    padding: 8px;
+    padding: 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 1.1em;
 }
 
 #search-button {
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 12px 24px;
+    font-size: 1.1em;
     min-width: 60px;
-    height: 40px;
+    height: 44px;
 }
 
 .search-results {
@@ -270,7 +356,7 @@ ul#food-list li:last-child {
 }
 
 .search-result-item {
-    padding: 12px;
+    padding: 14px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -296,26 +382,10 @@ ul#food-list li:last-child {
 }
 
 .food-details-container h3 {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: #333;
-    font-size: 0.9em;
-}
-
-#food-details {
-    width: 100%;
-    min-height: 300px;
-    max-height: 600px;
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #fff;
-    font-family: monospace;
-    font-size: 14px;
-    line-height: 1.5;
-    resize: vertical;
-    white-space: pre-wrap;
-    overflow-y: auto;
-    color: #333;
+    font-size: 1.4em;
+    font-weight: bold;
 }
 
 #food-details:read-only {
@@ -450,20 +520,6 @@ ul#food-list li:last-child {
     border-bottom: none;
 }
 
-.nutrient-name {
-    color: #333;
-    font-size: 0.9em;
-    flex: 1;
-}
-
-.nutrient-value {
-    color: #666;
-    font-size: 0.9em;
-    font-weight: 500;
-    min-width: 80px;
-    text-align: right;
-}
-
 #clear-foods-button {
     margin-top: 15px;
     width: 100%;
@@ -532,13 +588,13 @@ ul#food-list li:last-child {
 }
 
 .food-calories {
-    font-size: 0.85em;
+    font-size: 1em;
     color: #666;
     margin-top: 2px;
 }
 
 .food-brand {
-    font-size: 0.85em;
+    font-size: 1em;
     color: #666;
     margin-bottom: 2px;
 }

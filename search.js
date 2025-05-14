@@ -130,19 +130,38 @@ document.addEventListener('DOMContentLoaded', () => {
             a.nutrientName.localeCompare(b.nutrientName)
         );
 
-        // Create the detailed nutrition information
-        let nutritionText = `${food.description}\n`;
-        nutritionText += `FDC ID: ${food.fdcId}\n`;
-        if (food.brandOwner) {
-            nutritionText += `Brand: ${food.brandOwner}\n`;
-        }
-        if (food.servingSize) {
-            nutritionText += `Serving Size: ${food.servingSize}${food.servingSizeUnit || 'g'}\n`;
-        }
-        nutritionText += `Data Type: ${food.dataType}\n\n`;
+        // Create the HTML structure for food details
+        let nutritionHtml = `
+            <div class="food-basic-info">
+                <h4>${food.description}</h4>
+                <div class="nutrient-item">
+                    <span class="nutrient-name">FDC ID:</span>
+                    <span class="nutrient-value">${food.fdcId}</span>
+                </div>`;
 
-        nutritionText += `Nutrition Facts (per 100g):\n`;
-        
+        if (food.brandOwner) {
+            nutritionHtml += `
+                <div class="nutrient-item">
+                    <span class="nutrient-name">Brand:</span>
+                    <span class="nutrient-value">${food.brandOwner}</span>
+                </div>`;
+        }
+
+        if (food.servingSize) {
+            nutritionHtml += `
+                <div class="nutrient-item">
+                    <span class="nutrient-name">Serving Size:</span>
+                    <span class="nutrient-value">${food.servingSize}${food.servingSizeUnit || 'g'}</span>
+                </div>`;
+        }
+
+        nutritionHtml += `
+            <div class="nutrient-item">
+                <span class="nutrient-name">Data Type:</span>
+                <span class="nutrient-value">${food.dataType}</span>
+            </div>
+        </div>`;
+
         // Group nutrients by category
         const categories = {
             'Proximates': [],
@@ -156,50 +175,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Categorize nutrients
         sortedNutrients.forEach(nutrient => {
-            if (!nutrient.value || nutrient.value === 0) return; // Skip nutrients with no value
+            if (!nutrient.value || nutrient.value === 0) return;
 
             const name = nutrient.nutrientName;
             const value = nutrient.value;
             const unit = nutrient.unitName.toLowerCase();
-            const nutrientInfo = `${name}: ${value.toFixed(2)} ${unit}`;
+            const nutrientHtml = `
+                <div class="nutrient-item">
+                    <span class="nutrient-name">${name}:</span>
+                    <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
+                </div>`;
 
             if (name.includes('Vitamin')) {
-                categories['Vitamins'].push(nutrientInfo);
+                categories['Vitamins'].push(nutrientHtml);
             } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
                       name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
                       name.includes('Sodium') || name.includes('Phosphorus')) {
-                categories['Minerals'].push(nutrientInfo);
+                categories['Minerals'].push(nutrientHtml);
             } else if (name.includes('Protein') || name.includes('Amino')) {
-                categories['Protein'].push(nutrientInfo);
+                categories['Protein'].push(nutrientHtml);
             } else if (name.includes('Carbohydrate') || name.includes('Fiber') || name.includes('Sugar')) {
-                categories['Carbohydrates'].push(nutrientInfo);
+                categories['Carbohydrates'].push(nutrientHtml);
             } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
-                categories['Lipids'].push(nutrientInfo);
+                categories['Lipids'].push(nutrientHtml);
             } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash')) {
-                categories['Proximates'].push(nutrientInfo);
+                categories['Proximates'].push(nutrientHtml);
             } else {
-                categories['Other'].push(nutrientInfo);
+                categories['Other'].push(nutrientHtml);
             }
         });
 
-        // Add each category to the nutrition text
+        // Add each category to the nutrition HTML
         Object.entries(categories).forEach(([category, nutrients]) => {
             if (nutrients.length > 0) {
-                nutritionText += `\n${category}:\n`;
-                nutritionText += nutrients.map(n => `- ${n}`).join('\n');
-                nutritionText += '\n';
+                nutritionHtml += `
+                    <div class="nutrient-category">
+                        <h4>${category}</h4>
+                        ${nutrients.join('')}
+                    </div>`;
             }
         });
 
         // Add source information
-        nutritionText += `\nSource: USDA Food Data Central`;
+        nutritionHtml += `
+            <div class="nutrient-category">
+                <div class="nutrient-item">
+                    <span class="nutrient-name">Source:</span>
+                    <span class="nutrient-value">USDA Food Data Central</span>
+                </div>
+            </div>`;
 
-        // Update the food details textarea
-        foodDetails.value = nutritionText.trim();
-
-        // Adjust textarea height to show all content
-        foodDetails.style.height = 'auto';
-        foodDetails.style.height = (foodDetails.scrollHeight + 5) + 'px';
+        // Update the food details div
+        const foodDetailsElement = document.getElementById('food-details');
+        foodDetailsElement.innerHTML = nutritionHtml;
     };
 
     function addSelectedFood() {
