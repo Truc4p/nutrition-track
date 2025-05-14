@@ -217,8 +217,6 @@ let isLoading = false;
 let recommendation = null; // Add a global variable for recommendation
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
 const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/"; 
-// const QWEN_API_URL = "http://127.0.0.1:1234/v1/chat/completions";
-// const QWEN_API_URL = "http://localhost:8000/chat";
 
 // --- Event Listeners ---
 foodInput.addEventListener('input', handleInputChange);
@@ -567,6 +565,130 @@ function renderRecommendedNutritionChart() {
         data: chartData,
         options: chartOptions
     });
+}
+
+// Food search functionality
+const foodSearchInput = document.getElementById('food-search-input');
+const searchButton = document.getElementById('search-button');
+const searchResults = document.getElementById('search-results');
+const USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx';
+const USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search';
+
+let searchTimeout;
+
+foodSearchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const searchTerm = this.value.trim();
+    
+    if (searchTerm.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+    }
+
+    searchTimeout = setTimeout(() => {
+        searchFoods(searchTerm);
+    }, 500);
+});
+
+searchButton.addEventListener('click', () => {
+    const searchTerm = foodSearchInput.value.trim();
+    if (searchTerm.length >= 2) {
+        searchFoods(searchTerm);
+    }
+});
+
+async function searchFoods(query) {
+    try {
+        const response = await fetch(`${USDA_API_URL}?api_key=${USDA_API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: query,
+                pageSize: 30,
+                dataType: ["Survey (FNDDS)"], // Include only standard reference data
+                sortBy: "dataType.keyword",
+                sortOrder: "asc"
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.foods && data.foods.length > 0) {
+            displaySearchResults(data.foods);
+        } else {
+            searchResults.innerHTML = '<div class="search-result-item">No foods found</div>';
+        }
+        searchResults.style.display = 'block';
+    } catch (error) {
+        console.error('Error searching foods:', error);
+        searchResults.innerHTML = '<div class="search-result-item">Error searching foods</div>';
+        searchResults.style.display = 'block';
+    }
+}
+
+function displaySearchResults(foods) {
+    searchResults.innerHTML = '';
+    
+    foods.forEach(food => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'search-result-item';
+
+        // Find the nutrient values
+        const nutrients = food.foodNutrients || [];
+        const calories = nutrients.find(n => n.nutrientName === "Energy")?.value || 0;
+        
+        resultItem.innerHTML = `
+            <div>${food.description}</div>
+            <div style="font-size: 0.8em; color: #666;">
+                ${Math.round(calories)} kcal per 100g
+                ${food.brandOwner ? `<br>Brand: ${food.brandOwner}` : ''}
+            </div>
+        `;
+        
+        resultItem.addEventListener('click', () => {
+            foodSearchInput.value = food.description;
+            displayNutritionDetails(food);
+            searchResults.style.display = 'none';
+        });
+        
+        searchResults.appendChild(resultItem);
+    });
+}
+
+function displayNutritionDetails(food) {
+    const nutrients = food.foodNutrients || [];
+    
+    // Create a formatted nutrition string
+    let nutritionText = `${food.description}\n\nNutrition Facts per 100g:\n`;
+    nutritionText += `FDC ID: ${food.fdcId}\n`;
+    if (food.brandOwner) {
+        nutritionText += `Brand: ${food.brandOwner}\n`;
+    }
+    nutritionText += `Data Type: ${food.dataType}\n\n`;
+
+    // Sort nutrients by name for better readability
+    const sortedNutrients = nutrients.sort((a, b) => 
+        a.nutrientName.localeCompare(b.nutrientName)
+    );
+
+    // Display all available nutrients
+    sortedNutrients.forEach(nutrient => {
+        if (nutrient.value && nutrient.value !== 0) {
+            nutritionText += `${nutrient.nutrientName}: ${nutrient.value.toFixed(2)} ${nutrient.unitName.toLowerCase()}\n`;
+        }
+    });
+
+    // Add source information
+    nutritionText += `\nSource: USDA Food Data Central`;
+
+    // Update the food details with the detailed nutrition information
+    document.getElementById('food-details').value = nutritionText;
 }
 
 // --- Initial Setup ---
