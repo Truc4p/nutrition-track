@@ -113,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     foodNutrients: food.foodNutrients
                 }).replace(/'/g, "&apos;")})'> 
                     <div class="food-name">${food.description}</div>
-                    <div class="food-brand">${food.brandOwner || 'Generic'}</div>
                     <div class="food-calories">${calories.toFixed(1)} kcal/100g</div>
                 </div>
             `;
