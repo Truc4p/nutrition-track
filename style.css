@@ -37,7 +37,6 @@
 }
 
 #chat-input {
-    border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
     box-sizing: border-box;
@@ -736,7 +735,6 @@ html {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #3498db, #2ecc71);
 }
 
 #user-info h3 {
@@ -1041,7 +1039,7 @@ html {
     flex-direction: row;
     align-items: center;
     padding: 20px;
-    background: #f0f0f0;
+    background: #f9f9f9;
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
 }
@@ -1053,11 +1051,14 @@ html {
     border-radius: 30px;
     background: white;
     font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
 }
 
 .chatbox__footer input:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 2px 15px rgba(52, 152, 219, 0.15);
+    transform: translateY(-1px);
 }
 
 .chatbox__send--footer {
@@ -1073,17 +1074,23 @@ html {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chatbox__send--footer:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
 }
 
 .chatbox__send--footer svg {
     width: 24px;
     height: 24px;
     color: white;
+    transition: transform 0.3s ease;
 }
 
-.chatbox__send--footer:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+.chatbox__send--footer:hover svg {
+    transform: translateX(2px);
 }
 
 /* Message Styles */
