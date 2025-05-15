@@ -24,55 +24,88 @@ let goal = '';
 let healthCondition = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    const chatMessages = document.getElementById('chat-messages');
+    // Chat elements for floating chat
+    const chatSupport = document.querySelector('.chatbox__support');
+    const chatButton = document.querySelector('.chatbox__button button');
     const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-button');
+    const sendButton = document.querySelector('.chatbox__send--footer');
+    const chatMessages = document.getElementById('chat-messages');
 
-    // CHATBOT
-    if (sendButton) {
-        sendButton.addEventListener('click', async () => {
-            const userMessage = chatInput.value.trim();
-            if (!userMessage) return;
+    // Chat elements for fixed chat
+    const chatInputFixed = document.getElementById('chat-input-fixed');
+    const sendButtonFixed = document.getElementById('send-button-fixed');
+    const chatMessagesFixed = document.getElementById('chat-messages-fixed');
 
-            // Display user message in the chat
-            appendMessage('You', userMessage);
+    // Toggle chat functionality
+    if (chatButton) {
+        chatButton.addEventListener('click', () => {
+            chatSupport.classList.toggle('chatbox--active');
+        });
+    }
 
-            // Clear input field
-            chatInput.value = '';
+    // Function to handle sending messages
+    async function handleSendMessage(input, messagesContainer) {
+        const userMessage = input.value.trim();
+        if (!userMessage) return;
 
-            try {
-                // Send user message to the chatbot.js server
-                const response = await fetch(GEMINI_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userMessage }),
-                });
+        // Display user message
+        appendMessage('You', userMessage, messagesContainer);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+        // Clear input field
+        input.value = '';
 
-                const data = await response.json();
+        try {
+            // Send user message to the chatbot server
+            const response = await fetch(GEMINI_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userMessage }),
+            });
 
-                // Display chatbot response in the chat
-                appendMessage('Nutrition Assistant', data.recommendation || 'No response received.');
-            } catch (error) {
-                console.error('Error communicating with chatbot server:', error);
-                appendMessage('Nutrition Assistant', 'Sorry, I could not process your request. Please try again later.');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Display chatbot response
+            appendMessage('Nutrition Assistant', data.recommendation || 'No response received.', messagesContainer);
+        } catch (error) {
+            console.error('Error communicating with chatbot server:', error);
+            appendMessage('Nutrition Assistant', 'Sorry, I could not process your request. Please try again later.', messagesContainer);
+        }
+    }
+
+    // Chat message handling for floating chat
+    if (sendButton && chatInput) {
+        sendButton.addEventListener('click', () => handleSendMessage(chatInput, chatMessages));
+        chatInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleSendMessage(chatInput, chatMessages);
             }
         });
     }
 
-    function appendMessage(sender, message) {
+    // Chat message handling for fixed chat
+    if (sendButtonFixed && chatInputFixed) {
+        sendButtonFixed.addEventListener('click', () => handleSendMessage(chatInputFixed, chatMessagesFixed));
+        chatInputFixed.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleSendMessage(chatInputFixed, chatMessagesFixed);
+            }
+        });
+    }
+
+    function appendMessage(sender, message, container) {
         const messageDiv = document.createElement('div');
-        const isUser = sender === 'You';
-        messageDiv.className = isUser ? 'user-message' : 'chatbot-message';
+        messageDiv.className = sender === 'You' ? 'messages__item messages__item--operator' : 'messages__item messages__item--visitor';
         messageDiv.innerHTML = `<strong>${sender}:</strong> ${formatResponse(message)}`;
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the latest message
+        container.appendChild(messageDiv);
+        container.scrollTop = container.scrollHeight;
     }
 
     function formatResponse(response) {
@@ -112,16 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Fix nested paragraph issues
             .replace(/<p>(<h[1-3]>.*?<\/h[1-3]>)<\/p>/g, '$1')
             .replace(/<p>(<ul>.*?<\/ul>)<\/p>/g, '$1');
-    }
-
-    // --- Event Listeners ---
-    if (chatInput) {
-        chatInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendButton.click();
-            }
-        });
     }
 
     // Event listeners
@@ -243,7 +266,7 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
 // --- State ---
 let foods = [];
 let isLoading = false;
-let recommendation = null; // Add a global variable for recommendation
+let recommendation = null;
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
 const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/"; 
 
@@ -252,13 +275,15 @@ let selectedFood = null;
 let addedFoods = [];
 
 // --- Event Listeners ---
-foodInput.addEventListener('input', handleInputChange);
-submitButton.addEventListener('click', handleSubmit);
-resetButton.addEventListener('click', handleReset);
-
-// Add these event listeners after other initialization code
-document.getElementById('add-food-button').addEventListener('click', addSelectedFood);
-document.getElementById('clear-foods-button').addEventListener('click', clearAddedFoods);
+if (foodInput) {
+    foodInput.addEventListener('input', handleInputChange);
+}
+if (submitButton) {
+    submitButton.addEventListener('click', handleSubmit);
+}
+if (resetButton) {
+    resetButton.addEventListener('click', handleReset);
+}
 
 // --- Functions ---
 

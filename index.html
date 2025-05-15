@@ -95,12 +95,44 @@
 
             <div class="container" id="chatbot-container">
                 <h3>Chat with Nutrition Assistant</h3>
-                <div id="chat-messages" style="height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px;">
+                <div id="chat-messages-fixed" style="height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px;">
                 </div>
-                <textarea id="chat-input" placeholder="Type your message here..."
+                <textarea id="chat-input-fixed" placeholder="Type your message here..."
                     style="width: 100%; height: 50px;"></textarea>
-                <button id="send-button">Send</button>
+                <button id="send-button-fixed">Send</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Floating Chat Interface -->
+    <div class="chatbox">
+        <div class="chatbox__support">
+            <div class="chatbox__header">
+                <div class="chatbox__image--header">
+                    <img src="https://cdn-icons-png.flaticon.com/128/6231/6231457.png" width="35" height="35" alt="chat assistant">
+                </div>
+                <div class="chatbox__content--header">
+                    <h4 class="chatbox__heading--header">Nutrition Assistant</h4>
+                    <p class="chatbox__description--header">Hi, I'm here to help with your nutrition questions!</p>
+                </div>
+            </div>
+            <div class="chatbox__messages" id="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
+            <div class="chatbox__footer">
+                <input type="text" id="chat-input" placeholder="Write a message..." style="width: 85%; padding: 15px;">
+                <button class="chatbox__send--footer" id="send-button" style="width: 40px; height: 40px; padding: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="chatbox__button">
+            <button>
+                <img src="https://cdn-icons-png.flaticon.com/128/6231/6231457.png" alt="Chat">
+            </button>
         </div>
     </div>
 
