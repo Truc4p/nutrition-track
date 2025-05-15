@@ -73,13 +73,44 @@
 .two-sections {
     display: flex;
     gap: 20px;
+    align-items: flex-start;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
-.left-section,
-.right-section {
+.left-section {
     flex: 1;
-    padding: 10px;
+    padding: 35px;
     box-sizing: border-box;
+    background: linear-gradient(165deg, #ffffff, #f0f4f8);
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 800px;
+}
+
+.left-section::before,
+.right-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
+    background-size: 200% 100%;
+    animation: gradientMove 5s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .container {
@@ -96,7 +127,7 @@
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 0;
     background-color: #f8f8f8;
     color: #333;
 }
@@ -547,50 +578,90 @@ ul#food-list li:last-child {
     background-color: #c82333;
 }
 
+/* Navigation Bar Styles */
 .navbar {
-    background-color: #868785;
-    padding: 1rem 0;
-    margin-bottom: 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    margin-bottom: 40px;
 }
 
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 70px;
 }
 
 .nav-logo {
-    color: white;
+    color: #2c3e50;
     text-decoration: none;
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.nav-logo:hover {
+    color: #3498db;
 }
 
 .nav-links {
-    list-style: none;
     display: flex;
     gap: 2rem;
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
-.nav-links a {
-    color: white;
+.nav-links li a {
+    color: #2c3e50;
     text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
 }
 
-.nav-links a:hover {
-    background-color: #555;
+.nav-links li a:hover {
+    background-color: #f8f9fa;
+    color: #3498db;
 }
 
-.nav-links a.active {
-    background-color: #4CAF50;
+.nav-links li a.active {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 0 15px;
+        height: 60px;
+    }
+
+    .nav-logo {
+        font-size: 1.2rem;
+    }
+
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .nav-links li a {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Add smooth scrolling to the whole page */
+html {
+    scroll-behavior: smooth;
 }
 
 .main-content {
@@ -621,6 +692,7 @@ ul#food-list li:last-child {
     border: 1px solid rgba(255, 255, 255, 0.8);
     position: relative;
     overflow: hidden;
+    margin: auto 0;
 }
 
 #user-info::before {
@@ -766,26 +838,6 @@ ul#food-list li:last-child {
 .form-group {
     position: relative;
     margin-bottom: 24px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #user-info {
-        padding: 30px 20px;
-        border-radius: 15px;
-    }
-    
-    #user-info input[type="number"],
-    #user-info select,
-    #user-info textarea {
-        padding: 12px;
-        font-size: 16px; /* Better for mobile */
-    }
-
-    #recommend-button {
-        padding: 14px 28px;
-        font-size: 1em;
-    }
 }
 
 /* Enhanced animations */
@@ -1019,4 +1071,262 @@ ul#food-list li:last-child {
     margin-left: auto;
     text-align: right;
     color: #333;  /* Dark text color instead of white */
+}
+
+.right-section {
+    flex: 1;
+    padding: 35px;
+    box-sizing: border-box;
+    background: linear-gradient(165deg, #ffffff, #f0f4f8);
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    min-height: 800px;
+}
+
+.right-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
+    background-size: 200% 100%;
+    animation: gradientMove 5s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.right-section .container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 35px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.right-section .container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+}
+
+.right-section h1 {
+    color: #2c3e50;
+    font-size: 2em;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    position: relative;
+    padding-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.right-section h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    border-radius: 4px;
+}
+
+#food-input {
+    width: 100%;
+    min-height: 140px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+    color: #2c3e50;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+#food-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
+}
+
+#submit-button, #reset-button {
+    padding: 12px 30px;
+    font-size: 1.1em;
+    border-radius: 12px;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+}
+
+#submit-button:not(:disabled) {
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+}
+
+#submit-button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+}
+
+#reset-button {
+    background: transparent;
+    color: #e74c3c;
+    border: none;
+}
+
+#reset-button:not(:disabled):hover {
+    background: #e74c3c;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.results {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 35px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.results h2 {
+    color: #2c3e50;
+    font-size: 1.6em;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: linear-gradient(145deg, #f8f9fa, #ffffff);
+    border-radius: 15px;
+    text-align: center;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+#food-list {
+    margin: 20px 0;
+}
+
+#food-list li {
+    padding: 15px;
+    margin: 10px 0;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+}
+
+#food-list li:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+#totals-section {
+    background: linear-gradient(145deg, #f8f9fa, #ffffff);
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 30px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+#totals-section h3 {
+    color: #2c3e50;
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #f0f0f0;
+}
+
+.total-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1.1em;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+}
+
+.total-item:hover {
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    padding: 12px 10px;
+    border-radius: 8px;
+}
+
+#chatbot-container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    margin-top: 35px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+#chat-messages-fixed {
+    border-radius: 15px;
+    padding: 20px !important;
+    margin-bottom: 25px !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    height: 350px !important;
+}
+
+#chat-input-fixed {
+    width: 100% !important;
+    padding: 15px !important;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    resize: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+#chat-input-fixed:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
+}
+
+#send-button-fixed {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1em;
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+}
+
+#send-button-fixed:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
 }
