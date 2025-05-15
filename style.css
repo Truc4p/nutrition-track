@@ -58,6 +58,18 @@
     background-color: #0056b3;
 }
 
+#send-button-fixed,
+#submit-button {
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    transition: opacity 0.3s ease;
+}
+
+#send-button-fixed:hover:not(:disabled),
+#submit-button:hover:not(:disabled) {
+    opacity: 0.9;
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+}
+
 .two-sections {
     display: flex;
     gap: 20px;
