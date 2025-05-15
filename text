@@ -26,74 +26,7 @@
     // </div>
 
 
-
-document.addEventListener('DOMContentLoaded', () => {
-
-    const chatMessages = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-button');
-
-    // CHATBOT
-    if (sendButton) {
-        sendButton.addEventListener('click', async () => {
-            const userMessage = chatInput.value.trim();
-            if (!userMessage) return;
-
-            // Display user message in the chat
-            appendMessage('You', userMessage);
-
-            // Clear input field
-            chatInput.value = '';
-
-            try {
-                // Send user message to the chatbot.js server
-                const response = await fetch(GEMINI_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userMessage }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                // Display chatbot response in the chat
-                appendMessage('Nutrition Assistant', data.recommendation || 'No response received.');
-            } catch (error) {
-                console.error('Error communicating with chatbot server:', error);
-                appendMessage('Nutrition Assistant', 'Sorry, I could not process your request. Please try again later.');
-            }
-        });
-    }
-
-    function appendMessage(sender, message) {
-        const messageDiv = document.createElement('div');
-        messageDiv.innerHTML = `<strong>${sender}:</strong> ${formatResponse(message)}`;
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the latest message
-    }
-
-    function formatResponse(response) {
-        return response
-            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold
-            .replace(/\n/g, '<br>') // Line breaks
-            .replace(/\* (.*?)\n/g, '<ul><li>$1</li></ul>'); // Bullets
-    }
-
-    // --- Event Listeners ---
-    if (chatInput) {
-        chatInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendButton.click();
-            }
-        });
-    }
-});
+    // background-color: #fff;
 
 
 
