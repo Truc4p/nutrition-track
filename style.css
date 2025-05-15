@@ -580,82 +580,116 @@ ul#food-list li:last-child {
 
 /* Navigation Bar Styles */
 .navbar {
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(to right, #ffffff, #f8f9fa);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 1000;
     width: 100%;
     margin-bottom: 40px;
+    border-bottom: 1px solid rgba(52, 152, 219, 0.1);
 }
 
 .nav-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 70px;
+    height: 80px;
 }
 
 .nav-logo {
     color: #2c3e50;
     text-decoration: none;
-    font-size: 1.5rem;
-    font-weight: 700;
-    transition: color 0.3s ease;
+    font-size: 1.8rem;
+    font-weight: 800;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
 }
 
 .nav-logo:hover {
-    color: #3498db;
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #2ecc71, #3498db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .nav-links {
     display: flex;
-    gap: 2rem;
+    gap: 2.5rem;
     margin: 0;
     padding: 0;
     list-style: none;
+    align-items: center;
 }
 
 .nav-links li a {
     color: #2c3e50;
     text-decoration: none;
-    font-weight: 500;
-    padding: 8px 16px;
-    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    border-radius: 12px;
     transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-links li a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+.nav-links li a:hover::after {
+    width: 80%;
 }
 
 .nav-links li a:hover {
-    background-color: #f8f9fa;
     color: #3498db;
+    background-color: rgba(52, 152, 219, 0.05);
 }
 
 .nav-links li a.active {
-    background-color: #3498db;
+    background: linear-gradient(135deg, #3498db, #2ecc71);
     color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+}
+
+.nav-links li a.active:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-container {
-        padding: 0 15px;
-        height: 60px;
+        padding: 0 20px;
+        height: 70px;
     }
 
     .nav-logo {
-        font-size: 1.2rem;
+        font-size: 1.5rem;
     }
 
     .nav-links {
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     .nav-links li a {
-        padding: 6px 12px;
-        font-size: 0.9rem;
+        padding: 8px 16px;
+        font-size: 1rem;
     }
 }
 
