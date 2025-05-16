@@ -638,34 +638,26 @@ ul#food-list li:last-child {
     border-radius: 12px;
     transition: all 0.3s ease;
     position: relative;
-}
-
-.nav-links li a::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 3px;
-    background: linear-gradient(135deg, #3498db, #2ecc71);
-    transition: width 0.3s ease;
-    border-radius: 2px;
-}
-
-.nav-links li a:hover::after {
-    width: 80%;
+    background: 
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(135deg, transparent, transparent) border-box;
+    border: 2px solid transparent;
 }
 
 .nav-links li a:hover {
     color: #3498db;
-    background-color: rgba(52, 152, 219, 0.05);
+    background: 
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(135deg, #3498db, #2ecc71) border-box;
+    border: 2px solid transparent;
+    transform: translateY(-1px);
 }
 
 .nav-links li a.active {
     background: linear-gradient(135deg, #3498db, #2ecc71);
     color: white;
     box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    border: none;
 }
 
 .nav-links li a.active:hover {
