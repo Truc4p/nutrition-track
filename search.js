@@ -252,28 +252,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateAddedFoodsList() {
+        // Show/hide clear button based on whether there are foods
+        clearFoodsButton.style.display = addedFoods.length > 0 ? 'inline-flex' : 'none';
+
         addedFoodsList.innerHTML = addedFoods.map(food => {
-            // Find energy/calories for display
+            // Find calories for this food item
             const calories = food.foodNutrients.find(n => 
                 n.nutrientName.toLowerCase().includes('energy'))?.value || 0;
+            const totalCalories = (calories * food.quantity / 100).toFixed(1);
             
             return `
-                <div class="added-food-item">
-                    <div class="food-item-details">
-                        <div class="food-item-name">${food.name}</div>
-                        <div class="food-item-quantity">${food.quantity}g (${(calories * food.quantity / 100).toFixed(0)} kcal)</div>
+                <div class="added-food-item" data-id="${food.id}">
+                    <div class="food-item-content">
+                        <div class="food-name">${food.name}</div>
+                        <div class="food-quantity">${food.quantity}g - ${totalCalories} kcal</div>
                     </div>
-                    <button class="remove-food" onclick="removeFood(${food.id})">Remove</button>
+                    <div class="food-item-actions">
+                        <button class="remove-food-button" onclick="removeFood(${food.id})" title="Remove food">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
             `;
         }).join('');
+
+        calculateTotalNutrition();
     }
 
-    // Make removeFood available globally
+    // Add the removeFood function to window scope
     window.removeFood = function(foodId) {
         addedFoods = addedFoods.filter(food => food.id !== foodId);
         updateAddedFoodsList();
-        calculateTotalNutrition();
     }
 
     function clearAddedFoods() {

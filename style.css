@@ -170,9 +170,6 @@ button {
     transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
-button:hover:not(:disabled) {
-    background-color: #0db139; /* Darker green on hover */
-}
 
 button:disabled {
     opacity: 0.5;
@@ -497,92 +494,89 @@ ul#food-list li:last-child {
 }
 
 .added-foods-container {
-    padding: 30px;
     background: white;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 35px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
 }
 
 .added-foods-container h3 {
     color: #2c3e50;
-    font-size: 1.5em;
-    margin: 25px 0;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f2f5;
+    font-size: 1.6em;
+    margin-bottom: 25px;
+    position: relative;
+    padding-bottom: 12px;
 }
 
 #added-foods-list {
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
+    padding-right: 12px;
+    flex-grow: 1;
 }
 
 .added-food-item {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    margin: 10px 0;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border-radius: 12px;
     transition: all 0.3s ease;
-    border: 1px solid #f0f0f0;
-}
-
-.added-food-item:hover {
-    transform: translateX(5px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-#clear-foods-button {
-    width: 100%;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
-    border: none;
-    border-radius: 12px;
+    border: 1px solid #e9ecef;
     font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
-}
-
-#clear-foods-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+    gap: 15px;
 }
 
 #total-nutrition {
-    margin-top: 30px;
+    background: linear-gradient(165deg, #f8f9fa, #ffffff);
+    border-radius: 12px;
     padding: 25px;
-    background: linear-gradient(145deg, #ffffff, #f5f7fa);
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-top: auto;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
 }
 
 #total-nutrition h4 {
     color: #2c3e50;
-    font-size: 1.3em;
+    font-size: 1.4em;
     margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #4CAF50;
 }
 
 .nutrition-total-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #f1f3f5;
+    transition: all 0.2s ease;
     font-size: 1.1em;
-    color: #2c3e50;
-    transition: all 0.3s ease;
 }
 
-.nutrition-total-item:hover {
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    padding: 12px 10px;
-    border-radius: 8px;
+/* Custom scrollbar for the added foods list */
+#added-foods-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#added-foods-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#added-foods-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+#added-foods-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
 
 /* Navigation Bar Styles */
@@ -1378,4 +1372,125 @@ html {
 #send-button-fixed:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+}
+
+.added-foods-container h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    border-radius: 3px;
+}
+
+.added-food-item:hover {
+    transform: translateX(5px);
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: #3498db;
+}
+
+#clear-foods-button {
+    background: linear-gradient(135deg, #ff6b6b, #ff5252);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    margin: 10px 0 20px 0;
+    width: 115px;
+    transition: all 0.3s ease;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+}
+
+#clear-foods-button i {
+    font-size: 1em;
+    transition: transform 0.3s ease;
+}
+
+#clear-foods-button:hover {
+    background: linear-gradient(135deg, #ff5252, #ff4242);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 82, 82, 0.25);
+}
+
+#clear-foods-button:hover i {
+    transform: rotate(-10deg);
+}
+
+.added-food-item {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    font-size: 1.1em;
+    gap: 15px;
+}
+
+.food-item-content {
+    flex-grow: 1;
+}
+
+.food-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.remove-food-button {
+    background: transparent;
+    border: none;
+    color: #ff6b6b;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.remove-food-button i {
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+.remove-food-button:hover {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff5252;
+    transform: rotate(90deg);
+}
+
+.added-food-item:hover {
+    transform: translateX(5px);
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: #3498db;
+}
+
+.nutrition-total-item:last-child {
+    border-bottom: none;
+}
+
+.nutrition-total-item:hover {
+    background: rgba(52, 152, 219, 0.05);
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin: 0 -15px;
 }

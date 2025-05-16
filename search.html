@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="data:,">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
@@ -51,11 +52,14 @@
         <div class="right-section">
             <div class="container">
                 <div class="added-foods-container">
-                    <button id="clear-foods-button">Clear All Foods</button>
                     <h3>Added Foods</h3>
                     <div id="added-foods-list"></div>
+                    <button id="clear-foods-button" style="display: none;">
+                        <i class="fas fa-trash-alt"></i>
+                        Clear All
+                    </button>
+                    <h3>Total Nutrition</h3>
                     <div id="total-nutrition">
-                        <h4>Total Nutrition</h4>
                         <div id="nutrition-totals"></div>
                     </div>
                 </div>
