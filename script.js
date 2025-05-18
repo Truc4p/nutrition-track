@@ -172,24 +172,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add console.log to debug the recommendation variable
                 console.log("Recommendation data:", recommendation);
 
-                // Remove the animation class first
-                recommendationText.classList.remove('updated');
-                
-                // Set the new content
                 recommendationText.innerHTML = `
-                    <strong>Calories:</strong> ${formatValue(recommendation.calories)} kcal<br>
-                    <strong>Fats:</strong> ${formatValue(recommendation.fats.min)}g - ${formatValue(recommendation.fats.max)}g<br>
-                    <strong>Carbs:</strong> ${formatValue(recommendation.carbs.min)}g - ${formatValue(recommendation.carbs.max)}g<br>
-                    <strong>Protein:</strong> ${formatValue(recommendation.protein.min)}g - ${formatValue(recommendation.protein.max)}g<br>
-                    <strong>Fiber:</strong> ${formatValue(recommendation.fiber)}g<br>
-                    <strong>Cholesterol:</strong> ${formatValue(recommendation.cholesterol)}mg
+                    <div class="nutrient-item">
+                        <span class="nutrient-name">Calories:</span>
+                        <span class="nutrient-value">${formatValue(recommendation.calories)} kcal</span>
+                    </div>
+                    <div class="nutrient-item">
+                        <span class="nutrient-name">Fats:</span>
+                        <span class="nutrient-value">${formatValue(recommendation.fats.min)}g - ${formatValue(recommendation.fats.max)}g</span>
+                    </div>
+                    <div class="nutrient-item">
+                        <span class="nutrient-name">Carbs:</span>
+                        <span class="nutrient-value">${formatValue(recommendation.carbs.min)}g - ${formatValue(recommendation.carbs.max)}g</span>
+                    </div>
+                    <div class="nutrient-item">
+                        <span class="nutrient-name">Protein:</span>
+                        <span class="nutrient-value">${formatValue(recommendation.protein.min)}g - ${formatValue(recommendation.protein.max)}g</span>
+                    </div>
+                    <div class="nutrient-item">
+                        <span class="nutrient-name">Fiber:</span>
+                        <span class="nutrient-value">${formatValue(recommendation.fiber)}g</span>
+                    </div>
+                    <div class="nutrient-item">
+                        <span class="nutrient-name">Cholesterol:</span>
+                        <span class="nutrient-value">less than ${formatValue(recommendation.cholesterol)}mg</span>
+                    </div>
                 `;
-
-                // Force a reflow before adding the class again
-                void recommendationText.offsetWidth;
-                
-                // Add the animation class
-                recommendationText.classList.add('updated');
 
                 renderRecommendedNutritionChart();
             } catch (error) {
