@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Nutrition Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,">
+    <style>
+        body {
+            background-color: #f8f8f8;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .chat-page {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            height: calc(100vh - 100px);
+        }
+
+        .chat-sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-sidebar h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quick-prompts {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .prompt-button {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+
+        .prompt-button:hover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            color: white;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-header img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(248, 249, 250, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 15px;
+            border-radius: 15px;
+            line-height: 1.5;
+            position: relative;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .user-message {
+            background-color: #e0f7fa;
+            color: #333;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .assistant-message {
+            background: #f1f8e9;
+            color: #2c3e50;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .message a {
+            color: inherit;
+            text-decoration: underline;
+            text-decoration-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .message code {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .input-container {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            padding: 15px;
+            border: 2px solid rgba(52, 152, 219, 0.2);
+            border-radius: 12px;
+            font-size: 15px;
+            resize: none;
+            max-height: 150px;
+            min-height: 50px;
+            line-height: 1.5;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .send-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .send-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .chat-page {
+                grid-template-columns: 1fr;
+                padding: 10px;
+                margin: 0;
+                height: 100vh;
+            }
+
+            .chat-sidebar {
+                display: none;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .chat-main {
+                border-radius: 0;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(241, 241, 241, 0.5);
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(52, 152, 219, 0.5);
+            border-radius: 4px;
+            backdrop-filter: blur(5px);
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(52, 152, 219, 0.7);
+        }
+
+        /* Glass morphism effect for messages */
+        .message {
+            backdrop-filter: blur(5px);
+        }
+
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">Nutrition Tracker</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="search.html">Food Search</a></li>
+                <li><a href="chat.html" class="active">Chat Assistant</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="chat-page">
+        <aside class="chat-sidebar">
+            <h2>Quick Prompts</h2>
+            <div class="quick-prompts">
+                <button class="prompt-button">What's a healthy breakfast?</button>
+                <button class="prompt-button">How to calculate daily calories?</button>
+                <button class="prompt-button">Best foods for weight loss</button>
+                <button class="prompt-button">Protein-rich vegetarian foods</button>
+                <button class="prompt-button">Healthy snack ideas</button>
+                <button class="prompt-button">Foods to avoid with diabetes</button>
+                <button class="prompt-button">Benefits of Mediterranean diet</button>
+                <button class="prompt-button">How to read nutrition labels</button>
+            </div>
+        </aside>
+
+        <main class="chat-main">
+            <div class="chat-header">
+                <img src="https://cdn-icons-png.flaticon.com/128/6231/6231457.png" alt="AI Assistant">
+                <span>Nutrition Assistant</span>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message assistant-message">
+                    Hello! I'm your Nutrition Assistant. I can help you with:
+                    <ul>
+                        <li>Nutritional information about foods</li>
+                        <li>Dietary recommendations</li>
+                        <li>Meal planning advice</li>
+                        <li>Health and wellness tips</li>
+                    </ul>
+                    How can I assist you today?
+                </div>
+            </div>
+
+            <div class="input-container">
+                <textarea 
+                    class="chat-input" 
+                    id="chat-input" 
+                    placeholder="Type your message here... (Press Enter to send, Shift + Enter for new line)" 
+                    rows="1"
+                ></textarea>
+                <button class="send-button" id="send-button">Send</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="chat.js"></script>
+</body>
+
+</html> 
