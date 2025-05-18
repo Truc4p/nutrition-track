@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     query: query,
                     pageSize: 30,
-                    dataType: ["Survey (FNDDS)"],
+                    dataType: ["Survey (FNDDS)", "Foundation", "SR Legacy"],
                     sortBy: "dataType.keyword",
                     sortOrder: "asc"
                 })
