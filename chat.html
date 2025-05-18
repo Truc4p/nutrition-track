@@ -30,7 +30,6 @@
             padding: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .chat-sidebar h2 {
@@ -267,16 +266,7 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">Nutrition Tracker</a>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="search.html">Food Search</a></li>
-                <li><a href="chat.html" class="active">Chat Assistant</a></li>
-            </ul>
-        </div>
-    </nav>
+    <div id="navbar-placeholder"></div>
 
     <div class="chat-page">
         <aside class="chat-sidebar">
@@ -325,6 +315,7 @@
     </div>
 
     <script src="chat.js"></script>
+    <script src="nav.js"></script>
 </body>
 
 </html> 
