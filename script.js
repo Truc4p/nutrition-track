@@ -172,6 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add console.log to debug the recommendation variable
                 console.log("Recommendation data:", recommendation);
 
+                // Remove the animation class first
+                recommendationText.classList.remove('updated');
+                
+                // Set the new content
                 recommendationText.innerHTML = `
                     <strong>Calories:</strong> ${formatValue(recommendation.calories)} kcal<br>
                     <strong>Fats:</strong> ${formatValue(recommendation.fats.min)}g - ${formatValue(recommendation.fats.max)}g<br>
@@ -180,6 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>Fiber:</strong> ${formatValue(recommendation.fiber)}g<br>
                     <strong>Cholesterol:</strong> ${formatValue(recommendation.cholesterol)}mg
                 `;
+
+                // Force a reflow before adding the class again
+                void recommendationText.offsetWidth;
+                
+                // Add the animation class
+                recommendationText.classList.add('updated');
 
                 renderRecommendedNutritionChart();
             } catch (error) {
