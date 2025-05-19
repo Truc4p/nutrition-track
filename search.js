@@ -64,24 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Functions
     async function searchFoods(query) {
         try {
-            const response = await fetch(`${USDA_API_URL}?api_key=${USDA_API_KEY}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    query: query,
-                    pageSize: 30,
-                    dataType: ["Survey (FNDDS)", "Foundation", "SR Legacy"],
-                    sortBy: "dataType.keyword",
-                    sortOrder: "asc"
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            const response = await fetch(`${USDA_API_URL}?api_key=${USDA_API_KEY}&query=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             displaySearchResults(data.foods || []);
         } catch (error) {
