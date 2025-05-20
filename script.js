@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="nutrient-item">
                         <span class="nutrient-name">Cholesterol:</span>
-                        <span class="nutrient-value">less than ${formatValue(recommendation.cholesterol)}mg</span>
+                        <span class="nutrient-value">${formatValue(recommendation.cholesterol)}mg</span>
                     </div>
                 `;
 
