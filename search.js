@@ -75,13 +75,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displaySearchResults(foods) {
+        // Only include foods from Foundation, SR Legacy, or FNDDS
+        const allowedTypes = ['Foundation', 'SR Legacy', 'FNDDS'];
+        const filteredFoods = foods.filter(food => allowedTypes.includes(food.dataType));
         searchResults.style.display = 'block';
-        if (foods.length === 0) {
+        if (filteredFoods.length === 0) {
             searchResults.innerHTML = '<p>No foods found.</p>';
             return;
         }
 
-        searchResults.innerHTML = foods.map(food => {
+        searchResults.innerHTML = filteredFoods.map(food => {
             // Find calories for display in search results
             const calories = food.foodNutrients?.find(n => 
                 n.nutrientName.toLowerCase().includes('energy'))?.value || 0;
