@@ -67,21 +67,14 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
+    flex-wrap: wrap;
 }
 
-.left-section {
+.left-section,
+.right-section {
     flex: 1;
-    padding: 35px;
-    box-sizing: border-box;
-    background: linear-gradient(165deg, #ffffff, #f0f4f8);
-    border-radius: 25px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 800px;
+    min-width: 300px;
+    width: 100%;
 }
 
 @keyframes gradientMove {
@@ -107,15 +100,15 @@ body {
     padding: 0;
     background-color: #f8f8f8;
     color: #333;
+    line-height: 1.6;
 }
 
 .container {
-    max-width: 600px; /* Limit width for better readability */
-    margin: 0 auto; /* Center the container */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px; /* Spacing similar to VStack spacing */
+    max-width: 1200px;
+    width: 95%;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -1791,4 +1784,241 @@ body {
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background: rgba(52, 152, 219, 0.7);
+}
+
+/* Responsive Grid Layout */
+.two-sections {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    flex-wrap: wrap;
+}
+
+.left-section,
+.right-section {
+    flex: 1;
+    min-width: 300px;
+    width: 100%;
+}
+
+/* Responsive Typography */
+html {
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+    
+    .container {
+        width: 100%;
+        padding: 0 15px;
+    }
+    
+    .two-sections {
+        flex-direction: column;
+        gap: 15px;
+        padding: 0 15px;
+    }
+    
+    .left-section,
+    .right-section {
+        min-height: auto;
+        padding: 20px;
+    }
+    
+    textarea#food-input {
+        width: 100%;
+        height: 120px;
+    }
+    
+    button {
+        width: 100%;
+    }
+    
+    .results {
+        width: 100%;
+    }
+    
+    ul#food-list li {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .food-nutrition {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .food-nutrition span {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    #totals-section {
+        padding: 15px;
+    }
+    
+    .chatbox__support {
+        width: 90%;
+        right: 5%;
+    }
+}
+
+/* Tablet Styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        width: 95%;
+    }
+    
+    .two-sections {
+        gap: 15px;
+    }
+    
+    textarea#food-input {
+        width: 90%;
+    }
+    
+    button {
+        width: 70%;
+    }
+}
+
+/* Small Desktop Styles */
+@media (min-width: 1025px) and (max-width: 1366px) {
+    .container {
+        width: 90%;
+    }
+}
+
+/* Form Responsiveness */
+.form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Chart Responsiveness */
+#chart-container {
+    width: 100%;
+    max-height: 400px;
+    margin: 20px 0;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Navigation Responsiveness */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+        padding: 10px 0;
+    }
+    
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .nav-links li a {
+        padding: 10px;
+        width: 100%;
+        display: block;
+    }
+}
+
+/* Chat Interface Responsiveness */
+@media (max-width: 768px) {
+    .chat-page {
+        grid-template-columns: 1fr;
+    }
+    
+    .chat-sidebar {
+        display: none;
+    }
+    
+    .chat-main {
+        border-radius: 0;
+    }
+    
+    .chat-messages {
+        height: calc(100vh - 140px);
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+    
+    .input-container {
+        padding: 10px;
+    }
+    
+    .chat-input {
+        font-size: 14px;
+    }
+}
+
+/* Loading States */
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    button {
+        border: 2px solid black;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none;
+    }
+    
+    body {
+        background: white;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: none;
+    }
 }
