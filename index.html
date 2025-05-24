@@ -83,11 +83,13 @@
 
         <!-- Right Section -->
         <div class="right-section">
-            <div class="results">
+            <div id="results">
                 <h1>What did you eat today?</h1>
                 <textarea id="food-input" placeholder="e.g., 1 cup of rice and 100g chicken breast"></textarea>
-                <button id="submit-button" disabled>Submit</button>
-                <button id="reset-button" class="reset" disabled>Reset</button>
+                <div class="button-container">
+                    <button id="submit-button" disabled>Submit</button>
+                    <button id="reset-button" class="reset" disabled>Reset</button>
+                </div>
                 <div id="loading-indicator" style="display: none;">Loading...</div>
                 <h2 id="results-header">Foods</h2>
                 <ul id="food-list"></ul>

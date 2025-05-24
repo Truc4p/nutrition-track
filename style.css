@@ -118,14 +118,17 @@ h1 {
 }
 
 textarea#food-input {
-    width: 80%; /* Adjust width as needed */
+    width: 80%;
     height: 150px;
     padding: 10px;
-    font-size: 1em; /* Similar to .body */
-    border: 1px solid #555; /* Similar to .stroke(Color.primary) */
-    border-radius: 15px; /* Approximating RoundedRectangle */
-    resize: vertical; /* Allow vertical resizing */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    font-size: 1em;
+    border: 1px solid #555;
+    border-radius: 15px;
+    resize: vertical;
+    box-sizing: border-box;
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 30px;
 }
 
 button {
@@ -822,9 +825,9 @@ html {
 
 #recommendation-output h3 {
     color: #2c3e50;
-    font-size: 1.3em;
+    font-size: 1.8em;
     margin-bottom: 20px;
-    text-align: left;
+    text-align: center;
     font-weight: 700;
 }
 
@@ -1256,22 +1259,31 @@ html {
     border-radius: 12px;
     margin: 0 10px;
     transition: all 0.3s ease;
+    display: inline-block;
+    width: auto; /* Override the default 60% width */
+}
+
+/* Create a container for buttons to center them */
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Add space between buttons */
 }
 
 #submit-button:not(:disabled) {
     background: linear-gradient(135deg, #3498db, #2ecc71);
     box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
-}
-
-#submit-button:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+    min-width: 120px; /* Ensure minimum width */
 }
 
 #reset-button {
     background: transparent;
     color: #e74c3c;
     border: none;
+    min-width: 120px; /* Ensure minimum width */
 }
 
 #reset-button:not(:disabled):hover {
@@ -1322,7 +1334,6 @@ html {
     background: linear-gradient(145deg, #ffffff, #f8f9fa);
     border-radius: 12px;
     transition: all 0.3s ease;
-    border: 1px solid #f0f0f0;
 }
 
 #food-list li:hover {
