@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.text())
         .then(data => {
             // Insert the navbar HTML
-            document.getElementById('navbar-placeholder').innerHTML = data;
+            document.getElementById('nav-placeholder').innerHTML = data;
             
             // Add active class to current page link
             const navLinks = document.querySelectorAll('.nav-links a');
