@@ -63,17 +63,17 @@
 .two-sections {
     display: flex;
     gap: 20px;
-    align-items: stretch;
+    align-items: flex-start;
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    flex-wrap: wrap;
 }
 
 .left-section,
 .right-section {
-    flex: 1 1 0;
+    flex: 1 1 400px;
     min-width: 0;
-    width: 50%;
     box-sizing: border-box;
 }
 
@@ -1854,42 +1854,38 @@ body {
 .two-sections {
     display: flex;
     gap: 20px;
-    align-items: stretch;
+    align-items: flex-start;
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    flex-wrap: wrap;
 }
 
-/* Responsive Typography */
-html {
-    font-size: 16px;
+.left-section,
+.right-section {
+    flex: 1 1 400px;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
-    html {
-        font-size: 14px;
-    }
-    
-    .container {
-        width: 100%;
-        padding: 0 15px;
-    }
-    
     .two-sections {
         flex-direction: column;
-        padding: 15px;
+        padding: 10px;
+        gap: 10px;
     }
     
     .left-section,
     .right-section {
         width: 100%;
+        flex: 1 1 100%;
         min-height: auto;
-        padding: 20px;
+        padding: 10px;
     }
     
     #user-info {
         min-height: auto;
-        padding: 20px;
+        padding: 15px;
     }
     
     textarea#food-input {
@@ -1899,6 +1895,8 @@ html {
     
     button {
         width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
     }
     
     .results {
@@ -1926,35 +1924,54 @@ html {
         padding: 15px;
     }
     
-    .chatbox__support {
-        width: 90%;
-        right: 5%;
+    #chart-container {
+        width: 100% !important;
+        height: 300px !important;
+    }
+    
+    canvas {
+        width: 100% !important;
+        height: 100% !important;
     }
 }
 
 /* Tablet Styles */
 @media (min-width: 769px) and (max-width: 1024px) {
-    .container {
-        width: 95%;
-    }
-    
     .two-sections {
         gap: 15px;
+        padding: 15px;
+    }
+    
+    .left-section,
+    .right-section {
+        flex: 1 1 45%;
     }
     
     textarea#food-input {
-        width: 90%;
+        width: 100%;
     }
     
     button {
-        width: 70%;
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    #chart-container {
+        width: 100% !important;
+        height: 350px !important;
     }
 }
 
 /* Small Desktop Styles */
 @media (min-width: 1025px) and (max-width: 1366px) {
-    .container {
-        width: 90%;
+    .two-sections {
+        width: 95%;
+        max-width: 1200px;
+    }
+    
+    .left-section,
+    .right-section {
+        flex: 1 1 48%;
     }
 }
 

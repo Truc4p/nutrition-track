@@ -16,74 +16,75 @@
     <div class="two-sections">
         <!-- Left Section -->
         <div class="left-section">
-                <div class="user-details-form">
-                    <h3>Enter Your Details</h3>
-                    <div class="form-group">
-                        <label for="weight" class="required">Weight (kg)</label>
-                        <input type="number" id="weight" placeholder="e.g., 70" value="48">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="height" class="required">Height (cm)</label>
-                        <input type="number" id="height" placeholder="e.g., 170" value="158">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="age" class="required">Age</label>
-                        <input type="number" id="age" placeholder="e.g., 25" value="27">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="gender" class="required">Gender</label>
-                        <select id="gender">
-                            <option value="male">Male</option>
-                            <option value="female" selected>Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="activity-level" class="required">How active are you on an average day?</label>
-                        <select id="activity-level">
-                            <option value="sedentary" selected>Sedentary</option>
-                            <option value="lightly-active">Lightly Active</option>
-                            <option value="moderately-active">Moderately Active</option>
-                            <option value="very-active">Very Active</option>
-                            <option value="athlete">Athlete Level</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="goal" class="required">Health Goal</label>
-                        <select id="goal">
-                            <option value="maintain" selected>Maintain Weight</option>
-                            <option value="lose">Lose Weight</option>
-                            <option value="gain">Gain Weight</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="health-condition">Do you have any diagnosed health conditions?</label>
-                        <textarea id="health-condition" placeholder="e.g., Diabetes, Hypertension">Diabetes</textarea>
-                    </div>
-                    
-                    <button id="recommend-button">Get Recommendation</button>
+            <div class="user-details-form">
+                <h3>Enter Your Details</h3>
+                <div class="form-group">
+                    <label for="weight" class="required">Weight (kg)</label>
+                    <input type="number" id="weight" placeholder="e.g., 70" value="48">
                 </div>
 
-                <div id="recommendation-output">
-                    <h3>Recommended Daily Intake</h3>
-                    <p id="recommendation-text"></p>
+                <div class="form-group">
+                    <label for="height" class="required">Height (cm)</label>
+                    <input type="number" id="height" placeholder="e.g., 170" value="158">
                 </div>
-                <div id="chart-container" style="width: 100%; max-width: 600px; margin: 20px auto; height: 500px;">
-                    <canvas id="recommended-nutrition-chart"></canvas>
+
+                <div class="form-group">
+                    <label for="age" class="required">Age</label>
+                    <input type="number" id="age" placeholder="e.g., 25" value="27">
                 </div>
+
+                <div class="form-group">
+                    <label for="gender" class="required">Gender</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female" selected>Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="activity-level" class="required">How active are you on an average day?</label>
+                    <select id="activity-level">
+                        <option value="sedentary" selected>Sedentary</option>
+                        <option value="lightly-active">Lightly Active</option>
+                        <option value="moderately-active">Moderately Active</option>
+                        <option value="very-active">Very Active</option>
+                        <option value="athlete">Athlete Level</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="goal" class="required">Health Goal</label>
+                    <select id="goal">
+                        <option value="maintain" selected>Maintain Weight</option>
+                        <option value="lose">Lose Weight</option>
+                        <option value="gain">Gain Weight</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="health-condition">Do you have any diagnosed health conditions?</label>
+                    <textarea id="health-condition" placeholder="e.g., Diabetes, Hypertension">Diabetes</textarea>
+                </div>
+
+                <button id="recommend-button">Get Recommendation</button>
+            </div>
+
+            <div id="recommendation-output">
+                <h3>Recommended Daily Intake</h3>
+                <p id="recommendation-text"></p>
+            </div>
+            <div id="chart-container" style="width: 100%; max-width: 600px; margin: 20px auto; height: 500px;">
+                <canvas id="recommended-nutrition-chart"></canvas>
+            </div>
         </div>
 
         <!-- Right Section -->
         <div class="right-section">
             <div id="results">
                 <h1>What did you eat today?</h1>
-                <textarea id="food-input" placeholder="e.g., 1 cup of rice and 100g chicken breast"></textarea>
+                <textarea id="food-input"
+                    placeholder="e.g., 1 cup of rice and 100g chicken breast">Today I ate 100 grams of chicken breast, 200 grams of wheat bread, 200 grams of eggs, and 50 grams of spinach                </textarea>
                 <div class="button-container">
                     <button id="submit-button" disabled>Submit</button>
                     <button id="reset-button" class="reset" disabled>Reset</button>
@@ -112,7 +113,8 @@
         <div class="chatbox__support">
             <div class="chatbox__header">
                 <div class="chatbox__image--header">
-                    <img src="https://cdn-icons-png.flaticon.com/128/6231/6231457.png" width="35" height="35" alt="chat assistant">
+                    <img src="https://cdn-icons-png.flaticon.com/128/6231/6231457.png" width="35" height="35"
+                        alt="chat assistant">
                 </div>
                 <div class="chatbox__content--header">
                     <h4 class="chatbox__heading--header">Nutrition Assistant</h4>
@@ -125,7 +127,8 @@
             <div class="chatbox__footer">
                 <input type="text" id="chat-input" placeholder="Write a message..." style="width: 85%; padding: 15px;">
                 <button class="chatbox__send--footer" id="send-button" style="width: 40px; height: 40px; padding: 8px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="22" y1="2" x2="11" y2="13"></line>
                         <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                     </svg>
