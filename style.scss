@@ -1,0 +1,489 @@
+// Variables
+$primary-color: #3498db;
+$secondary-color: #2ecc71;
+$danger-color: #e74c3c;
+$text-dark: #2c3e50;
+$text-light: #ffffff;
+$text-muted: #666666;
+$border-color: #e0e0e0;
+$background-light: #f8f8f8;
+$background-white: #ffffff;
+$box-shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+$box-shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.06);
+$border-radius-sm: 8px;
+$border-radius-md: 12px;
+$border-radius-lg: 15px;
+$border-radius-xl: 20px;
+$spacing-xs: 5px;
+$spacing-sm: 10px;
+$spacing-md: 15px;
+$spacing-lg: 20px;
+$spacing-xl: 30px;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin gradient-background {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+}
+
+@mixin transition-all {
+  transition: all 0.3s ease;
+}
+
+@mixin hover-transform {
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($primary-color, 0.3);
+  }
+}
+
+@mixin card-style {
+  background: $background-white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  box-shadow: $box-shadow-medium;
+  border: 1px solid rgba($text-light, 0.9);
+  @include transition-all;
+}
+
+// Message Styles
+.user-message {
+  text-align: right;
+  background-color: #e0f7fa;
+  padding: $spacing-sm;
+  margin: $spacing-xs;
+  border-radius: $border-radius-sm;
+  align-self: flex-end;
+  max-width: 70%;
+}
+
+.chatbot-message {
+  text-align: left;
+  background-color: #f1f8e9;
+  padding: $spacing-sm;
+  margin: $spacing-xs;
+  border-radius: $border-radius-sm;
+  align-self: flex-start;
+  max-width: 70%;
+}
+
+// Chat Container
+#chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  background-color: $background-light;
+  border-radius: $spacing-xs;
+}
+
+#chat-input {
+  border-radius: $spacing-xs;
+  padding: $spacing-sm;
+  box-sizing: border-box;
+}
+
+// Button Styles
+#send-button {
+  margin-top: $spacing-sm;
+  width: 10%;
+  background-color: $primary-color;
+  color: $text-light;
+  border: none;
+  border-radius: $spacing-xs;
+  padding: $spacing-sm;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+}
+
+#send-button-fixed,
+#submit-button {
+  @include gradient-background;
+  @include transition-all;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    @include gradient-background;
+  }
+}
+
+// Layout
+.two-sections {
+  display: flex;
+  gap: $spacing-lg;
+  align-items: flex-start;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+  flex-wrap: wrap;
+
+  .left-section,
+  .right-section {
+    flex: 1 1 400px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
+// Animations
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+// Container
+.container {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  height: 100%;
+}
+
+#chart-container {
+  margin-top: $spacing-lg;
+}
+
+// Body Styles
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: $background-light;
+  color: $text-dark;
+  line-height: 1.6;
+}
+
+// Typography
+h1 {
+  font-size: 1.25em;
+  margin-top: 24px;
+  margin-bottom: 0;
+}
+
+// Form Elements
+textarea#food-input {
+  width: 80%;
+  height: 150px;
+  padding: $spacing-sm;
+  font-size: 1em;
+  border: 1px solid #555;
+  border-radius: $border-radius-lg;
+  resize: vertical;
+  box-sizing: border-box;
+  margin: 0 auto $spacing-xl auto;
+  display: block;
+}
+
+button {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: $text-light;
+  padding: 8px 0;
+  width: 60%;
+  background-color: $secondary-color;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  @include transition-all;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.reset {
+    background-color: transparent;
+    color: $danger-color;
+    border: 1px solid transparent;
+
+    &:hover:not(:disabled) {
+      background-color: #f0f0f0;
+    }
+  }
+}
+
+// Loading Indicator
+#loading-indicator {
+  margin-top: $spacing-sm;
+  font-style: italic;
+  color: $text-muted;
+}
+
+// Results Section
+.results {
+  width: 90%;
+  margin-top: $spacing-lg;
+  @include card-style;
+  padding: 0;
+
+  h2, h3 {
+    padding: $spacing-sm $spacing-md;
+    margin: 0;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid $border-color;
+  }
+
+  h2 {
+    border-top-left-radius: $border-radius-sm;
+    border-top-right-radius: $border-radius-sm;
+  }
+}
+
+// Food List
+ul#food-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    @include flex-between;
+    align-items: flex-start;
+    padding: $spacing-md $spacing-md;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+// Food Details
+.food-details {
+  margin-top: $spacing-lg;
+  padding: $spacing-md;
+  background-color: #f8f9fa;
+  border-radius: $border-radius-sm;
+  box-shadow: $box-shadow-light;
+
+  h4 {
+    color: $text-dark;
+    margin-bottom: $spacing-md;
+    font-size: 1.4em;
+    font-weight: bold;
+  }
+
+  .nutrient-category {
+    margin-bottom: $spacing-lg;
+    padding: $spacing-sm;
+    background-color: $background-white;
+    border-radius: $border-radius-sm;
+    box-shadow: $box-shadow-light;
+
+    h4 {
+      color: $text-dark;
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: $spacing-sm;
+      padding-bottom: $spacing-xs;
+      border-bottom: 2px solid $secondary-color;
+    }
+  }
+
+  .nutrient-item {
+    @include flex-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .nutrient-name {
+    color: $text-dark;
+    font-size: 1.1em;
+    flex: 1;
+  }
+
+  .nutrient-value {
+    color: $text-muted;
+    font-size: 1.1em;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: right;
+  }
+}
+
+// Navigation Bar
+.navbar {
+  background: linear-gradient(to right, $background-white, #f8f9fa);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  margin-bottom: 40px;
+  border-bottom: 1px solid rgba($primary-color, 0.1);
+
+  .nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 $spacing-xl;
+    @include flex-between;
+    height: 80px;
+  }
+
+  .nav-logo {
+    color: $text-dark;
+    text-decoration: none;
+    font-size: 1.8rem;
+    font-weight: 800;
+    @include transition-all;
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+
+    &:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, $secondary-color, $primary-color);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    align-items: center;
+
+    li {
+      a {
+        color: $text-dark;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: $spacing-sm $spacing-lg;
+        border-radius: $border-radius-md;
+        @include transition-all;
+        position: relative;
+        background: linear-gradient($background-white, $background-white) padding-box,
+                    linear-gradient(135deg, transparent, transparent) border-box;
+        border: 2px solid transparent;
+
+        &:hover {
+          color: $primary-color;
+          background: linear-gradient($background-white, $background-white) padding-box,
+                      linear-gradient(135deg, $primary-color, $secondary-color) border-box;
+          border: 2px solid transparent;
+          transform: translateY(-1px);
+        }
+
+        &.active {
+          @include gradient-background;
+          color: $text-light;
+          box-shadow: 0 4px 15px rgba($primary-color, 0.2);
+          border: none;
+
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba($primary-color, 0.3);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .nav-container {
+    padding: 0 $spacing-lg;
+    height: 70px;
+  }
+
+  .nav-logo {
+    font-size: 1.5rem;
+  }
+
+  .nav-links {
+    gap: 1.5rem;
+
+    li a {
+      padding: 8px 16px;
+      font-size: 1rem;
+    }
+  }
+}
+
+// Chatbox
+.chatbox {
+  position: fixed;
+  bottom: $spacing-xl;
+  right: $spacing-xl;
+  z-index: 9999;
+
+  &__support {
+    @include card-style;
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    height: 450px;
+    z-index: -123456;
+    opacity: 0;
+    transition: all .5s ease-in-out;
+    position: fixed;
+    bottom: 85px;
+    right: $spacing-xl;
+  }
+
+  &--active {
+    transform: translateY(-40px);
+    z-index: 123456;
+    opacity: 1;
+  }
+
+  &__button {
+    text-align: right;
+    position: fixed;
+    bottom: 20px;
+    right: $spacing-xl;
+
+    button {
+      padding: $spacing-md;
+      @include gradient-background;
+      border: none;
+      outline: none;
+      border-radius: 50%;
+      box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      @include transition-all;
+      width: 60px;
+      height: 60px;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
+    img {
+      width: 55px;
+      height: 55px;
+    }
+  }
+}
+
+// Import other SCSS modules if needed
+// @import 'components/buttons';
+// @import 'components/forms';
+// @import 'components/layout';
+// @import 'components/typography'; 
