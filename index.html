@@ -16,7 +16,7 @@
     <div class="two-sections">
         <!-- Left Section -->
         <div class="left-section">
-            <div class="container" id="user-info">
+            <div id="user-info">
                 <div class="user-details-form">
                     <h3>Enter Your Details</h3>
                     <div class="form-group">
@@ -83,27 +83,25 @@
 
         <!-- Right Section -->
         <div class="right-section">
-            <div class="container">
+            <div class="results">
                 <h1>What did you eat today?</h1>
                 <textarea id="food-input" placeholder="e.g., 1 cup of rice and 100g chicken breast"></textarea>
                 <button id="submit-button" disabled>Submit</button>
                 <button id="reset-button" class="reset" disabled>Reset</button>
                 <div id="loading-indicator" style="display: none;">Loading...</div>
-                <div class="results">
-                    <h2 id="results-header">Foods</h2>
-                    <ul id="food-list"></ul>
-                    <div id="totals-section" style="display: none;">
-                        <h3>Totals</h3>
-                        <div class="total-item"><span>Fats:</span> <span id="total-fats">0.00</span></div>
-                        <div class="total-item"><span>Carbs:</span> <span id="total-carbs">0.00</span></div>
-                        <div class="total-item"><span>Protein:</span> <span id="total-protein">0.00</span></div>
-                        <div class="total-item"><span>Fiber:</span> <span id="total-fiber">0.00</span></div>
-                        <div class="total-item"><span>Cholesterol:</span> <span id="total-cholesterol">0.00</span></div>
-                        <div class="total-item"><span>Calories:</span> <span id="total-calories">0.00</span></div>
-                    </div>
-                    <div id="chart-container" style="width: 100%; max-width: 600px; margin: 20px auto; height: 500px;">
-                        <canvas id="nutrition-chart"></canvas>
-                    </div>
+                <h2 id="results-header">Foods</h2>
+                <ul id="food-list"></ul>
+                <div id="totals-section" style="display: none;">
+                    <h3>Totals</h3>
+                    <div class="total-item"><span>Fats:</span> <span id="total-fats">0.00</span></div>
+                    <div class="total-item"><span>Carbs:</span> <span id="total-carbs">0.00</span></div>
+                    <div class="total-item"><span>Protein:</span> <span id="total-protein">0.00</span></div>
+                    <div class="total-item"><span>Fiber:</span> <span id="total-fiber">0.00</span></div>
+                    <div class="total-item"><span>Cholesterol:</span> <span id="total-cholesterol">0.00</span></div>
+                    <div class="total-item"><span>Calories:</span> <span id="total-calories">0.00</span></div>
+                </div>
+                <div id="chart-container" style="width: 100%; max-width: 600px; margin: 20px auto; height: 500px;">
+                    <canvas id="nutrition-chart"></canvas>
                 </div>
             </div>
         </div>

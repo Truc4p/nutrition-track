@@ -63,18 +63,18 @@
 .two-sections {
     display: flex;
     gap: 20px;
-    align-items: flex-start;
+    align-items: stretch;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 20px;
-    flex-wrap: wrap;
+    padding: 20px;
 }
 
 .left-section,
 .right-section {
-    flex: 1;
-    min-width: 300px;
-    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+    width: 50%;
+    box-sizing: border-box;
 }
 
 @keyframes gradientMove {
@@ -84,10 +84,10 @@
 }
 
 .container {
-    border: 1px solid #ccc;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    height: 100%;
 }
 
 #chart-container {
@@ -510,7 +510,6 @@ ul#food-list li:last-child {
     padding: 25px;
     margin-top: auto;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e9ecef;
 }
 
 #total-nutrition h4 {
@@ -682,15 +681,15 @@ html {
 
 #user-info {
     background: linear-gradient(145deg, #ffffff, #f5f7fa);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    max-width: 600px;
+    border-radius: 25px;
+    padding: 35px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     width: 100%;
     border: 1px solid rgba(255, 255, 255, 0.8);
     position: relative;
     overflow: hidden;
-    margin: auto 0;
+    min-height: 800px;
+    box-sizing: border-box;
 }
 
 #user-info::before {
@@ -1119,15 +1118,29 @@ html {
 }
 
 .right-section {
-    flex: 1;
-    padding: 35px;
+    flex: 1 1 0;
+    min-width: 0;
+    width: 50%;
     box-sizing: border-box;
     background: linear-gradient(165deg, #ffffff, #f0f4f8);
     border-radius: 25px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
-    min-height: 800px;
+    padding: 35px;
+}
+
+.left-section {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 50%;
+    box-sizing: border-box;
+    background: linear-gradient(165deg, #ffffff, #f0f4f8);
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    padding: 35px;
 }
 
 @keyframes gradientMove {
@@ -1164,6 +1177,46 @@ html {
 }
 
 .right-section h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    border-radius: 4px;
+}
+
+
+.left-section .container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 35px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.left-section .container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+}
+
+.left-section h1 {
+    color: #2c3e50;
+    font-size: 1.8em;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    position: relative;
+    padding-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.left-section h1::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -1222,7 +1275,7 @@ html {
 }
 
 #reset-button:not(:disabled):hover {
-    background: #e74c3c;
+    background: linear-gradient(135deg, #ff6b6b, #ff5252);
     color: white;
     transform: translateY(-2px);
 }
@@ -1790,18 +1843,10 @@ body {
 .two-sections {
     display: flex;
     gap: 20px;
-    align-items: flex-start;
+    align-items: stretch;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 20px;
-    flex-wrap: wrap;
-}
-
-.left-section,
-.right-section {
-    flex: 1;
-    min-width: 300px;
-    width: 100%;
+    padding: 20px;
 }
 
 /* Responsive Typography */
@@ -1821,12 +1866,17 @@ html {
     
     .two-sections {
         flex-direction: column;
-        gap: 15px;
-        padding: 0 15px;
+        padding: 15px;
     }
     
     .left-section,
     .right-section {
+        width: 100%;
+        min-height: auto;
+        padding: 20px;
+    }
+    
+    #user-info {
         min-height: auto;
         padding: 20px;
     }
