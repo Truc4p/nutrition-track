@@ -15,8 +15,13 @@ searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') performSearch();
 });
 
-async function performSearch() {
-    const query = searchInput.value.trim();
+window.addEventListener('DOMContentLoaded', () => {
+    // Show healthy meal recipes by default
+    performSearch('healthy');
+});
+
+async function performSearch(defaultQuery) {
+    const query = typeof defaultQuery === 'string' ? defaultQuery : searchInput.value.trim();
     const cuisine = cuisineFilter.value;
     const diet = dietFilter.value;
     
@@ -42,7 +47,9 @@ async function performSearch() {
         
         if (!response.ok) throw new Error(data.message || 'Failed to fetch recipes');
         
-        displayResults(data.results);
+        // Filter out recipes without images
+        const recipesWithImages = (data.results || []).filter(r => r.image);
+        displayResults(recipesWithImages);
     } catch (error) {
         showError(error.message);
     } finally {
@@ -67,7 +74,7 @@ function createRecipeCard(recipe) {
     if (recipe.glutenFree) dietaryTags.push('<span class="badge gluten-free">Gluten Free</span>');
     
     card.innerHTML = `
-        <img src="${recipe.image}" alt="${recipe.title}">
+        <img src="${recipe.image}" alt="${recipe.title}" onerror="this.parentNode.remove()">
         <div class="recipe-card-content">
             <h3>${recipe.title}</h3>
             <div class="recipe-meta">
