@@ -67,6 +67,8 @@ function displayResults(recipes) {
 function createRecipeCard(recipe) {
     const card = document.createElement('div');
     card.className = 'recipe-card';
+    card.setAttribute('data-recipe-id', recipe.id);
+    card.style.cursor = 'pointer';
     
     const dietaryTags = [];
     if (recipe.vegetarian) dietaryTags.push('<span class="badge vegetarian">Vegetarian</span>');
@@ -83,9 +85,14 @@ function createRecipeCard(recipe) {
                     ${dietaryTags.join('')}
                 </div>
             </div>
-            <a href="recipe-details.html?id=${recipe.id}" class="view-recipe-button">View Recipe</a>
         </div>
     `;
+    
+    // Add click event to the entire card
+    card.addEventListener('click', () => {
+        window.location.href = `recipe-details.html?id=${recipe.id}`;
+    });
+    
     return card;
 }
 

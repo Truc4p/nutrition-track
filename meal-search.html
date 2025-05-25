@@ -10,39 +10,55 @@
 <body>
     <div id="nav-placeholder"></div>
 
-    <div class="meal-search-container">
-        <h1>Recipe Search</h1>
-        <div class="search-box">
-            <input type="text" id="meal-search-input" placeholder="Search for recipes...">
-            <button id="search-button">Search</button>
+    <header class="recipe-hero">
+        <div class="hero-content">
+            <h1>Discover Delicious Recipes</h1>
+            <p>Find healthy and tasty meals for your nutrition plan</p>
         </div>
+    </header>
 
-        <div class="filters">
-            <select id="cuisine-filter">
-                <option value="">All Cuisines</option>
-                <option value="italian">Italian</option>
-                <option value="mexican">Mexican</option>
-                <option value="indian">Indian</option>
-                <option value="chinese">Chinese</option>
-                <option value="japanese">Japanese</option>
-            </select>
-            <select id="diet-filter">
-                <option value="">All Diets</option>
-                <option value="vegetarian">Vegetarian</option>
-                <option value="vegan">Vegan</option>
-                <option value="gluten-free">Gluten Free</option>
-                <option value="ketogenic">Ketogenic</option>
-            </select>
-        </div>
+    <main class="meal-search-container">
+        <section class="search-section">
+            <div class="search-box">
+                <input type="text" id="meal-search-input" placeholder="Search for recipes...">
+                <button id="search-button">Search</button>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="cuisine-filter">Cuisine:</label>
+                    <select id="cuisine-filter">
+                        <option value="">All Cuisines</option>
+                        <option value="italian">Italian</option>
+                        <option value="mexican">Mexican</option>
+                        <option value="indian">Indian</option>
+                        <option value="chinese">Chinese</option>
+                        <option value="japanese">Japanese</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="diet-filter">Diet:</label>
+                    <select id="diet-filter">
+                        <option value="">All Diets</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="gluten-free">Gluten Free</option>
+                        <option value="ketogenic">Ketogenic</option>
+                    </select>
+                </div>
+            </div>
+        </section>
 
         <div id="loading" class="loading-spinner" style="display: none;">
             <div class="spinner"></div>
         </div>
 
-        <div id="recipe-results" class="recipe-grid"></div>
-    </div>
+        <section class="results-section">
+            <div id="recipe-results" class="recipe-grid"></div>
+        </section>
+    </main>
 
     <script src="nav.js"></script>
     <script src="meal-search.js"></script>
 </body>
-</html> 
+</html>
