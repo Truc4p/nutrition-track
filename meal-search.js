@@ -97,12 +97,6 @@ function createRecipeCard(recipe) {
         <img src="${recipe.image}" alt="${recipe.title}" onerror="this.parentNode.remove()">
         <div class="recipe-card-content">
             <h3>${recipe.title}</h3>
-            <div class="recipe-meta">
-                <span>Ready in ${recipe.readyInMinutes} minutes</span>
-                <div class="dietary-tags">
-                    ${dietaryTags.join('')}
-                </div>
-            </div>
         </div>
     `;
     

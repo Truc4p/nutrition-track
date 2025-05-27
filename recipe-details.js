@@ -26,105 +26,52 @@ async function loadRecipeDetails(recipeId) {
         // No API key needed for local API
         const params = new URLSearchParams({});
         
-        // First try to get the recipe information
+        // Only fetch recipe information, not nutrition (since it's not in our database)
         const recipeResponse = await fetch(`${BASE_URL}/${recipeId}/information?${params}`);
-        
-        if (!recipeResponse.ok) {
-            throw new Error(`Failed to fetch recipe details: ${recipeResponse.status}`);
-        }
-        
         const recipeData = await recipeResponse.json();
         
-        // Then get the nutrition information
-        const nutritionResponse = await fetch(`${BASE_URL}/${recipeId}/nutritionWidget.json?${params}`);
-        const nutritionData = await nutritionResponse.json();
+        if (!recipeResponse.ok) {
+            throw new Error('Failed to fetch recipe details');
+        }
         
-        // Display the recipe details even if nutrition data fails
-        displayRecipeDetails(recipeData, nutritionData);
-        
-        console.log('Recipe details loaded successfully:', recipeData.title);
+        displayRecipeDetails(recipeData);
     } catch (error) {
-        console.error('Error loading recipe details:', error);
-        showError(`Error loading recipe: ${error.message}`);
+        showError(error.message);
     } finally {
         hideLoading();
     }
 }
 
-function displayRecipeDetails(recipe, nutrition) {
+function displayRecipeDetails(recipe) {
     document.title = `${recipe.title} - Recipe Details`;
+    
+    // Create dietary tags
+    const dietaryTags = [];
+    if (recipe.vegetarian) dietaryTags.push('<span class="badge vegetarian">Vegetarian</span>');
+    if (recipe.vegan) dietaryTags.push('<span class="badge vegan">Vegan</span>');
+    if (recipe.glutenFree) dietaryTags.push('<span class="badge gluten-free">Gluten Free</span>');
     
     recipeContent.innerHTML = `
         <div class="recipe-header">
             <h1>${recipe.title}</h1>
-            <div class="recipe-meta">
-                <span>Ready in ${recipe.readyInMinutes} minutes</span>
-                <span>Servings: ${recipe.servings}</span>
-                <span class="health-score">Health Score: ${recipe.healthScore || 0}%</span>
-                ${recipe.vegetarian ? '<span class="badge vegetarian">Vegetarian</span>' : ''}
-                ${recipe.vegan ? '<span class="badge vegan">Vegan</span>' : ''}
-                ${recipe.glutenFree ? '<span class="badge gluten-free">Gluten Free</span>' : ''}
-            </div>
         </div>
 
         <div class="recipe-image">
             <img src="${recipe.image}" alt="${recipe.title}">
         </div>
+        
+        <div class="recipe-description">
+            <p>${recipe.description || ''}</p>
+        </div>
 
         <div class="recipe-sections">
-            <div class="recipe-section nutrition-section">
-                <h2>Nutrition Information</h2>
-                
-                <div class="nutrition-category">
-                    <h3>Limit These</h3>
-                    <div class="nutrition-grid limit">
-                        ${createNutrientItem('Calories', nutrition.calories, null)}
-                        ${createNutrientItem('Fat', nutrition.fat, getNutrientAmount(nutrition.nutrients, 'Fat'))}
-                        ${createNutrientItem('Saturated Fat', nutrition.saturatedFat, getNutrientAmount(nutrition.nutrients, 'Saturated Fat'))}
-                        ${createNutrientItem('Carbohydrates', nutrition.carbs, getNutrientAmount(nutrition.nutrients, 'Carbohydrates'))}
-                        ${createNutrientItem('Sugar', nutrition.sugar, getNutrientAmount(nutrition.nutrients, 'Sugar'))}
-                        ${createNutrientItem('Cholesterol', nutrition.cholesterol, getNutrientAmount(nutrition.nutrients, 'Cholesterol'))}
-                        ${createNutrientItem('Sodium', nutrition.sodium, getNutrientAmount(nutrition.nutrients, 'Sodium'))}
-                        ${createNutrientItem('Alcohol', nutrition.alcohol || '0g', 0)}
-                    </div>
-                </div>
-
-                <div class="nutrition-category">
-                    <h3>Get Enough Of These</h3>
-                    <div class="nutrition-grid enough">
-                        ${createNutrientItem('Protein', nutrition.protein, getNutrientAmount(nutrition.nutrients, 'Protein'))}
-                        ${createNutrientItem('Vitamin B12', null, getNutrientAmount(nutrition.nutrients, 'Vitamin B12'))}
-                        ${createNutrientItem('Vitamin A', null, getNutrientAmount(nutrition.nutrients, 'Vitamin A'))}
-                        ${createNutrientItem('Vitamin K', null, getNutrientAmount(nutrition.nutrients, 'Vitamin K'))}
-                        ${createNutrientItem('Selenium', null, getNutrientAmount(nutrition.nutrients, 'Selenium'))}
-                        ${createNutrientItem('Vitamin C', null, getNutrientAmount(nutrition.nutrients, 'Vitamin C'))}
-                        ${createNutrientItem('Vitamin B3', null, getNutrientAmount(nutrition.nutrients, 'Vitamin B3'))}
-                        ${createNutrientItem('Vitamin B6', null, getNutrientAmount(nutrition.nutrients, 'Vitamin B6'))}
-                        ${createNutrientItem('Phosphorus', null, getNutrientAmount(nutrition.nutrients, 'Phosphorus'))}
-                        ${createNutrientItem('Vitamin B2', null, getNutrientAmount(nutrition.nutrients, 'Vitamin B2'))}
-                        ${createNutrientItem('Vitamin D', null, getNutrientAmount(nutrition.nutrients, 'Vitamin D'))}
-                        ${createNutrientItem('Potassium', null, getNutrientAmount(nutrition.nutrients, 'Potassium'))}
-                        ${createNutrientItem('Manganese', null, getNutrientAmount(nutrition.nutrients, 'Manganese'))}
-                        ${createNutrientItem('Vitamin B1', null, getNutrientAmount(nutrition.nutrients, 'Vitamin B1'))}
-                        ${createNutrientItem('Folate', null, getNutrientAmount(nutrition.nutrients, 'Folate'))}
-                        ${createNutrientItem('Magnesium', null, getNutrientAmount(nutrition.nutrients, 'Magnesium'))}
-                        ${createNutrientItem('Fiber', nutrition.fiber, getNutrientAmount(nutrition.nutrients, 'Fiber'))}
-                        ${createNutrientItem('Iron', null, getNutrientAmount(nutrition.nutrients, 'Iron'))}
-                        ${createNutrientItem('Vitamin B5', null, getNutrientAmount(nutrition.nutrients, 'Vitamin B5'))}
-                        ${createNutrientItem('Vitamin E', null, getNutrientAmount(nutrition.nutrients, 'Vitamin E'))}
-                        ${createNutrientItem('Copper', null, getNutrientAmount(nutrition.nutrients, 'Copper'))}
-                        ${createNutrientItem('Zinc', null, getNutrientAmount(nutrition.nutrients, 'Zinc'))}
-                        ${createNutrientItem('Calcium', null, getNutrientAmount(nutrition.nutrients, 'Calcium'))}
-                    </div>
-                </div>
-            </div>
-
             <div class="recipe-section">
                 <h2>Ingredients</h2>
                 <ul class="ingredients-list">
                     ${recipe.extendedIngredients.map(ing => `
                         <li>
-                            <span class="ingredient-amount">${ing.amount} ${ing.unit}</span>
+                            ${ing.amount && ing.unit ? 
+                              `<span class="ingredient-amount">${ing.amount} ${ing.unit}</span>` : ''}
                             <span class="ingredient-name">${ing.original}</span>
                         </li>
                     `).join('')}
@@ -139,42 +86,18 @@ function displayRecipeDetails(recipe, nutrition) {
                     `).join('') || 'No instructions available'}
                 </ol>
             </div>
-        </div>
-    `;
-}
-
-function getNutrientAmount(nutrients, name) {
-    if (!nutrients) return null;
-    const nutrient = nutrients.find(n => n.name === name);
-    return nutrient ? {
-        amount: nutrient.amount + nutrient.unit,
-        percentOfDailyNeeds: nutrient.percentOfDailyNeeds
-    } : null;
-}
-
-function createNutrientItem(name, value, nutrientData) {
-    if (!nutrientData && !value) return '';
-    
-    const displayValue = value || (nutrientData ? nutrientData.amount : '0');
-    const percentDaily = nutrientData ? nutrientData.percentOfDailyNeeds : 0;
-    
-    const percentDisplay = percentDaily ? `
-        <div class="daily-value">
-            <div class="progress-bar" style="width: ${Math.min(percentDaily, 100)}%"></div>
-            <span>${Math.round(percentDaily)}% Daily Value</span>
-        </div>
-    ` : '';
-
-    return `
-        <div class="nutrient-item">
-            <div class="nutrient-header">
-                <span class="name">${name}</span>
-                <span class="value">${displayValue}</span>
+            
+            ${recipe.url ? `
+            <div class="recipe-section">
+                <h2>Source</h2>
+                <p><a href="${recipe.url}" target="_blank">View original recipe at Pick Up Limes</a></p>
             </div>
-            ${percentDisplay}
+            ` : ''}
         </div>
     `;
 }
+
+// Nutrition-related functions have been removed as they're no longer needed
 
 function showLoading() {
     loadingSpinner.style.display = 'block';

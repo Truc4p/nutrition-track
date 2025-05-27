@@ -228,9 +228,10 @@ def recipe_information(recipe_id):
         'id': recipe['id'],
         'title': recipe['title'],
         'image': f'http://127.0.0.1:5001/api/images/{os.path.basename(recipe.get("local_image_path", ""))}',
+        'description': recipe.get('description', ''),
+        'url': recipe.get('url', ''),
         'readyInMinutes': ready_time,
         'servings': servings,
-        'healthScore': 80,  # Default value
         'vegetarian': is_vegetarian,
         'vegan': is_vegan,
         'glutenFree': is_gluten_free,
