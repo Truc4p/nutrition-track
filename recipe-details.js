@@ -1,5 +1,5 @@
-const API_KEY = '8b6eb5b7d0144cb1aae1ba0d41e25c3f';
-const BASE_URL = 'https://api.spoonacular.com/recipes';
+// Using local API instead of Spoonacular
+const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
 
 // DOM Elements
 const recipeContent = document.getElementById('recipe-content');
@@ -23,25 +23,29 @@ async function loadRecipeDetails(recipeId) {
     showLoading();
     
     try {
-        const params = new URLSearchParams({
-            apiKey: API_KEY
-        });
+        // No API key needed for local API
+        const params = new URLSearchParams({});
         
-        const [recipeResponse, nutritionResponse] = await Promise.all([
-            fetch(`${BASE_URL}/${recipeId}/information?${params}`),
-            fetch(`${BASE_URL}/${recipeId}/nutritionWidget.json?${params}`)
-        ]);
+        // First try to get the recipe information
+        const recipeResponse = await fetch(`${BASE_URL}/${recipeId}/information?${params}`);
         
-        const recipeData = await recipeResponse.json();
-        const nutritionData = await nutritionResponse.json();
-        
-        if (!recipeResponse.ok || !nutritionResponse.ok) {
-            throw new Error('Failed to fetch recipe details');
+        if (!recipeResponse.ok) {
+            throw new Error(`Failed to fetch recipe details: ${recipeResponse.status}`);
         }
         
+        const recipeData = await recipeResponse.json();
+        
+        // Then get the nutrition information
+        const nutritionResponse = await fetch(`${BASE_URL}/${recipeId}/nutritionWidget.json?${params}`);
+        const nutritionData = await nutritionResponse.json();
+        
+        // Display the recipe details even if nutrition data fails
         displayRecipeDetails(recipeData, nutritionData);
+        
+        console.log('Recipe details loaded successfully:', recipeData.title);
     } catch (error) {
-        showError(error.message);
+        console.error('Error loading recipe details:', error);
+        showError(`Error loading recipe: ${error.message}`);
     } finally {
         hideLoading();
     }

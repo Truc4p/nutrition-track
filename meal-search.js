@@ -1,5 +1,5 @@
-const API_KEY = '8b6eb5b7d0144cb1aae1ba0d41e25c3f';
-const BASE_URL = 'https://api.spoonacular.com/recipes';
+// Using local API instead of Spoonacular
+const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
 const YOUTUBE_API_KEY = 'AIzaSyCl2hSa3ZZ2MIXBiyMZaWite5lIn3Snowg'; // You'll need to replace this with a valid YouTube API key
 const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ'; // Pick Up Limes channel ID
 
@@ -31,32 +31,44 @@ async function performSearch(defaultQuery) {
     const cuisine = cuisineFilter.value;
     const diet = dietFilter.value;
     
-    if (!query) return;
+    // Allow empty query to show all recipes
+    // if (!query) return;
     
     showLoading();
     clearResults();
     
     try {
         const params = new URLSearchParams({
-            apiKey: API_KEY,
-            query: query,
-            number: 12,
-            addRecipeInformation: true,
-            addRecipeNutrition: true
+            number: 24 // Increased number to show more recipes
         });
         
+        // Only add query param if it's not empty
+        if (query) params.append('query', query);
         if (cuisine) params.append('cuisine', cuisine);
         if (diet) params.append('diet', diet);
         
-        const response = await fetch(`${BASE_URL}/complexSearch?${params}`);
+        const url = `${BASE_URL}/search?${params}`;
+        console.log('Fetching from URL:', url);
+        
+        const response = await fetch(url);
+        console.log('Response status:', response.status);
+        
         const data = await response.json();
+        console.log('Received data:', data);
         
         if (!response.ok) throw new Error(data.message || 'Failed to fetch recipes');
         
         // Filter out recipes without images
         const recipesWithImages = (data.results || []).filter(r => r.image);
-        displayResults(recipesWithImages);
+        console.log('Recipes with images:', recipesWithImages.length);
+        
+        if (recipesWithImages.length === 0) {
+            showError('No recipes found matching your criteria. Try a different search term.');
+        } else {
+            displayResults(recipesWithImages);
+        }
     } catch (error) {
+        console.error('Search error:', error);
         showError(error.message);
     } finally {
         hideLoading();
@@ -146,64 +158,32 @@ async function fetchYoutubeVideos() {
     
     try {
         // Using the YouTube Data API with the provided API key
-        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=date&maxResults=9&type=video`);
+        // Add search terms to filter for food-related content
+        const searchTerms = 'recipe OR meal OR food OR cook OR cooking OR vegan OR vegetarian OR plant-based OR breakfast OR lunch OR dinner';
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);
         const data = await response.json();
         
         if (data.items && data.items.length > 0) {
-            displayYoutubeVideos(data.items);
+            // Additional client-side filtering to ensure we only get food-related videos
+            const foodKeywords = ['recipe', 'meal', 'food', 'healthy', 'cook', 'cooking', 'vegan', 'vegetarian', 'plant-based', 
+                                'breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'prep', 'kitchen', 'eat', 'eating'];
+            
+            const filteredVideos = data.items.filter(video => {
+                const title = video.snippet.title.toLowerCase();
+                const description = video.snippet.description.toLowerCase();
+                return foodKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
+            });
+            
+            // Limit to 9 videos after filtering
+            const limitedVideos = filteredVideos.slice(0, 9);
+            
+            if (limitedVideos.length > 0) {
+                displayYoutubeVideos(limitedVideos);
+            } else {
+                showError('No food-related videos found from Pick Up Limes channel.', youtubeResults);
+            }
         } else {
-            // Fallback to sample data if the API doesn't return results
-            const sampleVideos = [
-                {
-                    id: { videoId: 'ZJpHU5D5eLs' },
-                    snippet: {
-                        title: 'MEAL PREP for the Week | healthy recipes',
-                        description: 'Delicious plant-based meal prep recipes that are healthy and easy to make',
-                        publishedAt: '2023-01-15T09:00:00Z'
-                    }
-                },
-                {
-                    id: { videoId: 'vr2n_QVExKA' },
-                    snippet: {
-                        title: 'What I Eat In A Day | balanced meals & snacks',
-                        description: 'A full day of balanced plant-based eating with simple recipes',
-                        publishedAt: '2022-11-28T14:30:00Z'
-                    }
-                },
-                {
-                    id: { videoId: 'j7N1f0Pq-fY' },
-                    snippet: {
-                        title: 'PROTEIN-PACKED Vegan Meal Prep',
-                        description: 'High-protein vegan meals that are delicious and satisfying',
-                        publishedAt: '2022-10-12T10:15:00Z'
-                    }
-                },
-                {
-                    id: { videoId: 'Zw8L0K5G_Ww' },
-                    snippet: {
-                        title: '15-minute EASY Vegan Dinner Recipes',
-                        description: 'Quick and easy vegan dinner recipes perfect for busy weeknights',
-                        publishedAt: '2022-09-20T08:45:00Z'
-                    }
-                },
-                {
-                    id: { videoId: 'OHXZcFLpiVQ' },
-                    snippet: {
-                        title: 'BUDGET-FRIENDLY Vegan Meals | $3 per serving',
-                        description: 'Affordable vegan recipes that are budget-friendly and nutritious',
-                        publishedAt: '2022-08-05T11:30:00Z'
-                    }
-                },
-                {
-                    id: { videoId: 'JcfYF4SI9lU' },
-                    snippet: {
-                        title: 'MEAL PREP with me | healthy & easy recipes',
-                        description: 'Join me for a meal prep session with healthy and easy plant-based recipes',
-                        publishedAt: '2022-07-18T13:20:00Z'
-                    }
-                }
-            ];
-            displayYoutubeVideos(sampleVideos);
+            showError('No videos found from Pick Up Limes channel.', youtubeResults);
         }
     } catch (error) {
         showError('Failed to load YouTube videos. Please try again later.', youtubeResults);
