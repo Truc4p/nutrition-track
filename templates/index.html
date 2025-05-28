@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Featured Recipes</h2>
+    <p>Showing {{ recipes|length }} of {{ total_recipes }} recipes</p>
+    
+    <div class="recipe-grid">
+        {% for recipe in recipes %}
+            <div class="recipe-card">
+                {% if recipe.image_path %}
+                    {% set filename = recipe.image_path.split('/')[-1] %}
+                    {% set base_filename = filename.split('.')[0] %}
+                    {% if '.jpg' in filename %}
+                        <img src="{{ url_for('serve_image', filename=filename) }}" alt="{{ recipe.title }}">
+                    {% elif '.webp' in filename %}
+                        <img src="{{ url_for('serve_image', filename=base_filename + '.jpg') }}" alt="{{ recipe.title }}">
+                    {% else %}
+                        <img src="{{ url_for('serve_static', filename='placeholder.svg') }}" alt="No Image">
+                    {% endif %}
+                {% else %}
+                    <img src="{{ url_for('serve_static', filename='placeholder.svg') }}" alt="No Image">
+                {% endif %}
+                <div class="content">
+                    <h3>{{ recipe.title }}</h3>
+                    <p>{{ recipe.description }}</p>
+                    <p><strong>Ingredients:</strong> {{ recipe.ingredients_count }}</p>
+                    <p><strong>Steps:</strong> {{ recipe.instructions_count }}</p>
+                    <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}">View Recipe</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
