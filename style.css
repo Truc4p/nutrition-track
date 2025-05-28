@@ -1015,7 +1015,7 @@ html {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 15px 20px;
+    padding: 5px 15px;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
 }

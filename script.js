@@ -24,128 +24,7 @@ let goal = '';
 let healthCondition = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Chat elements for floating chat
-    const chatSupport = document.querySelector('.chatbox__support');
-    const chatButton = document.querySelector('.chatbox__button button');
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.querySelector('.chatbox__send--footer');
-    const chatMessages = document.getElementById('chat-messages');
-
-    // Chat elements for fixed chat
-    const chatInputFixed = document.getElementById('chat-input-fixed');
-    const sendButtonFixed = document.getElementById('send-button-fixed');
-    const chatMessagesFixed = document.getElementById('chat-messages-fixed');
-
-    // Toggle chat functionality
-    if (chatButton) {
-        chatButton.addEventListener('click', () => {
-            chatSupport.classList.toggle('chatbox--active');
-        });
-    }
-
-    // Function to handle sending messages
-    async function handleSendMessage(input, messagesContainer) {
-        const userMessage = input.value.trim();
-        if (!userMessage) return;
-
-        // Display user message
-        appendMessage('You', userMessage, messagesContainer);
-
-        // Clear input field
-        input.value = '';
-
-        try {
-            // Send user message to the chatbot server
-            const response = await fetch(GEMINI_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userMessage }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            // Display chatbot response
-            appendMessage('Nutrition Assistant', data.recommendation || 'No response received.', messagesContainer);
-        } catch (error) {
-            console.error('Error communicating with chatbot server:', error);
-            appendMessage('Nutrition Assistant', 'Sorry, I could not process your request. Please try again later.', messagesContainer);
-        }
-    }
-
-    // Chat message handling for floating chat
-    if (sendButton && chatInput) {
-        sendButton.addEventListener('click', () => handleSendMessage(chatInput, chatMessages));
-        chatInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                handleSendMessage(chatInput, chatMessages);
-            }
-        });
-    }
-
-    // Chat message handling for fixed chat
-    if (sendButtonFixed && chatInputFixed) {
-        sendButtonFixed.addEventListener('click', () => handleSendMessage(chatInputFixed, chatMessagesFixed));
-        chatInputFixed.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                handleSendMessage(chatInputFixed, chatMessagesFixed);
-            }
-        });
-    }
-
-    function appendMessage(sender, message, container) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = sender === 'You' ? 'messages__item messages__item--operator' : 'messages__item messages__item--visitor';
-        messageDiv.innerHTML = `<strong>${sender}:</strong> ${formatResponse(message)}`;
-        container.appendChild(messageDiv);
-        container.scrollTop = container.scrollHeight;
-    }
-
-    function formatResponse(response) {
-        if (!response) return '';
-        
-        return response
-            // Headers
-            .replace(/#{3}(.*?)(?:\n|$)/g, '<h3>$1</h3>') // h3
-            .replace(/#{2}(.*?)(?:\n|$)/g, '<h2>$1</h2>') // h2
-            .replace(/#{1}(.*?)(?:\n|$)/g, '<h1>$1</h1>') // h1
-            
-            // Text formatting
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-            .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-            .replace(/`(.*?)`/g, '<code>$1</code>') // Inline code
-            .replace(/~~(.*?)~~/g, '<del>$1</del>') // Strikethrough
-            
-            // Lists
-            .replace(/^\s*[-*+]\s+(.*?)(?:\n|$)/gm, '<li>$1</li>') // Unordered list items
-            .replace(/^\s*\d+\.\s+(.*?)(?:\n|$)/gm, '<li>$1</li>') // Ordered list items
-            .replace(/(<li>.*?<\/li>)\n?/gs, '<ul>$1</ul>') // Wrap list items in ul
-            
-            // Links and Images
-            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>') // Links
-            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">') // Images
-            
-            // Line breaks and paragraphs
-            .replace(/\n{2,}/g, '</p><p>') // Double line breaks to paragraphs
-            .replace(/\n/g, '<br>') // Single line breaks
-            
-            // Wrap in paragraphs if not already wrapped
-            .replace(/^(.+)$/, '<p>$1</p>')
-            
-            // Clean up any empty paragraphs
-            .replace(/<p>\s*<\/p>/g, '')
-            
-            // Fix nested paragraph issues
-            .replace(/<p>(<h[1-3]>.*?<\/h[1-3]>)<\/p>/g, '$1')
-            .replace(/<p>(<ul>.*?<\/ul>)<\/p>/g, '$1');
-    }
+    // Event listeners for this page
 
     // Event listeners
     if (recommendButton) {
@@ -286,7 +165,6 @@ let foods = [];
 let isLoading = false;
 let recommendation = null;
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
-const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/"; 
 
 // Add these variables at the top with other declarations
 let selectedFood = null;
