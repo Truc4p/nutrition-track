@@ -47,22 +47,36 @@ def search_recipes():
         
         # Check if recipe matches search criteria
         if query:
+            # Find full recipe details to check ingredients
+            full_recipe = None
+            for db_recipe in recipe_db['recipes']:
+                if db_recipe['id'] == recipe['id']:
+                    full_recipe = db_recipe
+                    break
+                    
+            if not full_recipe:
+                continue
+                
+            # Get ingredients as a string for searching
+            ingredients_text = ' '.join(full_recipe.get('ingredients', [])).lower()
+            
             # If no exact match, try to match individual words
             query_words = query.lower().split()
             title_words = title.split()
             desc_words = description.split() if description else []
             
-            # Check if any query word is in title or description
+            # Check if any query word is in title, description or ingredients
             match_found = False
             
             # For exact matches (higher priority)
-            if query in title or query in description:
+            if query in title or query in description or query in ingredients_text:
                 match_found = True
             else:
                 # For partial word matches
                 for q_word in query_words:
                     if any(q_word in t_word.lower() for t_word in title_words) or \
-                       any(q_word in d_word.lower() for d_word in desc_words):
+                       any(q_word in d_word.lower() for d_word in desc_words) or \
+                       q_word in ingredients_text:
                         match_found = True
                         break
             
@@ -72,8 +86,8 @@ def search_recipes():
                     health_keywords = ['vegetable', 'fruit', 'grain', 'protein', 'vitamin', 
                                       'nutrient', 'nutrition', 'healthy', 'health', 'fresh',
                                       'natural', 'organic', 'whole', 'green', 'salad', 'bowl']
-                    if any(keyword in title.lower() or keyword in description.lower() 
-                           for keyword in health_keywords):
+                    if any(keyword in title.lower() or keyword in description.lower() or 
+                           keyword in ingredients_text for keyword in health_keywords):
                         match_found = True
             
             if not match_found:
