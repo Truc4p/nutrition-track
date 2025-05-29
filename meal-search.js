@@ -186,15 +186,15 @@ async function fetchYoutubeVideos(customQuery = '') {
             searchTerms = 'recipe OR meal OR food OR cook OR cooking OR vegan OR vegetarian OR plant-based OR breakfast OR lunch OR dinner';
         }
         // Fetch videos from both channels and combine results
-        const pickupLimesResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);        
-        const pickupLimesData = await pickupLimesResponse.json();
-        
         const rainbowPlantLifeResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${RAINBOW_PLANT_LIFE_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);        
         const rainbowPlantLifeData = await rainbowPlantLifeResponse.json();
         
+        const pickupLimesResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);        
+        const pickupLimesData = await pickupLimesResponse.json();
+        
         // Combine results from both channels
         const data = {
-            items: [...(pickupLimesData.items || []), ...(rainbowPlantLifeData.items || [])]
+            items: [...(rainbowPlantLifeData.items || []), ...(pickupLimesData.items || [])]
         };
         
         if (data.items && data.items.length > 0) {

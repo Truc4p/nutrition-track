@@ -985,10 +985,6 @@ html {
     height: 60px;
 }
 
-.chatbox__button button:hover {
-    transform: scale(1.1);
-}
-
 .chatbox__button img {
     width: 55px;
     height: 55px;
@@ -2189,7 +2185,7 @@ canvas {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.3), rgba(255,255,255,0));
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
     transition: all 0.6s ease;
 }
 
@@ -2355,273 +2351,6 @@ canvas {
 }
 
 /* Recipe Card Styles - Consolidated */
-/* Recipe Card Styles - See updated version below */
-
-
-
-
-
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
-    z-index: 1000;
-}
-
-.modal-content {
-    position: relative;
-    background-color: white;
-    margin: 5% auto;
-    padding: 2rem;
-    width: 80%;
-    max-width: 800px;
-    max-height: 80vh;
-    overflow-y: auto;
-    border-radius: 8px;
-}
-
-.close {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-    font-size: 2rem;
-    cursor: pointer;
-    color: #666;
-}
-
-.close:hover {
-    color: #333;
-}
-
-.recipe-info {
-    margin-top: 2rem;
-}
-
-.recipe-info h3 {
-    color: #333;
-    margin: 1.5rem 0 1rem;
-}
-
-.recipe-info ul, .recipe-info ol {
-    padding-left: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.recipe-info li {
-    margin-bottom: 0.5rem;
-    line-height: 1.6;
-}
-
-.error-message {
-    text-align: center;
-    color: #d32f2f;
-    padding: 1rem;
-    background-color: #ffebee;
-    border-radius: 4px;
-    margin: 1rem 0;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .search-box {
-        flex-direction: column;
-    }
-    
-    #meal-search-input {
-        width: 100%;
-    }
-    
-    .filters {
-        flex-direction: column;
-    }
-    
-    .modal-content {
-        width: 95%;
-        margin: 2% auto;
-    }
-}
-
-/* Recipe Details Page Styles */
-.recipe-details-container {
-    max-width: 1000px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-.recipe-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.recipe-header h1 {
-    font-size: 2.5rem;
-    color: #2c3e50;
-    margin-bottom: 1rem;
-}
-
-.recipe-meta {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 1rem 0;
-}
-
-.badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.badge.vegetarian {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.badge.vegan {
-    background-color: #8BC34A;
-    color: white;
-}
-
-.badge.gluten-free {
-    background-color: #FF9800;
-    color: white;
-}
-
-.recipe-image {
-    width: 100%;
-    max-height: 500px;
-    overflow: hidden;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-}
-
-.recipe-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Recipe Sections - Consolidated */
-.recipe-sections {
-    display: grid;
-    gap: 2rem;
-}
-
-.recipe-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.recipe-section h2 {
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-}
-
-.nutrition-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.5rem;
-    text-align: center;
-}
-
-.nutrition-item {
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 10px;
-}
-
-.nutrition-item .value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-}
-
-.nutrition-item .label {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.ingredients-list {
-    list-style: none;
-    padding: 0;
-}
-
-.ingredients-list li {
-    display: flex;
-    align-items: baseline;
-    padding: 0.8rem 0;
-    border-bottom: 1px solid #eee;
-}
-
-.ingredients-list li:last-child {
-    border-bottom: none;
-}
-
-.ingredient-amount {
-    min-width: 100px;
-    color: #666;
-    font-weight: 500;
-}
-
-.instructions-list {
-    padding-left: 1.5rem;
-}
-
-.instructions-list li {
-    margin-bottom: 1rem;
-    line-height: 1.6;
-}
-
-.recipe-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-    justify-content: center;
-}
-
-.primary-button, .secondary-button {
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.primary-button {
-    background: linear-gradient(135deg, #3498db, #2ecc71);
-    color: white;
-    border: none;
-}
-
-.secondary-button {
-    background: white;
-    color: #2c3e50;
-    border: 1px solid #ddd;
-}
-
-.primary-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-}
-
-.secondary-button:hover {
-    background: #f8f9fa;
-    transform: translateY(-2px);
-}
-
-/* Recipe Card Styles - Consolidated Version */
 .recipe-card {
     border: none;
     border-radius: 12px;
@@ -2929,6 +2658,7 @@ canvas {
     margin: 0 0 0.5rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2942,26 +2672,7 @@ canvas {
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .recipe-header h1 {
-        font-size: 2rem;
-    }
-    
-    /* Responsive adjustments for recipe sections */
-    .recipe-sections {
-        gap: 1.5rem;
-    }
-    
-    .recipe-section {
-        padding: 1.5rem;
-    }
-    
-    .nutrition-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .recipe-actions {
-        flex-direction: column;
-    }
+    /* Responsive recipe styles have been removed */
     
     .primary-button, .secondary-button {
         width: 100%;
@@ -2978,32 +2689,7 @@ canvas {
     }
 }
 
-/* Updated Recipe Details Nutrition Styles */
-.nutrition-section {
-    background: white;
-    padding: 2rem;
-}
-
-.nutrition-category {
-    margin-bottom: 2rem;
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 1.5rem;
-}
-
-.nutrition-category h3 {
-    color: #2c3e50;
-    font-size: 1.4rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.8rem;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.nutrition-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-}
+/* Recipe details nutrition styles have been removed */
 
 .nutrient-item {
     background: white;
