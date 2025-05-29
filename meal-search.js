@@ -226,7 +226,7 @@ async function fetchYoutubeVideos(customQuery = '') {
 
 function displayYoutubeVideos(videos) {
     if (!videos || videos.length === 0) {
-        showError('No videos found from Pick Up Limes channel.', youtubeResults);
+        showError('No videos found from our channels.', youtubeResults);
         return;
     }
     
@@ -242,18 +242,19 @@ function displayYoutubeVideos(videos) {
             day: 'numeric'
         });
         
+        // Create a clickable thumbnail instead of an iframe
+        const thumbnailUrl = video.snippet.thumbnails.high?.url || video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default?.url;
+        const videoId = video.id.videoId;
+        
         videoCard.innerHTML = `
             <div class="video-thumbnail">
-                <iframe 
-                    src="https://www.youtube.com/embed/${video.id.videoId}" 
-                    title="${video.snippet.title}" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
+                <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer">
+                    <img src="${thumbnailUrl}" alt="${video.snippet.title}" />
+                    <div class="play-button"></div>
+                </a>
             </div>
             <div class="video-info">
-                <h3>${video.snippet.title}</h3>
+                <h3><a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer">${video.snippet.title}</a></h3>
                 <p>${video.snippet.description}</p>
                 <p class="video-date">Published: ${formattedDate}</p>
             </div>
