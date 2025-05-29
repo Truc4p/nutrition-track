@@ -2,6 +2,7 @@
 const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
 const YOUTUBE_API_KEY = 'AIzaSyCl2hSa3ZZ2MIXBiyMZaWite5lIn3Snowg'; // You'll need to replace this with a valid YouTube API key
 const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ'; // Pick Up Limes channel ID
+const RAINBOW_PLANT_LIFE_CHANNEL_ID = 'UCDbZvuDA_tZ6XP5wKKFuemQ'; // Rainbow Plant Life channel ID
 
 // DOM Elements
 const searchInput = document.getElementById('meal-search-input');
@@ -18,9 +19,26 @@ const resultsSection = document.getElementById('results-section');
 const youtubeSection = document.getElementById('youtube-section');
 
 // Event Listeners
-searchButton.addEventListener('click', performSearch);
+searchButton.addEventListener('click', () => {
+    // Determine which tab is active and perform the appropriate search
+    const activeTab = document.querySelector('.tab-button.active').id;
+    if (activeTab === 'results-tab') {
+        performSearch();
+    } else if (activeTab === 'youtube-tab') {
+        fetchYoutubeVideos(searchInput.value);
+    }
+});
+
 searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') performSearch();
+    if (e.key === 'Enter') {
+        // Determine which tab is active and perform the appropriate search
+        const activeTab = document.querySelector('.tab-button.active').id;
+        if (activeTab === 'results-tab') {
+            performSearch();
+        } else if (activeTab === 'youtube-tab') {
+            fetchYoutubeVideos(searchInput.value);
+        }
+    }
 });
 
 // Tab switching event listeners
@@ -45,7 +63,7 @@ async function performSearch(defaultQuery) {
     
     try {
         const params = new URLSearchParams({
-            number: 24 // Increased number to show more recipes
+            number: 40 // Increased number to show more recipes
         });
         
         // Only add query param if it's not empty
@@ -143,44 +161,62 @@ function switchTab(tabName) {
         
         // If YouTube tab is selected and no videos are loaded yet, fetch them
         if (youtubeResults.children.length === 0) {
-            fetchYoutubeVideos();
+            fetchYoutubeVideos(searchInput.value);
         }
+    }
+    
+    // Update the search button placeholder based on active tab
+    if (tabName === 'results') {
+        searchInput.placeholder = 'Search for recipes...';
+    } else if (tabName === 'youtube') {
+        searchInput.placeholder = 'Search for videos...';
     }
 }
 
 
 
-async function fetchYoutubeVideos() {
+async function fetchYoutubeVideos(customQuery = '') {
     youtubeResults.innerHTML = '';
     
     try {
         // Using the YouTube Data API with the provided API key
-        // Add search terms to filter for food-related content
-        const searchTerms = 'recipe OR meal OR food OR cook OR cooking OR vegan OR vegetarian OR plant-based OR breakfast OR lunch OR dinner';
-        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);
-        const data = await response.json();
+        // Use custom query if provided, otherwise use default food-related terms
+        let searchTerms = customQuery.trim();
+        if (!searchTerms) {
+            searchTerms = 'recipe OR meal OR food OR cook OR cooking OR vegan OR vegetarian OR plant-based OR breakfast OR lunch OR dinner';
+        }
+        // Fetch videos from both channels and combine results
+        const pickupLimesResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);        
+        const pickupLimesData = await pickupLimesResponse.json();
+        
+        const rainbowPlantLifeResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${RAINBOW_PLANT_LIFE_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);        
+        const rainbowPlantLifeData = await rainbowPlantLifeResponse.json();
+        
+        // Combine results from both channels
+        const data = {
+            items: [...(pickupLimesData.items || []), ...(rainbowPlantLifeData.items || [])]
+        };
         
         if (data.items && data.items.length > 0) {
             // Additional client-side filtering to ensure we only get food-related videos
-            const foodKeywords = ['recipe', 'meal', 'food', 'healthy', 'cook', 'cooking', 'vegan', 'vegetarian', 'plant-based', 
-                                'breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'prep', 'kitchen', 'eat', 'eating'];
+            const foodKeywords = ['recipe', 'meal', 'food', 'healthy', 'cook', 'cooking', 'breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'prep', 'kitchen', 'eat', 'eating'];
             
             const filteredVideos = data.items.filter(video => {
                 const title = video.snippet.title.toLowerCase();
                 const description = video.snippet.description.toLowerCase();
                 return foodKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
             });
-            
-            // Limit to 9 videos after filtering
-            const limitedVideos = filteredVideos.slice(0, 9);
+
+            // Limit to 40 videos after filtering
+            const limitedVideos = filteredVideos.slice(0, 40);
             
             if (limitedVideos.length > 0) {
                 displayYoutubeVideos(limitedVideos);
             } else {
-                showError('No food-related videos found from Pick Up Limes channel.', youtubeResults);
+                showError('No food-related videos found from our channels.', youtubeResults);
             }
         } else {
-            showError('No videos found from Pick Up Limes channel.', youtubeResults);
+            showError('No videos found from our channels.', youtubeResults);
         }
     } catch (error) {
         showError('Failed to load YouTube videos. Please try again later.', youtubeResults);
