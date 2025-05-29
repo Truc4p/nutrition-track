@@ -7,11 +7,15 @@ const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ'; // Pick Up Limes cha
 const searchInput = document.getElementById('meal-search-input');
 const searchButton = document.getElementById('search-button');
 const resultsContainer = document.getElementById('recipe-results');
-const loadingSpinner = document.getElementById('loading');
 const cuisineFilter = document.getElementById('cuisine-filter');
 const dietFilter = document.getElementById('diet-filter');
-const youtubeButton = document.getElementById('youtube-videos-button');
 const youtubeResults = document.getElementById('youtube-results');
+
+// Tab Elements
+const resultsTab = document.getElementById('results-tab');
+const youtubeTab = document.getElementById('youtube-tab');
+const resultsSection = document.getElementById('results-section');
+const youtubeSection = document.getElementById('youtube-section');
 
 // Event Listeners
 searchButton.addEventListener('click', performSearch);
@@ -19,22 +23,24 @@ searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') performSearch();
 });
 
-youtubeButton.addEventListener('click', toggleYoutubeVideos);
+// Tab switching event listeners
+resultsTab.addEventListener('click', () => switchTab('results'));
+youtubeTab.addEventListener('click', () => switchTab('youtube'));
 
 window.addEventListener('DOMContentLoaded', () => {
     // Show healthy meal recipes by default
     performSearch('healthy');
+    // Set results tab as active by default
+    switchTab('results');
 });
 
 async function performSearch(defaultQuery) {
     const query = typeof defaultQuery === 'string' ? defaultQuery : searchInput.value.trim();
-    const cuisine = cuisineFilter.value;
     const diet = dietFilter.value;
     
     // Allow empty query to show all recipes
     // if (!query) return;
     
-    showLoading();
     clearResults();
     
     try {
@@ -44,7 +50,6 @@ async function performSearch(defaultQuery) {
         
         // Only add query param if it's not empty
         if (query) params.append('query', query);
-        if (cuisine) params.append('cuisine', cuisine);
         if (diet) params.append('diet', diet);
         
         const url = `${BASE_URL}/search?${params}`;
@@ -70,8 +75,6 @@ async function performSearch(defaultQuery) {
     } catch (error) {
         console.error('Search error:', error);
         showError(error.message);
-    } finally {
-        hideLoading();
     }
 }
 
@@ -108,13 +111,7 @@ function createRecipeCard(recipe) {
     return card;
 }
 
-function showLoading() {
-    loadingSpinner.style.display = 'block';
-}
 
-function hideLoading() {
-    loadingSpinner.style.display = 'none';
-}
 
 function clearResults() {
     resultsContainer.innerHTML = '';
@@ -128,26 +125,32 @@ function showError(message, container = resultsContainer) {
 }
 
 // YouTube Videos Functions
-async function toggleYoutubeVideos() {
-    if (youtubeResults.style.display === 'none') {
-        youtubeResults.style.display = 'grid';
-        youtubeButton.textContent = 'Hide Pick Up Limes Videos';
+// Function to switch between tabs
+function switchTab(tabName) {
+    // Remove active class from all tabs and content
+    resultsTab.classList.remove('active');
+    youtubeTab.classList.remove('active');
+    resultsSection.classList.remove('active');
+    youtubeSection.classList.remove('active');
+    
+    // Add active class to selected tab and content
+    if (tabName === 'results') {
+        resultsTab.classList.add('active');
+        resultsSection.classList.add('active');
+    } else if (tabName === 'youtube') {
+        youtubeTab.classList.add('active');
+        youtubeSection.classList.add('active');
         
-        // Only fetch videos if the container is empty
+        // If YouTube tab is selected and no videos are loaded yet, fetch them
         if (youtubeResults.children.length === 0) {
-            await fetchYoutubeVideos();
+            fetchYoutubeVideos();
         }
-    } else {
-        youtubeResults.style.display = 'none';
-        youtubeButton.innerHTML = `
-            <img src="https://www.youtube.com/s/desktop/7c155e84/img/favicon_144x144.png" alt="YouTube" class="youtube-icon">
-            Watch Pick Up Limes Recipe Videos
-        `;
     }
 }
 
+
+
 async function fetchYoutubeVideos() {
-    showLoading();
     youtubeResults.innerHTML = '';
     
     try {
@@ -182,8 +185,6 @@ async function fetchYoutubeVideos() {
     } catch (error) {
         showError('Failed to load YouTube videos. Please try again later.', youtubeResults);
         console.error('YouTube API error:', error);
-    } finally {
-        hideLoading();
     }
 }
 

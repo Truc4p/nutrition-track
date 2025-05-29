@@ -3,7 +3,6 @@ const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
 
 // DOM Elements
 const recipeContent = document.getElementById('recipe-content');
-const loadingSpinner = document.getElementById('loading');
 const saveRecipeButton = document.getElementById('save-recipe');
 
 // Get recipe ID from URL parameters
@@ -20,8 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadRecipeDetails(recipeId) {
-    showLoading();
-    
     try {
         // No API key needed for local API
         const params = new URLSearchParams({});
@@ -36,9 +33,8 @@ async function loadRecipeDetails(recipeId) {
         
         displayRecipeDetails(recipeData);
     } catch (error) {
-        showError(error.message);
-    } finally {
-        hideLoading();
+        console.error('Error loading recipe details:', error);
+        showError('Failed to load recipe details. Please try again later.');
     }
 }
 
@@ -98,16 +94,6 @@ function displayRecipeDetails(recipe) {
 }
 
 // Nutrition-related functions have been removed as they're no longer needed
-
-function showLoading() {
-    loadingSpinner.style.display = 'block';
-    recipeContent.style.opacity = '0.5';
-}
-
-function hideLoading() {
-    loadingSpinner.style.display = 'none';
-    recipeContent.style.opacity = '1';
-}
 
 function showError(message) {
     recipeContent.innerHTML = `

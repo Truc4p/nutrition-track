@@ -27,18 +27,6 @@
 
             <div class="filters">
                 <div class="filter-group">
-                    <label for="cuisine-filter">Cuisine:</label>
-                    <select id="cuisine-filter">
-                        <option value="">All Cuisines</option>
-                        <option value="vietnamese">Vietnamese</option>
-                        <option value="italian">Italian</option>
-                        <option value="mexican">Mexican</option>
-                        <option value="indian">Indian</option>
-                        <option value="chinese">Chinese</option>
-                        <option value="japanese">Japanese</option>
-                    </select>
-                </div>
-                <div class="filter-group">
                     <label for="diet-filter">Diet:</label>
                     <select id="diet-filter">
                         <option value="">All Diets</option>
@@ -51,21 +39,21 @@
             </div>
         </section>
 
-        <div id="loading" class="loading-spinner" style="display: none;">
-            <div class="spinner"></div>
+
+        <div class="content-tabs">
+            <div class="tab-navigation">
+                <button id="results-tab" class="tab-button active">Recipe Results</button>
+                <button id="youtube-tab" class="tab-button">YouTube Videos</button>
+            </div>
+            
+            <section id="results-section" class="results-section tab-content active">
+                <div id="recipe-results" class="recipe-grid"></div>
+            </section>
+
+            <section id="youtube-section" class="youtube-section tab-content">
+                <div id="youtube-results" class="video-grid"></div>
+            </section>
         </div>
-
-        <section class="results-section">
-            <div id="recipe-results" class="recipe-grid"></div>
-        </section>
-
-        <section class="youtube-section">
-            <button id="youtube-videos-button" class="youtube-button">
-                <img src="https://www.youtube.com/s/desktop/7c155e84/img/favicon_144x144.png" alt="YouTube" class="youtube-icon">
-                Watch Pick Up Limes Recipe Videos
-            </button>
-            <div id="youtube-results" class="video-grid" style="display: none;"></div>
-        </section>
     </main>
 
     <script src="nav-bar.js"></script>
