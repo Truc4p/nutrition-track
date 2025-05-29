@@ -22,7 +22,7 @@ with open(RECIPE_INDEX_PATH, 'r') as f:
 
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory('.', 'home.html')
 
 @app.route('/api/recipes/search')
 def search_recipes():

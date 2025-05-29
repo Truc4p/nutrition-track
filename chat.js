@@ -4,6 +4,7 @@ class ChatUI {
         this.sendButton = document.getElementById('send-button');
         this.chatMessages = document.getElementById('chat-messages');
         this.quickPrompts = document.querySelectorAll('.prompt-button');
+
         this.isProcessing = false;
         this.GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/";
 
@@ -106,13 +107,7 @@ class ChatUI {
         this.sendButton.disabled = isLoading;
         this.chatInput.disabled = isLoading;
         
-        if (isLoading) {
-            this.sendButton.innerHTML = `
-                <span class="loading-spinner"></span>
-            `;
-        } else {
-            this.sendButton.textContent = 'Send';
-        }
+
 
         // Disable quick prompts while processing
         this.quickPrompts.forEach(button => {
