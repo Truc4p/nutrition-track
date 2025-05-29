@@ -123,7 +123,7 @@ function createRecipeCard(recipe) {
     
     // Add click event to the entire card
     card.addEventListener('click', () => {
-        window.location.href = `recipe-details.html?id=${recipe.id}`;
+        window.open(recipe.url, '_blank');
     });
     
     return card;

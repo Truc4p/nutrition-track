@@ -154,6 +154,7 @@ def search_recipes():
             'id': recipe['id'],
             'title': recipe['title'],
             'image': image_url,
+            'url': full_recipe.get('url', ''),  # Add URL to original Pick Up Limes recipe
             'readyInMinutes': recipe.get('readyInMinutes', 30),  # Default to 30 if not available
             'vegetarian': 'vegetarian' in title.lower() or 'vegan' in title.lower() or 'vegetarian' in tags_str or 'vegan' in tags_str,
             'vegan': 'vegan' in title.lower() or 'vegan' in tags_str,
