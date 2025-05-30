@@ -51,34 +51,179 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add console.log to debug the recommendation variable
                 console.log("Recommendation data:", recommendation);
 
+                // Create tabs for different nutrient categories
                 recommendationText.innerHTML = `
-                    <div class="nutrient-item">
-                        <span class="nutrient-name">Calories:</span>
-                        <span class="nutrient-value">${formatValue(recommendation.calories)} kcal</span>
+                    <div class="recommendation-tabs">
+                        <button class="tab-button active" data-tab="macros">Macronutrients</button>
+                        <button class="tab-button" data-tab="fats">Fats</button>
+                        <button class="tab-button" data-tab="minerals">Minerals</button>
+                        <button class="tab-button" data-tab="vitamins">Vitamins</button>
                     </div>
-                    <div class="nutrient-item">
-                        <span class="nutrient-name">Fats:</span>
-                        <span class="nutrient-value">${formatValue(recommendation.fats.min)}g - ${formatValue(recommendation.fats.max)}g</span>
+                    
+                    <div class="tab-content" id="macros-tab" style="display: block;">
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Calories:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.calories)} kcal</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Fats:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.fats.min)}g - ${formatValue(recommendation.fats.max)}g</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Carbs:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.carbs.min)}g - ${formatValue(recommendation.carbs.max)}g</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Protein:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.protein.min)}g - ${formatValue(recommendation.protein.max)}g</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Fiber:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.fiber)}g</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Cholesterol:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.cholesterol)}mg</span>
+                        </div>
                     </div>
-                    <div class="nutrient-item">
-                        <span class="nutrient-name">Carbs:</span>
-                        <span class="nutrient-value">${formatValue(recommendation.carbs.min)}g - ${formatValue(recommendation.carbs.max)}g</span>
+                    
+                    <div class="tab-content" id="fats-tab" style="display: none;">
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Omega-3:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.omega3)}g</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Omega-6:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.omega6)}g</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Saturated Fat:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.saturatedFat)}g</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Trans Fat:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.transFat)}g</span>
+                        </div>
                     </div>
-                    <div class="nutrient-item">
-                        <span class="nutrient-name">Protein:</span>
-                        <span class="nutrient-value">${formatValue(recommendation.protein.min)}g - ${formatValue(recommendation.protein.max)}g</span>
+                    
+                    <div class="tab-content" id="minerals-tab" style="display: none;">
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Iron:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.iron)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Sodium:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.sodium)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Potassium:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.potassium)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Calcium:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.calcium)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Magnesium:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.magnesium)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Zinc:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.zinc)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Copper:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.copper)}mcg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Manganese:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.manganese)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Phosphorus:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.phosphorus)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Selenium:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.selenium)}mcg</span>
+                        </div>
                     </div>
-                    <div class="nutrient-item">
-                        <span class="nutrient-name">Fiber:</span>
-                        <span class="nutrient-value">${formatValue(recommendation.fiber)}g</span>
-                    </div>
-                    <div class="nutrient-item">
-                        <span class="nutrient-name">Cholesterol:</span>
-                        <span class="nutrient-value">${formatValue(recommendation.cholesterol)}mg</span>
+                    
+                    <div class="tab-content" id="vitamins-tab" style="display: none;">
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Vitamin A:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.vitaminA)}mcg RAE</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Vitamin B6:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.vitaminB6)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Vitamin B12:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.vitaminB12)}mcg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Vitamin C:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.vitaminC)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Vitamin D:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.vitaminD)}IU</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Vitamin E:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.vitaminE)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Vitamin K:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.vitaminK)}mcg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Folate:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.folate)}mcg DFE</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Thiamin:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.thiamin)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Riboflavin:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.riboflavin)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Niacin:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.niacin)}mg</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-name">Choline:</span>
+                            <span class="nutrient-value">${formatValue(recommendation.choline)}mg</span>
+                        </div>
                     </div>
                 `;
 
                 renderRecommendedNutritionChart();
+                
+                // Add event listeners for tab buttons
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        // Remove active class from all buttons
+                        document.querySelectorAll('.tab-button').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        
+                        // Add active class to clicked button
+                        button.classList.add('active');
+                        
+                        // Hide all tab content
+                        document.querySelectorAll('.tab-content').forEach(content => {
+                            content.style.display = 'none';
+                        });
+                        
+                        // Show selected tab content
+                        const tabId = button.getAttribute('data-tab');
+                        document.getElementById(`${tabId}-tab`).style.display = 'block';
+                    });
+                });
             } catch (error) {
                 console.error("Error calculating recommendation:", error);
                 recommendationText.textContent = "Failed to calculate recommendation. Please try again.";
@@ -106,7 +251,7 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
     const calories = bmr * activityMultipliers[activityLevel];
 
     // Adjust calories based on goal
-    if (goal === "loss") {
+    if (goal === "lose") {
         calories -= 500; // Subtract 500 calories for weight loss
     } else if (goal === "gain") {
         calories += 500; // Add 500 calories for weight gain
@@ -153,11 +298,206 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
     // Cholesterol recommendation
     let cholesterol = 300; // General recommendation
     const conditions = ["heart disease", "diabetes"];
-    if (conditions.includes(healthCondition.toLowerCase())) {
+    if (conditions.some(condition => healthCondition.toLowerCase().includes(condition))) {
         cholesterol = 200; // Limit for individuals with heart disease or diabetes
     }
-
-    return { calories, fats, carbs, protein, fiber, cholesterol };
+    
+    // Calculate recommendations for additional nutrients
+    
+    // Fat breakdown recommendations
+    const omega3 = gender === "male" ? 1.6 : 1.1; // g/day (ALA)
+    const omega6 = gender === "male" ? 17 : 12; // g/day (Linoleic acid)
+    const saturatedFat = (calories * 0.07) / 9; // Max 7% of calories for saturated fat
+    const transFat = (calories * 0.01) / 9; // Max 1% of calories for trans fat
+    
+    // Mineral recommendations based on age and gender
+    let iron, calcium, magnesium, zinc, copper, manganese, phosphorus, selenium;
+    let sodium, potassium;
+    
+    // Sodium and Potassium
+    sodium = 1500; // mg, general recommendation
+    potassium = 4700; // mg, general recommendation
+    
+    // Iron recommendations (mg/day)
+    if (age >= 19 && age <= 50) {
+        iron = gender === "male" ? 8 : 18;
+    } else if (age > 50) {
+        iron = 8; // Both men and women over 50
+    } else if (age >= 14 && age <= 18) {
+        iron = gender === "male" ? 11 : 15;
+    } else if (age >= 9 && age <= 13) {
+        iron = 8;
+    } else {
+        iron = 10; // Default
+    }
+    
+    // Calcium recommendations (mg/day)
+    if (age >= 19 && age <= 50) {
+        calcium = 1000;
+    } else if (age > 50 && age <= 70) {
+        calcium = gender === "male" ? 1000 : 1200;
+    } else if (age > 70) {
+        calcium = 1200;
+    } else if (age >= 14 && age <= 18) {
+        calcium = 1300;
+    } else if (age >= 9 && age <= 13) {
+        calcium = 1300;
+    } else {
+        calcium = 1000; // Default
+    }
+    
+    // Magnesium recommendations (mg/day)
+    if (age >= 19 && age <= 30) {
+        magnesium = gender === "male" ? 400 : 310;
+    } else if (age > 30) {
+        magnesium = gender === "male" ? 420 : 320;
+    } else if (age >= 14 && age <= 18) {
+        magnesium = gender === "male" ? 410 : 360;
+    } else {
+        magnesium = 350; // Default
+    }
+    
+    // Zinc recommendations (mg/day)
+    if (age >= 19) {
+        zinc = gender === "male" ? 11 : 8;
+    } else if (age >= 14 && age <= 18) {
+        zinc = gender === "male" ? 11 : 9;
+    } else {
+        zinc = 10; // Default
+    }
+    
+    // Copper recommendations (mcg/day)
+    copper = 900; // General adult recommendation
+    
+    // Manganese recommendations (mg/day)
+    manganese = gender === "male" ? 2.3 : 1.8;
+    
+    // Phosphorus recommendations (mg/day)
+    phosphorus = 700; // General adult recommendation
+    
+    // Selenium recommendations (mcg/day)
+    selenium = 55; // General adult recommendation
+    
+    // Vitamin recommendations
+    let vitaminA, vitaminB6, vitaminB12, vitaminC, vitaminD, vitaminE, vitaminK;
+    let folate, thiamin, riboflavin, niacin, choline;
+    
+    // Vitamin A (mcg RAE/day)
+    vitaminA = gender === "male" ? 900 : 700;
+    
+    // Vitamin B6 (mg/day)
+    if (age >= 19 && age <= 50) {
+        vitaminB6 = 1.3;
+    } else if (age > 50) {
+        vitaminB6 = gender === "male" ? 1.7 : 1.5;
+    } else {
+        vitaminB6 = 1.3; // Default
+    }
+    
+    // Vitamin B12 (mcg/day)
+    vitaminB12 = 2.4; // General adult recommendation
+    
+    // Vitamin C (mg/day)
+    if (age >= 19) {
+        vitaminC = gender === "male" ? 90 : 75;
+        // Adjust for smokers
+        if (healthCondition.toLowerCase().includes("smoke")) {
+            vitaminC += 35; // Additional 35mg for smokers
+        }
+    } else if (age >= 14 && age <= 18) {
+        vitaminC = gender === "male" ? 75 : 65;
+    } else {
+        vitaminC = 75; // Default
+    }
+    
+    // Vitamin D (IU/day)
+    if (age <= 70) {
+        vitaminD = 600;
+    } else {
+        vitaminD = 800; // For adults over 70
+    }
+    
+    // Vitamin E (mg/day)
+    vitaminE = 15; // General adult recommendation
+    
+    // Vitamin K (mcg/day)
+    vitaminK = gender === "male" ? 120 : 90;
+    
+    // Folate (mcg DFE/day)
+    folate = 400; // General adult recommendation
+    
+    // Thiamin (mg/day)
+    thiamin = gender === "male" ? 1.2 : 1.1;
+    
+    // Riboflavin (mg/day)
+    riboflavin = gender === "male" ? 1.3 : 1.1;
+    
+    // Niacin (mg/day)
+    niacin = gender === "male" ? 16 : 14;
+    
+    // Choline (mg/day)
+    choline = gender === "male" ? 550 : 425;
+    
+    // Adjust recommendations based on activity level
+    if (activityLevel === "moderately-active" || activityLevel === "very-active" || activityLevel === "athlete") {
+        // Increase certain nutrients for active individuals
+        vitaminC *= 1.2; // 20% increase
+        iron *= 1.1; // 10% increase
+        magnesium *= 1.1; // 10% increase
+        zinc *= 1.1; // 10% increase
+        potassium *= 1.1; // 10% increase
+    }
+    
+    // Adjust recommendations based on health conditions
+    if (healthCondition.toLowerCase().includes("diabetes")) {
+        // For diabetes, reduce sodium and increase certain nutrients
+        sodium = 1500; // Stricter sodium restriction
+        magnesium *= 1.2; // 20% increase
+        chromium = 200; // mcg/day, important for glucose metabolism
+    }
+    
+    if (healthCondition.toLowerCase().includes("hypertension") || 
+        healthCondition.toLowerCase().includes("high blood pressure")) {
+        // For hypertension, reduce sodium and increase potassium
+        sodium = 1500; // Stricter sodium restriction
+        potassium *= 1.1; // 10% increase
+    }
+    
+    return { 
+        calories, 
+        fats, 
+        carbs, 
+        protein, 
+        fiber, 
+        cholesterol,
+        // Additional nutrients
+        omega3,
+        omega6,
+        saturatedFat,
+        transFat,
+        iron,
+        sodium,
+        potassium,
+        calcium,
+        magnesium,
+        zinc,
+        copper,
+        manganese,
+        phosphorus,
+        selenium,
+        vitaminA,
+        vitaminB6,
+        vitaminB12,
+        vitaminC,
+        vitaminD,
+        vitaminE,
+        vitaminK,
+        folate,
+        thiamin,
+        riboflavin,
+        niacin,
+        choline
+    };
 }
 
 // --- State ---
@@ -427,79 +767,187 @@ function updateUI() {
 }
 
 function renderRecommendedNutritionChart() {
-    if (!recommendation) {
-        console.error("Recommendation data is not available.");
-        return;
-    }
-
+    if (!recommendation) return;
+    
     const ctx = document.getElementById('recommended-nutrition-chart').getContext('2d');
-    const chartData = {
-        labels: ['Fats', 'Carbs', 'Protein', 'Fiber', 'Cholesterol', 'Calories'],
-        datasets: [
-            {
-                label: 'Recommended Nutrition',
-                data: [
-                    recommendation.fats.max,
-                    recommendation.carbs.max,
-                    recommendation.protein.max,
-                    recommendation.fiber,
-                    recommendation.cholesterol,
-                    recommendation.calories
-                ],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)', // Fats
-                    'rgba(54, 162, 235, 0.2)', // Carbs
-                    'rgba(75, 192, 192, 0.2)', // Protein
-                    'rgba(153, 102, 255, 0.2)', // Fiber
-                    'rgba(255, 159, 64, 0.2)', // Cholesterol
-                    'rgba(255, 206, 86, 0.2)'  // Calories
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 1
-            }
-        ]
+    
+    // Create a dropdown to select which nutrient category to display
+    const chartContainer = document.getElementById('chart-container');
+    
+    // Check if the dropdown already exists
+    let chartCategorySelect = document.getElementById('chart-category-select');
+    if (!chartCategorySelect) {
+        // Create the dropdown if it doesn't exist
+        const selectContainer = document.createElement('div');
+        selectContainer.className = 'chart-select-container';
+        selectContainer.innerHTML = `
+            <label for="chart-category-select">Select nutrient category to display:</label>
+            <select id="chart-category-select">
+                <option value="macros" selected>Macronutrients</option>
+                <option value="fats">Fats</option>
+                <option value="minerals">Minerals</option>
+                <option value="vitamins">Vitamins</option>
+            </select>
+        `;
+        
+        // Insert the dropdown before the chart
+        chartContainer.insertBefore(selectContainer, document.getElementById('recommended-nutrition-chart'));
+        
+        // Get the newly created dropdown
+        chartCategorySelect = document.getElementById('chart-category-select');
+    }
+    
+    // Define chart data for different categories
+    const chartCategories = {
+        macros: {
+            labels: ['Calories (kcal)', 'Fats (g)', 'Carbs (g)', 'Protein (g)', 'Fiber (g)', 'Cholesterol (mg)'],
+            values: [
+                recommendation.calories,
+                (recommendation.fats.min + recommendation.fats.max) / 2, // Average of min and max
+                (recommendation.carbs.min + recommendation.carbs.max) / 2, // Average of min and max
+                (recommendation.protein.min + recommendation.protein.max) / 2, // Average of min and max
+                recommendation.fiber,
+                recommendation.cholesterol
+            ]
+        },
+        fats: {
+            labels: ['Omega-3 (g)', 'Omega-6 (g)', 'Saturated Fat (g)', 'Trans Fat (g)'],
+            values: [
+                recommendation.omega3,
+                recommendation.omega6,
+                recommendation.saturatedFat,
+                recommendation.transFat
+            ]
+        },
+        minerals: {
+            labels: ['Iron (mg)', 'Sodium (mg)', 'Potassium (mg)', 'Calcium (mg)', 'Magnesium (mg)', 'Zinc (mg)', 'Phosphorus (mg)'],
+            values: [
+                recommendation.iron,
+                recommendation.sodium / 100, // Scaled down for better visualization
+                recommendation.potassium / 100, // Scaled down for better visualization
+                recommendation.calcium / 10, // Scaled down for better visualization
+                recommendation.magnesium,
+                recommendation.zinc,
+                recommendation.phosphorus / 10 // Scaled down for better visualization
+            ]
+        },
+        vitamins: {
+            labels: ['Vitamin A (mcg)', 'Vitamin B6 (mg)', 'Vitamin B12 (mcg)', 'Vitamin C (mg)', 'Vitamin D (IU)', 'Vitamin E (mg)', 'Folate (mcg)'],
+            values: [
+                recommendation.vitaminA / 10, // Scaled down for better visualization
+                recommendation.vitaminB6,
+                recommendation.vitaminB12,
+                recommendation.vitaminC,
+                recommendation.vitaminD / 10, // Scaled down for better visualization
+                recommendation.vitaminE,
+                recommendation.folate / 10 // Scaled down for better visualization
+            ]
+        }
     };
-
+    
+    // Get the selected category
+    const selectedCategory = chartCategorySelect.value;
+    
+    // Prepare data for chart based on selected category
+    const labels = chartCategories[selectedCategory].labels;
+    const values = chartCategories[selectedCategory].values;
+    
+    // Define colors - generate enough colors for all categories
+    const generateColors = (count) => {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            const hue = (i * 137.5) % 360; // Use golden angle approximation for even distribution
+            colors.push(`hsla(${hue}, 70%, 60%, 0.2)`);
+        }
+        return colors;
+    };
+    
+    const generateBorderColors = (count) => {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            const hue = (i * 137.5) % 360;
+            colors.push(`hsla(${hue}, 70%, 50%, 1)`);
+        }
+        return colors;
+    };
+    
+    const backgroundColors = generateColors(labels.length);
+    const borderColors = generateBorderColors(labels.length);
+    
+    // Prepare chart data
+    const chartData = {
+        labels: labels,
+        datasets: [{
+            label: 'Recommended Daily Intake',
+            data: values,
+            backgroundColor: backgroundColors,
+            borderColor: borderColors,
+            borderWidth: 1
+        }]
+    };
+    
+    // Chart options
     const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
         scales: {
             y: {
-                beginAtZero: true
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString();
+                    }
+                }
             }
         },
         plugins: {
             tooltip: {
-                enabled: true // Keep tooltips enabled
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += renderRecommendedNutritionChart.formatter(context.parsed.y);
+                            
+                            // Add scaling note for scaled values
+                            const nutrientLabel = labels[context.dataIndex].toLowerCase();
+                            if (nutrientLabel.includes('sodium') || nutrientLabel.includes('potassium')) {
+                                label += ' (×100)';
+                            } else if (nutrientLabel.includes('calcium') || nutrientLabel.includes('phosphorus') || 
+                                      nutrientLabel.includes('vitamin a') || nutrientLabel.includes('vitamin d') || 
+                                      nutrientLabel.includes('folate')) {
+                                label += ' (×10)';
+                            }
+                        }
+                        return label;
+                    }
+                }
             },
-            datalabels: {
-                display: true,
-                color: 'black',
-                font: {
-                    weight: 'bold'
-                },
-                formatter: (value) => value.toFixed(2) // Format the value if needed
+            legend: {
+                display: false
+            }
+        },
+        animation: {
+            onComplete: function() {
+                renderRecommendedNutritionChart.afterDatasetsDraw(this);
             }
         }
     };
-
-    // Add this plugin to render values on top of bars
-    Chart.register({
-        id: 'value-on-top',
-        afterDatasetsDraw(chart) {
-            const { ctx, data } = chart;
-            chart.data.datasets.forEach((dataset, i) => {
-                const meta = chart.getDatasetMeta(i);
+    
+    // Custom formatter for tooltip values
+    renderRecommendedNutritionChart.formatter = function(value) {
+        return value.toLocaleString();
+    };
+    
+    // Custom function to add values on top of bars
+    renderRecommendedNutritionChart.afterDatasetsDraw = function(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            if (!meta.hidden) {
                 meta.data.forEach((bar, index) => {
                     const value = dataset.data[index];
-                    const roundedValue = parseFloat(value.toFixed(2)); // Round to 2 decimal places
+                    const roundedValue = parseFloat(value.toFixed(2));
                     if (roundedValue !== 0) { // Only show if not 0.00
                         ctx.fillStyle = 'black';
                         ctx.font = '12px Arial';
@@ -507,21 +955,24 @@ function renderRecommendedNutritionChart() {
                         ctx.fillText(roundedValue, bar.x, bar.y - 5); // Position the text above the bar
                     }
                 });
-            });
-        }
-    });
-
+            }
+        });
+    };
+    
     // Destroy existing chart instance if it exists
     if (window.recommendedNutritionChart) {
         window.recommendedNutritionChart.destroy();
     }
-
+    
     // Create new chart instance
     window.recommendedNutritionChart = new Chart(ctx, {
         type: 'bar',
         data: chartData,
         options: chartOptions
     });
+    
+    // Add event listener to the dropdown to update the chart when selection changes
+    chartCategorySelect.addEventListener('change', renderRecommendedNutritionChart);
 }
 
 // Utility function to format values
