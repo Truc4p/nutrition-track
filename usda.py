@@ -13,6 +13,10 @@ def get_usda_nutrition(api_key, food_name):
         data = response.json()
         if 'foods' in data and data['foods']:
             foods_for_analysis = data['foods'][:5]
+            # print("foods_for_analysis:", foods_for_analysis)
+            # print("foods:", data['foods'])
+            print("food descriptions:", [food.get('description', 'No description') for food in data['foods'][:5]])
+
             fats_list = []
             saturated_fats_list = []
             carbohydrates_list = []
@@ -35,6 +39,15 @@ def get_usda_nutrition(api_key, food_name):
                 serving_size_list.append(next((nutrient['value'] for nutrient in nutrients if nutrient['nutrientName'] == 'Serving Size'), 100))
                 measurement_unit_list.append(next((nutrient['unitName'] for nutrient in nutrients if nutrient['nutrientName'] == 'Serving Size'), 'g'))
 
+            print("fats_list:", fats_list)
+            print("saturated_fats_list:", saturated_fats_list)
+            print("carbohydrates_list:", carbohydrates_list)
+            print("protein_list:", protein_list)
+            print("fiber_list:", fiber_list)
+            print("cholesterol_list:", cholesterol_list)
+            print("serving_size_list:", serving_size_list)
+            print("measurement_unit_list:", measurement_unit_list)
+            
             median_fats = statistics.median(fats_list)
             median_saturated_fats = statistics.median(saturated_fats_list)
             median_carbohydrates = statistics.median(carbohydrates_list)
@@ -76,7 +89,8 @@ def get_usda_nutrition2(api_key, food_name):
         # Extract nutrition data for the first food item
         if 'foods' in data and data['foods']:
             first_food = data['foods'][0]  # Get the first food item
-            # print(first_food)  # Debug: Inspect the structure of the first food item
+            print("first food:", first_food) # Debug: Inspect the structure of the first food item
+            print("food description:", first_food.get('description', 'No description'))
 
             nutrients = {n.get('nutrientName', '').lower(): n.get('value', 'N/A') for n in first_food.get('foodNutrients', [])}
 
