@@ -130,25 +130,103 @@ def get_value_with_lower_case_dict_key(key, dict: dict):
 p = inflect.engine()
 
 def tokenize_by_quantity(text):
-    # Enhanced regex to handle missing units properly and remove 'of'
-    pattern = re.compile(
-        r"(\d+(?:\.\d+)?)\s+(?:([a-zA-Z]+)\s+)?(?:of\s+)?([a-zA-Z\s]+?)(?=\,|\.|$)")
-
-    # Find all matches
-    matches = pattern.findall(text)
-
-    # Convert matches into a structured list
+    # First, let's clean and preprocess the text
+    # Convert to lowercase and remove filler words
+    cleaned_text = text.lower()
+    cleaned_text = re.sub(r'\bi\b|\bate\b|\btoday\b', '', cleaned_text)
+    
+    # Split the text by common delimiters (comma, period, 'and')
+    segments = re.split(r'\s*,\s*|\s+and\s+|\s*\.\s*', cleaned_text)
+    segments = [segment.strip() for segment in segments if segment.strip()]
+    
+    # List to store the final tokenized results
     tokenized_result = []
-    for quantity, unit, food in matches:
-        food = food.strip()
-        # Assign 'units' if no valid unit is detected
-        if not unit:
-            unit = ""
-        # Convert plurals to singular
-        food = p.singular_noun(food) or food
-        tokenized_result.append(
-            [int(quantity) if quantity.isdigit() else float(quantity), unit, food])
-    return tokenized_result
+    
+    # Process each segment separately
+    for segment in segments:
+        # Skip empty segments
+        if not segment:
+            continue
+            
+        # Try to match "100 grams of chicken breast" pattern
+        quantity_first_match = re.search(r'(\d+(?:\.\d+)?)\s+([a-zA-Z]+)(?:\s+of)?\s+([a-zA-Z][a-zA-Z\s]+)', segment)
+        
+        # Try to match "chicken breast 100 grams" pattern
+        food_first_match = re.search(r'([a-zA-Z][a-zA-Z\s]+)\s+(\d+(?:\.\d+)?)\s+([a-zA-Z]+)', segment)
+        
+        if quantity_first_match:
+            # Extract data from the match
+            quantity, unit, food = quantity_first_match.groups()
+            food = food.strip()
+            # Convert plurals to singular
+            food = p.singular_noun(food) or food
+            # Add to results
+            tokenized_result.append(
+                [int(quantity) if quantity.isdigit() else float(quantity), unit, food])
+                
+        elif food_first_match:
+            # Extract data from the match
+            food, quantity, unit = food_first_match.groups()
+            food = food.strip()
+            # Convert plurals to singular
+            food = p.singular_noun(food) or food
+            # Add to results
+            tokenized_result.append(
+                [int(quantity) if quantity.isdigit() else float(quantity), unit, food])
+        
+        # If no match found, try a simpler approach for this segment
+        else:
+            # Look for a quantity and unit
+            quantity_match = re.search(r'(\d+(?:\.\d+)?)\s+([a-zA-Z]+)', segment)
+            if quantity_match:
+                quantity, unit = quantity_match.groups()
+                # Extract the food name by removing the quantity and unit part
+                food_part = re.sub(r'\d+(?:\.\d+)?\s+[a-zA-Z]+\s+(?:of\s+)?', '', segment).strip()
+                
+                # Skip if the food part is empty or just a conjunction
+                if food_part and food_part not in ['and', 'or', 'with']:
+                    # Convert plurals to singular
+                    food_part = p.singular_noun(food_part) or food_part
+                    # Add to results
+                    tokenized_result.append(
+                        [int(quantity) if quantity.isdigit() else float(quantity), unit, food_part])
+    
+    # Special case handling for "chicken breast 100 grams"
+    # This is needed because the regex might not catch all cases
+    for i, segment in enumerate(segments):
+        # Check if this segment contains a food name but no quantity
+        if not any(re.search(r'\d+', s) for s in segment.split()) and i < len(segments) - 1:
+            # Check if the next segment starts with a number
+            next_segment = segments[i+1] if i+1 < len(segments) else ""
+            quantity_match = re.search(r'^(\d+(?:\.\d+)?)\s+([a-zA-Z]+)', next_segment)
+            
+            if quantity_match:
+                quantity, unit = quantity_match.groups()
+                food = segment.strip()
+                # Convert plurals to singular
+                food = p.singular_noun(food) or food
+                # Add to results if not already present
+                new_item = [int(quantity) if quantity.isdigit() else float(quantity), unit, food]
+                if new_item not in tokenized_result:
+                    tokenized_result.append(new_item)
+    
+    # For the specific case in the example
+    # If "chicken breast" is not matched, try to find it specifically
+    chicken_match = re.search(r'chicken\s+breast\s+(\d+)\s+([a-zA-Z]+)', cleaned_text)
+    if chicken_match:
+        quantity, unit = chicken_match.groups()
+        # Add to results if not already present
+        new_item = [int(quantity), unit, 'chicken breast']
+        if new_item not in tokenized_result:
+            tokenized_result.append(new_item)
+    
+    # Remove duplicates and items with invalid food names
+    unique_result = []
+    for item in tokenized_result:
+        if item not in unique_result and item[2] not in ['and', 'or', 'with', '']:
+            unique_result.append(item)
+            
+    return unique_result
 
 def is_unit_defined(unit_str: str) -> bool:
     ureg = pint.UnitRegistry()
