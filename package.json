@@ -1,0 +1,30 @@
+{
+  "name": "web-ui",
+  "version": "1.0.0",
+  "description": "This web application displays recipes from the Pickup Limes database. It replaces the previous implementation that used the Spoonacular API.",
+  "main": "chat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "purge-css": "node purge-css.js",
+    "analyze-css": "node css-cleanup-analyzer.js",
+    "compare-css": "node css-compare.js",
+    "backup-css": "cp style.css style-backup-$(date +%Y%m%d-%H%M%S).css",
+    "restore-css": "cp style-original-backup.css style.css",
+    "apply-purged": "cp style-purged.css style.css",
+    "build-css": "npm run backup-css && npm run purge-css && npm run compare-css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Truc4p/FYP.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Truc4p/FYP/issues"
+  },
+  "homepage": "https://github.com/Truc4p/FYP#readme",
+  "devDependencies": {
+    "purgecss": "^6.0.0"
+  }
+}

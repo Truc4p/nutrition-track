@@ -203,6 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 renderRecommendedNutritionChart();
                 
+                // Show the chart container
+                document.getElementById('chart-container').style.display = 'block';
+                
                 // Add event listeners for tab buttons
                 document.querySelectorAll('.tab-button').forEach(button => {
                     button.addEventListener('click', () => {
@@ -619,6 +622,7 @@ function updateUI() {
 
     if (foods.length === 0) {
         totalsSection.style.display = 'none'; // Hide totals if no food
+        document.getElementById('nutrition-chart-container').style.display = 'none'; // Hide chart if no food
         return; // Nothing more to render
     }
 
@@ -680,8 +684,17 @@ function updateUI() {
 
     totalsSection.style.display = 'block'; // Show totals
 
+    // Show the nutrition chart container
+    document.getElementById('nutrition-chart-container').style.display = 'block';
+
     // --- Render Chart ---
-    const ctx = document.getElementById('nutrition-chart').getContext('2d');
+    const chartElement = document.getElementById('nutrition-chart');
+    if (!chartElement) {
+        console.error('Chart element with ID "nutrition-chart" not found');
+        return;
+    }
+    
+    const ctx = chartElement.getContext('2d');
     const chartData = {
         labels: ['Fats', 'Carbs', 'Protein', 'Fiber', 'Cholesterol', 'Calories'],
         datasets: [
@@ -710,7 +723,7 @@ function updateUI() {
     };
 
     const chartOptions = {
-        responsive: true,
+        responsive: false,
         maintainAspectRatio: false,
         scales: {
             y: {
@@ -769,7 +782,14 @@ function updateUI() {
 function renderRecommendedNutritionChart() {
     if (!recommendation) return;
     
-    const ctx = document.getElementById('recommended-nutrition-chart').getContext('2d');
+    // Check if the chart element exists
+    const chartElement = document.getElementById('recommended-nutrition-chart');
+    if (!chartElement) {
+        console.error('Chart element with ID "recommended-nutrition-chart" not found');
+        return;
+    }
+    
+    const ctx = chartElement.getContext('2d');
     
     // Create a dropdown to select which nutrient category to display
     const chartContainer = document.getElementById('chart-container');
@@ -790,8 +810,14 @@ function renderRecommendedNutritionChart() {
             </select>
         `;
         
-        // Insert the dropdown before the chart
-        chartContainer.insertBefore(selectContainer, document.getElementById('recommended-nutrition-chart'));
+        // Insert the dropdown before the chart-wrapper
+        const chartWrapper = chartContainer.querySelector('.chart-wrapper');
+        if (chartWrapper) {
+            chartContainer.insertBefore(selectContainer, chartWrapper);
+        } else {
+            // Fallback: append to container if wrapper not found
+            chartContainer.appendChild(selectContainer);
+        }
         
         // Get the newly created dropdown
         chartCategorySelect = document.getElementById('chart-category-select');
@@ -888,6 +914,8 @@ function renderRecommendedNutritionChart() {
     
     // Chart options
     const chartOptions = {
+        responsive: false,
+        maintainAspectRatio: false,
         scales: {
             y: {
                 beginAtZero: true,

@@ -73,6 +73,14 @@
             <div id="recommendation-output">
                 <h3>Recommended Daily Intake</h3>
                 <p id="recommendation-text"></p>
+                
+                <!-- Chart container for recommended nutrition -->
+                <div id="chart-container" style="display: none;">
+                    <h4>Recommended Nutrition Chart</h4>
+                    <div class="chart-wrapper">
+                        <canvas id="recommended-nutrition-chart" width="600" height="400"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -97,6 +105,14 @@
                     <div class="total-item"><span>Fiber:</span> <span id="total-fiber">0.00</span></div>
                     <div class="total-item"><span>Cholesterol:</span> <span id="total-cholesterol">0.00</span></div>
                     <div class="total-item"><span>Calories:</span> <span id="total-calories">0.00</span></div>
+                </div>
+                
+                <!-- Chart container for nutrition totals -->
+                <div id="nutrition-chart-container" style="display: none;">
+                    <h3>Nutrition Chart</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="nutrition-chart" width="600" height="400"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
