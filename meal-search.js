@@ -186,8 +186,8 @@ async function fetchYoutubeVideos(customQuery = '') {
         
         // Fetch videos from both channels and combine results
         // Always include food-related terms in the search
-        const searchUrl1 = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${RAINBOW_PLANT_LIFE_CHANNEL_ID}&part=snippet,id&order=relevance&maxResults=20&type=video&videoDuration=medium&q=${encodeURIComponent(searchTerms)}`;
-        const searchUrl2 = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=relevance&maxResults=20&type=video&videoDuration=medium&q=${encodeURIComponent(searchTerms)}`;
+        const searchUrl1 = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=relevance&maxResults=20&type=video&videoDuration=medium&q=${encodeURIComponent(searchTerms)}`;
+        const searchUrl2 = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${RAINBOW_PLANT_LIFE_CHANNEL_ID}&part=snippet,id&order=relevance&maxResults=20&type=video&videoDuration=medium&q=${encodeURIComponent(searchTerms)}`;
         
         console.log('Search URL 1:', searchUrl1);
         console.log('Search URL 2:', searchUrl2);
@@ -259,7 +259,7 @@ async function fetchYoutubeVideos(customQuery = '') {
             console.log(`Filtered ${data.items.length} videos down to ${longFormVideos.length} long-form videos`);
             
             // Additional client-side filtering to ensure we only get food-related videos
-            const foodKeywords = ['healthy', 'vegan', 'vegetarian', 'plant', 'nutrition', 'diet', 'salad', 'smoothie', 'green'];
+            const foodKeywords = ['healthy', 'vegan', 'vegetarian', 'plant', 'nutrition', 'diet', 'salad', 'smoothie', 'green', 'meal', 'dish'];
             
             const filteredVideos = longFormVideos.filter(video => {
                 const title = video.snippet.title.toLowerCase();
