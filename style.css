@@ -75,10 +75,6 @@
     height: 100%;
 }
 
-#chart-container {
-    margin-top: 20px;
-}
-
 html {
     scroll-behavior: smooth;
 }
@@ -1936,16 +1932,6 @@ body {
     #totals-section {
         padding: 15px;
     }
-    
-    #chart-container {
-        width: 100% !important;
-        height: 300px !important;
-    }
-    
-    canvas {
-        width: 100% !important;
-        height: 100% !important;
-    }
 }
 
 /* Tablet Styles */
@@ -1967,11 +1953,6 @@ body {
     button {
         width: 100%;
         max-width: 250px;
-    }
-    
-    #chart-container {
-        width: 100% !important;
-        height: 350px !important;
     }
 }
 
@@ -2000,18 +1981,6 @@ body {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-}
-
-/* Chart Responsiveness */
-#chart-container {
-    width: 100%;
-    max-height: 400px;
-    margin: 20px 0;
-}
-
-canvas {
-    max-width: 100%;
-    height: auto !important;
 }
 
 /* Navigation Responsiveness */
