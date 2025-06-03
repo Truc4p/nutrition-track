@@ -1,5 +1,5 @@
-Food Name,Total Fat,Saturated Fat,Carbohydrates,Protein,Fiber,Cholesterol,Serving Size,Measurement Unit
-CHICKEN BREAST,8.1,4.58,1.06,20.4,0.0,67.0,100,g
-WHEAT BREAD,2.22,0.0,53.3,11.1,2.2,0.0,100,g
-EGG,11.4,0.0,2.27,11.4,0.0,0.0,100,g
-SPINACH,0.0,0.0,3.53,3.53,2.4,0.0,100,g
+name,serving_size,measurement_unit,"calcium, ca (MG)","carbohydrate, by difference (G)",cholesterol (MG),energy (KCAL),"fatty acids, total monounsaturated (G)","fatty acids, total polyunsaturated (G)","fatty acids, total saturated (G)","fatty acids, total trans (G)","fiber, total dietary (G)","folate, total (UG)","iron, fe (MG)","potassium, k (MG)",protein (G),"sodium, na (MG)","sugars, added (G)",total lipid (fat) (G),total sugars (G),"vitamin a, iu (IU)","vitamin c, total ascorbic acid (MG)",vitamin d (d2 + d3) (UG)
+CHICKEN BREAST,100,g,158,1.06,67.0,165,N/A,N/A,4.58,0.0,0.0,N/A,0.38,N/A,20.4,433,N/A,8.1,0.7,352,1.7,N/A
+WHEAT BREAD,100,g,89.0,53.3,0.0,267,0.0,1.11,0.0,0.0,2.2,N/A,2.4,144,11.1,511,N/A,2.22,6.67,0.0,0.0,N/A
+EGG,100,g,0.0,2.27,0.0,159,6.82,3.41,0.0,0.0,0.0,N/A,0.0,0.0,11.4,364,0.0,11.4,0.0,N/A,N/A,0.0
+SPINACH,100,g,94.0,3.53,0.0,24.0,N/A,N/A,0.0,0.0,2.4,188,3.18,N/A,3.53,82.0,N/A,0.0,0.0,6470.0,28.2,N/A
