@@ -129,8 +129,6 @@ function createRecipeCard(recipe) {
     return card;
 }
 
-
-
 function clearResults() {
     resultsContainer.innerHTML = '';
 }
@@ -173,39 +171,118 @@ function switchTab(tabName) {
     }
 }
 
-
-
 async function fetchYoutubeVideos(customQuery = '') {
     youtubeResults.innerHTML = '';
     
     try {
-        // Using the YouTube Data API with the provided API key
         // Use custom query if provided, otherwise use default food-related terms
         let searchTerms = customQuery.trim();
         if (!searchTerms) {
-            searchTerms = 'recipe OR meal OR food OR cook OR cooking OR vegan OR vegetarian OR plant-based OR breakfast OR lunch OR dinner';
+            // When no search query is provided, use a more specific food-related search
+            searchTerms = 'recipe cooking meal healthy food';
         }
+        
+        console.log('Search terms being used:', searchTerms);
+        
         // Fetch videos from both channels and combine results
-        const rainbowPlantLifeResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${RAINBOW_PLANT_LIFE_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);        
+        // Always include food-related terms in the search
+        const searchUrl1 = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${RAINBOW_PLANT_LIFE_CHANNEL_ID}&part=snippet,id&order=relevance&maxResults=20&type=video&videoDuration=medium&q=${encodeURIComponent(searchTerms)}`;
+        const searchUrl2 = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=relevance&maxResults=20&type=video&videoDuration=medium&q=${encodeURIComponent(searchTerms)}`;
+        
+        console.log('Search URL 1:', searchUrl1);
+        console.log('Search URL 2:', searchUrl2);
+        
+        const rainbowPlantLifeResponse = await fetch(searchUrl1);        
         const rainbowPlantLifeData = await rainbowPlantLifeResponse.json();
         
-        const pickupLimesResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=date&maxResults=20&type=video&q=${encodeURIComponent(searchTerms)}`);        
+        const pickupLimesResponse = await fetch(searchUrl2);        
         const pickupLimesData = await pickupLimesResponse.json();
+        
+        console.log('Rainbow Plant Life API response:', rainbowPlantLifeData);
+        console.log('Pick Up Limes API response:', pickupLimesData);
         
         // Combine results from both channels
         const data = {
             items: [...(rainbowPlantLifeData.items || []), ...(pickupLimesData.items || [])]
         };
         
+        console.log('Total videos found:', data.items.length);
+        
         if (data.items && data.items.length > 0) {
-            // Additional client-side filtering to ensure we only get food-related videos
-            const foodKeywords = ['recipe', 'meal', 'food', 'healthy', 'cook', 'cooking', 'breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'prep', 'kitchen', 'eat', 'eating'];
+            // Get video IDs to fetch duration information
+            const videoIds = data.items.map(video => video.id.videoId).join(',');
+            console.log('Fetching duration for video IDs:', videoIds);
             
-            const filteredVideos = data.items.filter(video => {
+            // Fetch video details including duration
+            const videoDetailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?key=${YOUTUBE_API_KEY}&id=${videoIds}&part=contentDetails,snippet`);
+            const videoDetailsData = await videoDetailsResponse.json();
+            
+            console.log('Video details response:', videoDetailsData);
+            
+            if (!videoDetailsData.items) {
+                console.error('No video details found');
+                showError('Failed to load video details.', youtubeResults);
+                return;
+            }
+            
+            // Filter out YouTube Shorts (videos shorter than 60 seconds)
+            const longFormVideos = videoDetailsData.items.filter(video => {
+                const duration = video.contentDetails.duration;
+                const durationInSeconds = parseDuration(duration);
+                console.log(`Video: ${video.snippet.title}, Duration: ${duration}, Seconds: ${durationInSeconds}`);
+                
+                // Multiple criteria to filter out shorts:
+                // 1. Duration less than 60 seconds
+                // 2. Check if video title contains "#shorts" or similar indicators
+                // 3. Video aspect ratio (though this isn't always available in basic API)
+                
                 const title = video.snippet.title.toLowerCase();
                 const description = video.snippet.description.toLowerCase();
-                return foodKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
+                
+                // Check for shorts indicators in title/description
+                const hasShortsIndicator = title.includes('#shorts') || 
+                                         title.includes('#short') || 
+                                         description.includes('#shorts') || 
+                                         description.includes('#short') ||
+                                         title.includes('shorts') ||
+                                         title.includes('short');
+                
+                const isLongForm = durationInSeconds >= 60 && !hasShortsIndicator;
+                
+                if (!isLongForm) {
+                    console.log(`Filtering out video: ${video.snippet.title} (${durationInSeconds}s, hasShortsIndicator: ${hasShortsIndicator})`);
+                }
+                
+                return isLongForm;
             });
+            
+            console.log(`Filtered ${data.items.length} videos down to ${longFormVideos.length} long-form videos`);
+            
+            // Additional client-side filtering to ensure we only get food-related videos
+            const foodKeywords = ['recipe', 'meal', 'food', 'healthy', 'cook', 'cooking', 'breakfast', 'lunch', 'dinner', 'dessert', 'prep', 'kitchen', 'vegan', 'vegetarian', 'plant', 'nutrition', 'diet', 'salad', 'smoothie'];
+            
+            const filteredVideos = longFormVideos.filter(video => {
+                const title = video.snippet.title.toLowerCase();
+                const description = video.snippet.description.toLowerCase();
+                
+                // Check if any food keyword is found
+                const hasFoodKeyword = foodKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
+                
+                console.log(`Video: "${video.snippet.title}"`);
+                console.log(`  Title: "${title}"`);
+                console.log(`  Description preview: "${description.substring(0, 100)}..."`);
+                console.log(`  Has food keyword: ${hasFoodKeyword}`);
+                
+                if (!hasFoodKeyword) {
+                    console.log(`  ❌ FILTERED OUT: No food keywords found`);
+                } else {
+                    console.log(`  ✅ PASSED: Contains food keywords`);
+                }
+                
+                return hasFoodKeyword;
+            });
+
+            console.log(`After food keyword filtering: ${filteredVideos.length} videos`);
 
             // Limit to 40 videos after filtering
             const limitedVideos = filteredVideos.slice(0, 40);
@@ -222,6 +299,27 @@ async function fetchYoutubeVideos(customQuery = '') {
         showError('Failed to load YouTube videos. Please try again later.', youtubeResults);
         console.error('YouTube API error:', error);
     }
+}
+
+// Helper function to parse YouTube duration format (PT4M13S) to seconds
+function parseDuration(duration) {
+    if (!duration) {
+        console.warn('No duration provided');
+        return 0;
+    }
+    
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) {
+        console.warn('Could not parse duration:', duration);
+        return 0;
+    }
+    
+    const hours = parseInt(match[1]) || 0;
+    const minutes = parseInt(match[2]) || 0;
+    const seconds = parseInt(match[3]) || 0;
+    
+    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    return totalSeconds;
 }
 
 function displayYoutubeVideos(videos) {
@@ -244,7 +342,7 @@ function displayYoutubeVideos(videos) {
         
         // Create a clickable thumbnail instead of an iframe
         const thumbnailUrl = video.snippet.thumbnails.high?.url || video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default?.url;
-        const videoId = video.id.videoId;
+        const videoId = video.id; // Changed from video.id.videoId since we're now using videos API
         
         videoCard.innerHTML = `
             <div class="video-thumbnail">

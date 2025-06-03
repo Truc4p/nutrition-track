@@ -203,9 +203,14 @@ button.reset:hover:not(:disabled) {
 }
 
 .tab-content {
-    max-height: 300px;
-    overflow-y: auto;
+    display: none;
+    max-height: none;
+    overflow-y: visible;
     padding-right: 10px;
+}
+
+.tab-content.active {
+    display: block;
 }
 
 .results h2, .results h3 {
@@ -2550,6 +2555,9 @@ canvas {
 
 .tab-content {
     display: none;
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 10px;
 }
 
 .tab-content.active {
@@ -2813,4 +2821,11 @@ canvas {
     .nutrient-item {
         padding: 0.8rem;
     }
+}
+
+/* Add specific rule for recipe-results */
+#recipe-results {
+    overflow: visible;
+    max-height: none;
+    height: auto;
 }
