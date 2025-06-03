@@ -259,7 +259,7 @@ async function fetchYoutubeVideos(customQuery = '') {
             console.log(`Filtered ${data.items.length} videos down to ${longFormVideos.length} long-form videos`);
             
             // Additional client-side filtering to ensure we only get food-related videos
-            const foodKeywords = ['recipe', 'meal', 'food', 'healthy', 'cook', 'cooking', 'breakfast', 'lunch', 'dinner', 'dessert', 'prep', 'kitchen', 'vegan', 'vegetarian', 'plant', 'nutrition', 'diet', 'salad', 'smoothie'];
+            const foodKeywords = ['healthy', 'vegan', 'vegetarian', 'plant', 'nutrition', 'diet', 'salad', 'smoothie', 'green'];
             
             const filteredVideos = longFormVideos.filter(video => {
                 const title = video.snippet.title.toLowerCase();
