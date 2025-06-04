@@ -93,7 +93,7 @@ def get_recipe_details(recipe_url):
         recipe_url (str): URL of the recipe
         
     Returns:
-        dict: Detailed recipe information
+        dict: Recipe title, ingredients, URL, total time, and tags
     """
     try:
         headers = {
@@ -116,87 +116,51 @@ def get_recipe_details(recipe_url):
         except (ValueError, IndexError):
             recipe_id = None
             
-        # Extract recipe details
+        # Extract recipe title
         title = soup.find('h1').text.strip() if soup.find('h1') else "Unknown Recipe"
         
-        # Get recipe image - look for the main recipe image
-        image_url = None
+        # Get total time to make the recipe
+        total_time = ""
         
-        # First try to find the recipe image using Open Graph meta tags (most reliable)
-        og_image = soup.find('meta', property='og:image')
-        if og_image and og_image.get('content'):
-            image_url = og_image.get('content')
-        
-        # If no OG image, try to find the recipe image in the content
-        if not image_url or 'app_download_banner' in image_url or 'sadia_with_phone' in image_url:
-            # Look for the recipe card image
-            recipe_card = soup.find('div', class_=lambda c: c and ('recipe-card' in c.lower() or 'recipe-hero' in c.lower()))
-            if recipe_card:
-                image_tag = recipe_card.find('img')
-                if image_tag and 'src' in image_tag.attrs:
-                    image_url = image_tag['src']
-        
-        # If still no image, try other selectors but avoid app banner
-        if not image_url or 'app_download_banner' in image_url or 'sadia_with_phone' in image_url:
-            # Try to find images in the main content area
-            content_area = soup.find('main') or soup.find('article') or soup.find('div', class_='content')
-            if content_area:
-                image_tags = content_area.find_all('img')
-                for img in image_tags:
-                    if img.get('src') and not ('app_download_banner' in img['src'] or 'sadia_with_phone' in img['src']):
-                        image_url = img['src']
-                        break
-        
-        # If still no image, try to find any large image on the page
-        if not image_url or 'app_download_banner' in image_url or 'sadia_with_phone' in image_url:
-            all_images = soup.find_all('img')
-            for img in all_images:
-                if img.get('src') and not ('app_download_banner' in img['src'] or 'sadia_with_phone' in img['src']):
-                    # Look for recipe images which are usually larger
-                    if img.get('width') and img.get('height'):
-                        if int(img['width']) >= 300 and int(img['height']) >= 200:
-                            image_url = img['src']
-                            break
-                    elif 'recipe' in img.get('src', '').lower() or 'hero' in img.get('src', '').lower():
-                        image_url = img['src']
-                        break
-        
-        # Fix relative URLs
-        if image_url and not image_url.startswith('http'):
-            image_url = f"https://www.pickuplimes.com{image_url}"
-        
-        # Get recipe description - often in meta tags or in a specific section
-        description = ""
-        # First try meta description
-        meta_desc = soup.find('meta', attrs={'name': 'description'}) or soup.find('meta', attrs={'property': 'og:description'})
-        if meta_desc and 'content' in meta_desc.attrs:
-            description = meta_desc['content']
-        
-        # If no meta description, look for a description section
-        if not description:
-            description_elem = soup.find('div', class_=lambda c: c and ('description' in c.lower() or 'summary' in c.lower()))
-            if description_elem:
-                description = description_elem.text.strip()
-        
-        # Get recipe metadata (prep time, cook time, total time, servings)
-        metadata = {}
-        
-        # Look for time and servings info in various formats
+        # Look for time info in various formats
         time_section = soup.find('div', class_=lambda c: c and ('time' in c.lower() or 'meta' in c.lower() or 'info' in c.lower()))
         if time_section:
-            # Look for labeled items
-            for label in ['prep', 'cook', 'total', 'time', 'servings', 'serves', 'yield']:
-                label_elem = time_section.find(text=re.compile(label, re.IGNORECASE))
-                if label_elem:
-                    parent = label_elem.parent
-                    if parent:
-                        value_text = parent.text.replace(label_elem, '').strip()
-                        if value_text:
-                            key = label.lower()
-                            if key == 'serves' or key == 'yield':
-                                key = 'servings'
-                            metadata[key] = value_text
+            # First try to find total time specifically
+            total_time_elem = time_section.find(text=re.compile('total|time', re.IGNORECASE))
+            if total_time_elem:
+                parent = total_time_elem.parent
+                if parent:
+                    value_text = parent.text.replace(total_time_elem, '').strip()
+                    if value_text:
+                        total_time = value_text
+            
+            # If no specific total time, look for any time indicator
+            if not total_time:
+                time_elem = time_section.find(text=re.compile(r'\d+\s*(hr|min|minute|hour)', re.IGNORECASE))
+                if time_elem:
+                    total_time = time_elem.strip()
         
+        # If still no time found, try to find it elsewhere on the page
+        if not total_time:
+            time_elem = soup.find(text=re.compile(r'(total time|cook time|prep time)[:\s]*\d+\s*(hr|min|minute|hour)', re.IGNORECASE))
+            if time_elem:
+                total_time = time_elem.strip()
+        
+        # Try to find recipe tags/categories
+        tags = []
+        
+        # Look for tags in various formats
+        tag_section = soup.find('div', class_=lambda c: c and ('tags' in c.lower() or 'categories' in c.lower()))
+        if tag_section:
+            tag_items = tag_section.find_all(['span', 'a'], class_=lambda c: c and ('tag' in c.lower() or 'category' in c.lower()))
+            tags = [tag.text.strip() for tag in tag_items if tag.text.strip()]
+        
+        # If no tags found, try to find them in the recipe metadata section
+        if not tags:
+            # Look for diet tags like vegan, gluten-free, etc.
+            diet_tags = soup.find_all(['span', 'div'], class_=lambda c: c and ('diet' in c.lower() or 'tag' in c.lower()))
+            tags = [tag.text.strip() for tag in diet_tags if tag.text.strip()]
+            
         # Try to find ingredients - Pickup Limes has a specific structure with list items
         ingredients = []
         ingredients_section = soup.find('h2', string=re.compile('Ingredients', re.IGNORECASE))
@@ -230,121 +194,13 @@ def get_recipe_details(recipe_url):
                         if ingredient_text:
                             ingredients.append(ingredient_text)
         
-        # Try to find instructions/directions
-        instructions = []
-        directions_section = soup.find('h2', string=re.compile('Directions|Instructions', re.IGNORECASE))
-        
-        if directions_section:
-            # Find the parent section that contains the directions
-            parent_section = directions_section.parent
-            
-            # Look for numbered list items which are the steps
-            direction_items = parent_section.find_all('li')
-            
-            if direction_items:
-                for item in direction_items:
-                    # Clean up the text - remove excessive whitespace and newlines
-                    direction_text = re.sub(r'\s+', ' ', item.text.strip())
-                    if direction_text:
-                        instructions.append(direction_text)
-        
-        # If no instructions found, try alternative selectors
-        if not instructions:
-            # Try to find any section with 'directions' or 'instructions' in the class or id
-            instructions_section = soup.find('div', id=re.compile('directions|instructions', re.IGNORECASE)) or \
-                                 soup.find('section', id=re.compile('directions|instructions', re.IGNORECASE)) or \
-                                 soup.find('div', class_=lambda c: c and ('directions' in c.lower() or 'instructions' in c.lower()))
-            
-            if instructions_section:
-                instruction_items = instructions_section.find_all('li')
-                if instruction_items:
-                    for item in instruction_items:
-                        instruction_text = re.sub(r'\s+', ' ', item.text.strip())
-                        if instruction_text:
-                            instructions.append(instruction_text)
-        
-        # Try to find nutrition info
-        nutrition = {}
-        nutrition_section = soup.find('h2', string=re.compile('Nutrition', re.IGNORECASE))
-        
-        if nutrition_section:
-            # Find the parent section that contains the nutrition info
-            parent_section = nutrition_section.parent
-            
-            # Look for nutrition items in various formats
-            nutrition_items = parent_section.find_all('div', class_=lambda c: c and 'item' in c.lower())
-            
-            if nutrition_items:
-                for item in nutrition_items:
-                    label = item.find(['div', 'span'], class_=lambda c: c and 'label' in c.lower())
-                    value = item.find(['div', 'span'], class_=lambda c: c and 'value' in c.lower())
-                    
-                    if label and value:
-                        key = label.text.strip().lower().replace(' ', '_')
-                        nutrition[key] = value.text.strip()
-        
-        # If no nutrition found, try alternative selectors
-        if not nutrition:
-            nutrition_section = soup.find('div', id=re.compile('nutrition', re.IGNORECASE)) or \
-                              soup.find('section', id=re.compile('nutrition', re.IGNORECASE)) or \
-                              soup.find('div', class_=lambda c: c and 'nutrition' in c.lower())
-            
-            if nutrition_section:
-                # Look for nutrition facts in a table format
-                nutrition_table = nutrition_section.find('table')
-                if nutrition_table:
-                    rows = nutrition_table.find_all('tr')
-                    for row in rows:
-                        cells = row.find_all(['th', 'td'])
-                        if len(cells) >= 2:
-                            key = cells[0].text.strip().lower().replace(' ', '_')
-                            value = cells[1].text.strip()
-                            nutrition[key] = value
-                else:
-                    # Look for nutrition items in divs
-                    nutrition_items = nutrition_section.find_all('div')
-                    for item in nutrition_items:
-                        text = item.text.strip()
-                        # Try to split on common separators
-                        for separator in [':', '-', '–']:
-                            if separator in text:
-                                parts = text.split(separator, 1)
-                                if len(parts) == 2:
-                                    key = parts[0].strip().lower().replace(' ', '_')
-                                    value = parts[1].strip()
-                                    nutrition[key] = value
-                                    break
-        
-        # Try to find tags/categories
-        tags = []
-        
-        # Look for tags in various formats
-        tag_section = soup.find('div', class_=lambda c: c and ('tags' in c.lower() or 'categories' in c.lower()))
-        if tag_section:
-            tag_items = tag_section.find_all(['span', 'a'], class_=lambda c: c and ('tag' in c.lower() or 'category' in c.lower()))
-            tags = [tag.text.strip() for tag in tag_items if tag.text.strip()]
-        
-        # If no tags found, try to find them in the recipe metadata section
-        if not tags:
-            # Look for diet tags like vegan, gluten-free, etc.
-            diet_tags = soup.find_all(['span', 'div'], class_=lambda c: c and ('diet' in c.lower() or 'tag' in c.lower()))
-            tags = [tag.text.strip() for tag in diet_tags if tag.text.strip()]
-        
-        # Clean up any empty fields
-        if not description:
-            description = f"A {title} recipe from Pickup Limes."
-        
         return {
             'id': recipe_id,
             'title': title,
             'url': recipe_url,
-            'image_url': image_url,
-            'description': description,
-            'metadata': metadata,
-            'ingredients': ingredients,
-            'instructions': instructions,
-            'nutrition': nutrition,
-            'tags': tags
+            'total_time': total_time,
+            'tags': tags,
+            'ingredients': ingredients
         }
     
     except requests.exceptions.RequestException as e:
@@ -436,11 +292,9 @@ def export_to_csv(recipes, filename="pickup_limes_recipes.csv"):
     """
     import csv
     
-    # Define the fields to export
+    # Define the fields to export - title, ingredients, URL, and total time
     fields = [
-        'id', 'title', 'url', 'image_url', 'description',
-        'prep_time', 'cook_time', 'total_time', 'servings',
-        'ingredients_text', 'instructions_text', 'tags'
+        'id', 'title', 'url', 'total_time', 'ingredients_text'
     ]
     
     try:
@@ -454,13 +308,7 @@ def export_to_csv(recipes, filename="pickup_limes_recipes.csv"):
                     'id': recipe.get('id', ''),
                     'title': recipe.get('title', ''),
                     'url': recipe.get('url', ''),
-                    'image_url': recipe.get('image_url', ''),
-                    'description': recipe.get('description', ''),
-                    'prep_time': recipe.get('metadata', {}).get('prep_time', ''),
-                    'cook_time': recipe.get('metadata', {}).get('cook_time', ''),
-                    'total_time': recipe.get('metadata', {}).get('total_time', ''),
-                    'servings': recipe.get('metadata', {}).get('servings', ''),
-                    'tags': ', '.join(recipe.get('tags', []))
+                    'total_time': recipe.get('total_time', '')
                 }
                 
                 # Convert ingredients to text
@@ -477,11 +325,6 @@ def export_to_csv(recipes, filename="pickup_limes_recipes.csv"):
                     else:
                         # Handle flat list of ingredients
                         row['ingredients_text'] = '\n'.join(ingredients)
-                
-                # Convert instructions to text
-                instructions = recipe.get('instructions', [])
-                if isinstance(instructions, list):
-                    row['instructions_text'] = '\n'.join([f"{i+1}. {step}" for i, step in enumerate(instructions)])
                 
                 writer.writerow(row)
         
@@ -503,7 +346,6 @@ def parse_arguments():
     parser.add_argument('--delay', '-d', type=float, default=2, help='Delay between requests in seconds (default: 2)')
     parser.add_argument('--basic', '-b', action='store_true', help='Only fetch basic recipe information, not detailed pages')
     parser.add_argument('--output-dir', '-o', default='pickup_limes_database', help='Output directory for the database (default: pickup_limes_database)')
-    parser.add_argument('--skip-images', action='store_true', help='Skip downloading recipe images')
     
     return parser.parse_args()
 
@@ -519,7 +361,6 @@ def main():
     max_pages = args.pages
     delay = args.delay
     get_details = not args.basic
-    download_images = not args.skip_images
     
     print(f"Starting scraper with search term: '{search_term}', max pages: {max_pages}")
     
@@ -559,14 +400,6 @@ def main():
         for i, recipe in enumerate(unique_recipes):
             print(f"Fetching details for recipe {i+1}/{len(unique_recipes)}: {recipe['title']}")
             details = get_recipe_details(recipe['url'])
-            
-            # Download image if available and requested
-            if download_images and details.get('image_url') and details.get('id'):
-                image_path = download_recipe_image(details['image_url'], details['id'], db_dir)
-                if image_path:
-                    # Update image_url to local path
-                    details['local_image_path'] = os.path.relpath(image_path, db_dir)
-            
             detailed_recipes.append(details)
             
             # Be nice to the server
@@ -580,7 +413,7 @@ def main():
         csv_path = os.path.join(db_dir, "csv", f"pickup_limes_{search_term}_recipes.csv")
         export_to_csv(detailed_recipes, csv_path)
         
-        print(f"Saved detailed recipe information to:")
+        print(f"Saved recipe information to:")
         print(f"  - JSON: {json_path}")
         print(f"  - CSV: {csv_path}")
     else:
