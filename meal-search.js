@@ -1,6 +1,5 @@
-// Using Pick Up Limes website directly instead of local API
-const PICKUP_LIMES_BASE_URL = 'https://www.pickuplimes.com/recipe/?sb=&public=on';
-const CORS_PROXY = 'https://api.allorigins.win/raw?url='; // CORS proxy to bypass browser restrictions
+// Using local API instead of Spoonacular
+const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
 const YOUTUBE_API_KEY = 'AIzaSyCl2hSa3ZZ2MIXBiyMZaWite5lIn3Snowg'; // You'll need to replace this with a valid YouTube API key
 const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ'; // Pick Up Limes channel ID
 const RAINBOW_PLANT_LIFE_CHANNEL_ID = 'UCDbZvuDA_tZ6XP5wKKFuemQ'; // Rainbow Plant Life channel ID
@@ -18,11 +17,6 @@ const resultsTab = document.getElementById('results-tab');
 const youtubeTab = document.getElementById('youtube-tab');
 const resultsSection = document.getElementById('results-section');
 const youtubeSection = document.getElementById('youtube-section');
-
-// Cache for recipes to avoid repeated requests
-let cachedRecipes = [];
-let lastFetchTime = 0;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // Event Listeners
 searchButton.addEventListener('click', () => {
@@ -52,228 +46,53 @@ resultsTab.addEventListener('click', () => switchTab('results'));
 youtubeTab.addEventListener('click', () => switchTab('youtube'));
 
 window.addEventListener('DOMContentLoaded', () => {
-    // Show recipes by default
-    performSearch();
+    // Show healthy meal recipes by default
+    performSearch('healthy');
     // Set results tab as active by default
     switchTab('results');
 });
-
-async function fetchPickUpLimesRecipes() {
-    try {
-        // Check if we have cached data that's still fresh
-        const now = Date.now();
-        if (cachedRecipes.length > 0 && (now - lastFetchTime) < CACHE_DURATION) {
-            console.log('Using cached recipes');
-            return cachedRecipes;
-        }
-
-        console.log('Fetching fresh recipes from Pick Up Limes...');
-        
-        // Use CORS proxy to fetch the Pick Up Limes recipe page
-        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(PICKUP_LIMES_BASE_URL)}`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const html = await response.text();
-        console.log('Fetched HTML length:', html.length);
-        
-        // Parse the HTML to extract recipe data
-        const recipes = parsePickUpLimesHTML(html);
-        
-        // Cache the results
-        cachedRecipes = recipes;
-        lastFetchTime = now;
-        
-        console.log('Extracted recipes:', recipes.length);
-        return recipes;
-        
-    } catch (error) {
-        console.error('Error fetching Pick Up Limes recipes:', error);
-        
-        // If there's an error but we have cached data, use it
-        if (cachedRecipes.length > 0) {
-            console.log('Using cached recipes due to fetch error');
-            return cachedRecipes;
-        }
-        
-        throw error;
-    }
-}
-
-function parsePickUpLimesHTML(html) {
-    // Create a temporary DOM element to parse the HTML
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    const recipes = [];
-    
-    // Look for recipe cards - Pick Up Limes uses specific selectors
-    // Based on the HTML structure from the search results
-    const recipeElements = doc.querySelectorAll('a[href*="/recipe/"]');
-    
-    recipeElements.forEach((element, index) => {
-        try {
-            const link = element.href;
-            
-            // Skip if this is not a proper recipe link
-            if (!link || link.includes('?') || !link.includes('/recipe/')) return;
-            
-            // Extract recipe name from the link or text content
-            let name = '';
-            const titleElement = element.querySelector('h3, .recipe-title, [class*="title"]');
-            if (titleElement) {
-                name = titleElement.textContent.trim();
-            } else {
-                // Fallback: extract from URL
-                const urlParts = link.split('/');
-                const recipePart = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
-                name = recipePart.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            }
-            
-            if (!name) return;
-            
-            // Extract image
-            let image = '';
-            const imgElement = element.querySelector('img');
-            if (imgElement) {
-                image = imgElement.src || imgElement.getAttribute('data-src') || '';
-                // Convert relative URLs to absolute
-                if (image && image.startsWith('/')) {
-                    image = 'https://www.pickuplimes.com' + image;
-                }
-            }
-            
-            // Extract time information if available
-            let cookingTime = '';
-            const timeElement = element.querySelector('[class*="time"], .duration, .cook-time');
-            if (timeElement) {
-                cookingTime = timeElement.textContent.trim();
-            }
-            
-            // Extract tags/categories
-            const tags = [];
-            const tagElements = element.querySelectorAll('[class*="tag"], [class*="category"], .badge');
-            tagElements.forEach(tag => {
-                const tagText = tag.textContent.trim();
-                if (tagText && !tags.includes(tagText)) {
-                    tags.push(tagText);
-                }
-            });
-            
-            // Create recipe object
-            const recipe = {
-                id: index + 1,
-                title: name,
-                image: image,
-                url: link.startsWith('http') ? link : `https://www.pickuplimes.com${link}`,
-                cookingTime: cookingTime,
-                tags: tags,
-                source: 'Pick Up Limes'
-            };
-            
-            recipes.push(recipe);
-            
-        } catch (error) {
-            console.error('Error parsing recipe element:', error);
-        }
-    });
-    
-    // If we didn't find recipes with the above method, try alternative parsing
-    if (recipes.length === 0) {
-        console.log('No recipes found with primary method, trying alternative parsing...');
-        
-        // Look for any links that might contain recipe information
-        const allLinks = doc.querySelectorAll('a');
-        allLinks.forEach((link, index) => {
-            const href = link.href || link.getAttribute('href');
-            if (href && href.includes('/recipe/') && !href.includes('?')) {
-                const text = link.textContent.trim();
-                if (text && text.length > 3) {
-                    recipes.push({
-                        id: index + 1,
-                        title: text,
-                        image: '',
-                        url: href.startsWith('http') ? href : `https://www.pickuplimes.com${href}`,
-                        cookingTime: '',
-                        tags: [],
-                        source: 'Pick Up Limes'
-                    });
-                }
-            }
-        });
-    }
-    
-    // Remove duplicates based on title
-    const uniqueRecipes = [];
-    const seenTitles = new Set();
-    
-    recipes.forEach(recipe => {
-        if (!seenTitles.has(recipe.title)) {
-            seenTitles.add(recipe.title);
-            uniqueRecipes.push(recipe);
-        }
-    });
-    
-    return uniqueRecipes.slice(0, 50); // Limit to 50 recipes
-}
 
 async function performSearch(defaultQuery) {
     const query = typeof defaultQuery === 'string' ? defaultQuery : searchInput.value.trim();
     const diet = dietFilter.value;
     
+    // Allow empty query to show all recipes
+    // if (!query) return;
+    
     clearResults();
     
-    // Show loading message
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'loading-message';
-    loadingDiv.innerHTML = '<p>Fetching fresh recipes from Pick Up Limes...</p>';
-    resultsContainer.appendChild(loadingDiv);
-    
     try {
-        // Fetch recipes from Pick Up Limes
-        const allRecipes = await fetchPickUpLimesRecipes();
+        const params = new URLSearchParams({
+            number: 60 // Increased number to show more recipes
+        });
         
-        // Filter recipes based on search query and diet filter
-        let filteredRecipes = allRecipes;
+        // Only add query param if it's not empty
+        if (query) params.append('query', query);
+        if (diet) params.append('diet', diet);
         
-        if (query) {
-            filteredRecipes = allRecipes.filter(recipe => 
-                recipe.title.toLowerCase().includes(query.toLowerCase()) ||
-                recipe.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
-            );
-        }
+        const url = `${BASE_URL}/search?${params}`;
+        console.log('Fetching from URL:', url);
         
-        if (diet) {
-            filteredRecipes = filteredRecipes.filter(recipe => 
-                recipe.tags.some(tag => tag.toLowerCase().includes(diet.toLowerCase())) ||
-                (diet === 'vegetarian' && recipe.tags.some(tag => 
-                    tag.toLowerCase().includes('vegetarian') || tag.toLowerCase().includes('plant')
-                )) ||
-                (diet === 'vegan' && recipe.tags.some(tag => 
-                    tag.toLowerCase().includes('vegan') || tag.toLowerCase().includes('plant')
-                )) ||
-                (diet === 'gluten-free' && recipe.tags.some(tag => 
-                    tag.toLowerCase().includes('gluten') && tag.toLowerCase().includes('free')
-                ))
-            );
-        }
+        const response = await fetch(url);
+        console.log('Response status:', response.status);
         
-        // Clear loading message
-        clearResults();
+        const data = await response.json();
+        console.log('Received data:', data);
         
-        if (filteredRecipes.length === 0) {
-            showError(`No recipes found matching your criteria. Found ${allRecipes.length} total recipes from Pick Up Limes.`);
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch recipes');
+        
+        // Filter out recipes without images
+        const recipesWithImages = (data.results || []).filter(r => r.image);
+        console.log('Recipes with images:', recipesWithImages.length);
+        
+        if (recipesWithImages.length === 0) {
+            showError('No recipes found matching your criteria. Try a different search term.');
         } else {
-            console.log(`Displaying ${filteredRecipes.length} recipes`);
-            displayResults(filteredRecipes);
+            displayResults(recipesWithImages);
         }
-        
     } catch (error) {
         console.error('Search error:', error);
-        clearResults();
-        showError(`Failed to fetch recipes from Pick Up Limes: ${error.message}. Please try again later.`);
+        showError(error.message);
     }
 }
 
@@ -290,23 +109,15 @@ function createRecipeCard(recipe) {
     card.setAttribute('data-recipe-id', recipe.id);
     card.style.cursor = 'pointer';
     
-    // Create tags HTML
-    const tagsHTML = recipe.tags.length > 0 
-        ? `<div class="recipe-tags">${recipe.tags.map(tag => `<span class="badge">${tag}</span>`).join('')}</div>`
-        : '';
-    
-    // Create cooking time HTML
-    const cookingTimeHTML = recipe.cookingTime 
-        ? `<div class="cooking-time"><i class="time-icon">⏱️</i> ${recipe.cookingTime}</div>`
-        : '';
+    const dietaryTags = [];
+    if (recipe.vegetarian) dietaryTags.push('<span class="badge vegetarian">Vegetarian</span>');
+    if (recipe.vegan) dietaryTags.push('<span class="badge vegan">Vegan</span>');
+    if (recipe.glutenFree) dietaryTags.push('<span class="badge gluten-free">Gluten Free</span>');
     
     card.innerHTML = `
-        ${recipe.image ? `<img src="${recipe.image}" alt="${recipe.title}" onerror="this.style.display='none'">` : '<div class="no-image">No Image Available</div>'}
+        <img src="${recipe.image}" alt="${recipe.title}" onerror="this.parentNode.remove()">
         <div class="recipe-card-content">
             <h3>${recipe.title}</h3>
-            ${cookingTimeHTML}
-            ${tagsHTML}
-            <div class="recipe-source">Source: ${recipe.source}</div>
         </div>
     `;
     
@@ -325,7 +136,7 @@ function clearResults() {
 function showError(message, container = resultsContainer) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
-    errorDiv.innerHTML = `<p>${message}</p>`;
+    errorDiv.textContent = message;
     container.appendChild(errorDiv);
 }
 
