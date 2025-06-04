@@ -75,24 +75,26 @@ function extractUsedClassesAndIds(htmlContent, jsContent) {
 
 function analyzeUnusedCSS() {
     try {
-        // Read CSS file
-        const cssContent = fs.readFileSync('style.css', 'utf8');
+        // Read CSS file from current directory when run from root
+        const cssContent = fs.readFileSync('./style.css', 'utf8');
         
-        // Read all HTML files
+        // Read all HTML files from current directory
         let allHtmlContent = '';
         const htmlFiles = ['home.html', 'chat.html', 'meal-search.html', 'search.html', 'nav-bar.html', 'float-chat.html'];
         htmlFiles.forEach(file => {
-            if (fs.existsSync(file)) {
-                allHtmlContent += fs.readFileSync(file, 'utf8') + '\n';
+            const filePath = `./${file}`;
+            if (fs.existsSync(filePath)) {
+                allHtmlContent += fs.readFileSync(filePath, 'utf8') + '\n';
             }
         });
         
-        // Read all JS files
+        // Read all JS files from current directory
         let allJsContent = '';
         const jsFiles = ['home.js', 'chat.js', 'meal-search.js', 'search.js', 'nav-bar.js', 'float-chat.js'];
         jsFiles.forEach(file => {
-            if (fs.existsSync(file)) {
-                allJsContent += fs.readFileSync(file, 'utf8') + '\n';
+            const filePath = `./${file}`;
+            if (fs.existsSync(filePath)) {
+                allJsContent += fs.readFileSync(filePath, 'utf8') + '\n';
             }
         });
         
@@ -137,7 +139,7 @@ function analyzeUnusedCSS() {
         console.log('\n=== POTENTIALLY UNUSED SELECTORS ===');
         unused.forEach(selector => console.log(selector));
         
-        // Write results to file
+        // Write results to file in css-tools directory
         const results = {
             summary: {
                 total: cssSelectors.length,
@@ -148,8 +150,8 @@ function analyzeUnusedCSS() {
             usedSelectors: used
         };
         
-        fs.writeFileSync('css-analysis-results.json', JSON.stringify(results, null, 2));
-        console.log('\n=== Results saved to css-analysis-results.json ===');
+        fs.writeFileSync('./css-tools/css-analysis-results.json', JSON.stringify(results, null, 2));
+        console.log('\n=== Results saved to css-tools/css-analysis-results.json ===');
         
     } catch (error) {
         console.error('Error analyzing CSS:', error.message);

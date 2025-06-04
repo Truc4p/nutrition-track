@@ -5,13 +5,14 @@
   "main": "chat.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "purge-css": "node purge-css.js",
-    "analyze-css": "node css-cleanup-analyzer.js",
-    "compare-css": "node css-compare.js",
-    "backup-css": "cp style.css style-backup-$(date +%Y%m%d-%H%M%S).css",
-    "restore-css": "cp style-original-backup.css style.css",
-    "apply-purged": "cp style-purged.css style.css",
-    "build-css": "npm run backup-css && npm run purge-css && npm run compare-css"
+    "purge-css": "node css-tools/purge-css.js",
+    "analyze-css": "node css-tools/css-cleanup-analyzer.js",
+    "compare-css": "node css-tools/css-compare.js",
+    "backup-css": "cp style.css css-tools/style-backup-$(date +%Y%m%d-%H%M%S).css",
+    "restore-css": "cp css-tools/style-original-backup.css style.css",
+    "apply-purged": "cp css-tools/style-purged.css style.css",
+    "build-css": "npm run backup-css && npm run purge-css && npm run compare-css",
+    "css-test": "open css-tools/test-purged-css.html"
   },
   "repository": {
     "type": "git",

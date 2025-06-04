@@ -1,8 +1,8 @@
 {
   "summary": {
-    "total": 295,
-    "used": 191,
-    "unused": 104
+    "total": 282,
+    "used": 199,
+    "unused": 83
   },
   "unusedSelectors": [
     ".user-message",
@@ -44,22 +44,8 @@
     ".main-content",
     ".food-calories",
     ".food-brand",
-    "#user-info",
-    "#user-info::before",
-    "#user-info h3",
-    "#user-info h3::after",
-    "#user-info label",
-    "#user-info textarea",
-    "#user-info textarea:focus",
-    "#user-info textarea:hover",
-    "#user-info select",
     "from",
     "to",
-    "#user-info textarea:focus-visible",
-    "#user-info fieldset",
-    "#user-info legend",
-    "#user-info label.required::after",
-    "#user-info:hover",
     ".chatbox--active",
     ".messages__item",
     ".messages__item--visitor",
@@ -82,7 +68,6 @@
     ".view-recipe-button:hover",
     ".youtube-button",
     ".youtube-button:hover",
-    ".youtube-icon",
     ".video-thumbnail",
     ".video-thumbnail img",
     ".video-thumbnail a",
@@ -101,12 +86,6 @@
     ".nutrient-header",
     ".nutrient-header .name",
     ".nutrient-header .value",
-    ".daily-value",
-    ".daily-value .progress-bar",
-    ".daily-value span",
-    ".nutrition-grid.limit .progress-bar",
-    ".nutrition-grid.enough .progress-bar",
-    ".health-score",
     ".nutrition-grid",
     ".nutrition-category"
   ],
@@ -301,6 +280,14 @@
     ".video-grid",
     ".video-card",
     ".video-card:hover",
-    "#recipe-results"
+    "#recipe-results",
+    "#nutrition-chart-container",
+    "#nutrition-chart-container h3",
+    "#nutrition-chart",
+    ".chart-wrapper",
+    ".chart-select-container",
+    ".chart-select-container label",
+    ".chart-select-container select",
+    ".chart-select-container select:focus"
   ]
 }

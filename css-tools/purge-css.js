@@ -6,8 +6,8 @@ async function purgeCSSFiles() {
   try {
     console.log('🧹 Starting CSS purging process...');
     
-    // Get original file size
-    const originalStats = fs.statSync('style.css');
+    // Get original file size (now referencing current directory when run from root)
+    const originalStats = fs.statSync('./style.css');
     const originalSize = (originalStats.size / 1024).toFixed(2);
     
     console.log(`📄 Original CSS file size: ${originalSize} KB`);
@@ -54,30 +54,30 @@ async function purgeCSSFiles() {
       }
     });
     
-    // Write the purged CSS to a new file
+    // Write the purged CSS to the css-tools directory
     const purgedCSS = purgeCSSResult[0].css;
-    fs.writeFileSync('style-purged.css', purgedCSS);
+    fs.writeFileSync('./css-tools/style-purged.css', purgedCSS);
     
     // Get new file size
-    const purgedStats = fs.statSync('style-purged.css');
+    const purgedStats = fs.statSync('./css-tools/style-purged.css');
     const purgedSize = (purgedStats.size / 1024).toFixed(2);
     const reduction = ((originalStats.size - purgedStats.size) / originalStats.size * 100).toFixed(1);
     
-    console.log(`✅ Purged CSS file created: style-purged.css`);
+    console.log(`✅ Purged CSS file created: css-tools/style-purged.css`);
     console.log(`📄 Purged CSS file size: ${purgedSize} KB`);
     console.log(`📉 Size reduction: ${reduction}%`);
     console.log(`💾 Space saved: ${(originalSize - purgedSize).toFixed(2)} KB`);
     
-    // Create a backup of the original
-    fs.copyFileSync('style.css', 'style-original-backup.css');
-    console.log(`💾 Original CSS backed up as: style-original-backup.css`);
+    // Create a backup of the original in css-tools directory
+    fs.copyFileSync('./style.css', './css-tools/style-original-backup.css');
+    console.log(`💾 Original CSS backed up as: css-tools/style-original-backup.css`);
     
     console.log('\n🎉 CSS purging completed successfully!');
     console.log('\n📋 Next steps:');
-    console.log('1. Review the purged CSS file: style-purged.css');
-    console.log('2. Test your application with the purged CSS');
-    console.log('3. If everything works, replace style.css with style-purged.css');
-    console.log('4. Your original CSS is backed up as style-original-backup.css');
+    console.log('1. Review the purged CSS file: css-tools/style-purged.css');
+    console.log('2. Test your application: npm run css-test');
+    console.log('3. If everything works: npm run apply-purged');
+    console.log('4. Your original CSS is backed up in css-tools/');
     
   } catch (error) {
     console.error('❌ Error during CSS purging:', error.message);

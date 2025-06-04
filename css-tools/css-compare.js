@@ -25,13 +25,13 @@ function compareCSS() {
     try {
         console.log('🔍 Comparing original and purged CSS files...\n');
         
-        if (!fs.existsSync('style.css') || !fs.existsSync('style-purged.css')) {
-            console.error('❌ Missing CSS files. Make sure both style.css and style-purged.css exist.');
+        if (!fs.existsSync('./style.css') || !fs.existsSync('./css-tools/style-purged.css')) {
+            console.error('❌ Missing CSS files. Make sure both style.css and css-tools/style-purged.css exist.');
             return;
         }
         
-        const originalCSS = fs.readFileSync('style.css', 'utf8');
-        const purgedCSS = fs.readFileSync('style-purged.css', 'utf8');
+        const originalCSS = fs.readFileSync('./style.css', 'utf8');
+        const purgedCSS = fs.readFileSync('./css-tools/style-purged.css', 'utf8');
         
         const originalRules = extractCSSRules(originalCSS);
         const purgedRules = extractCSSRules(purgedCSS);
@@ -71,13 +71,13 @@ function compareCSS() {
                 keptSelectors: keptRules
             };
             
-            fs.writeFileSync('css-comparison-report.json', JSON.stringify(comparisonReport, null, 2));
-            console.log('\n📄 Detailed comparison saved to: css-comparison-report.json');
+            fs.writeFileSync('./css-tools/css-comparison-report.json', JSON.stringify(comparisonReport, null, 2));
+            console.log('\n📄 Detailed comparison saved to: css-tools/css-comparison-report.json');
         }
         
         // File size comparison
-        const originalStats = fs.statSync('style.css');
-        const purgedStats = fs.statSync('style-purged.css');
+        const originalStats = fs.statSync('./style.css');
+        const purgedStats = fs.statSync('./css-tools/style-purged.css');
         const sizeDiff = originalStats.size - purgedStats.size;
         const sizeReduction = ((sizeDiff / originalStats.size) * 100).toFixed(1);
         
