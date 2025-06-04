@@ -260,29 +260,6 @@ def recipe_information(recipe_id):
 def recipe_nutrition(recipe_id):
     # Since we don't have detailed nutrition data, return placeholder data
     nutrition = {
-        'calories': '350 kcal',
-        'fat': '12g',
-        'saturatedFat': '2g',
-        'carbs': '45g',
-        'sugar': '5g',
-        'cholesterol': '0mg',
-        'sodium': '400mg',
-        'protein': '15g',
-        'fiber': '8g',
-        'alcohol': '0g',
-        'nutrients': [
-            {'name': 'Protein', 'amount': 15, 'unit': 'g', 'percentOfDailyNeeds': 30},
-            {'name': 'Fat', 'amount': 12, 'unit': 'g', 'percentOfDailyNeeds': 18},
-            {'name': 'Carbohydrates', 'amount': 45, 'unit': 'g', 'percentOfDailyNeeds': 15},
-            {'name': 'Fiber', 'amount': 8, 'unit': 'g', 'percentOfDailyNeeds': 32},
-            {'name': 'Sugar', 'amount': 5, 'unit': 'g', 'percentOfDailyNeeds': 5},
-            {'name': 'Sodium', 'amount': 400, 'unit': 'mg', 'percentOfDailyNeeds': 17},
-            {'name': 'Cholesterol', 'amount': 0, 'unit': 'mg', 'percentOfDailyNeeds': 0},
-            {'name': 'Vitamin C', 'amount': 15, 'unit': 'mg', 'percentOfDailyNeeds': 18},
-            {'name': 'Vitamin A', 'amount': 300, 'unit': 'IU', 'percentOfDailyNeeds': 6},
-            {'name': 'Iron', 'amount': 2.5, 'unit': 'mg', 'percentOfDailyNeeds': 14},
-            {'name': 'Calcium', 'amount': 120, 'unit': 'mg', 'percentOfDailyNeeds': 12}
-        ]
     }
     
     return jsonify(nutrition)
