@@ -63,7 +63,7 @@ async function performSearch(defaultQuery) {
     
     try {
         const params = new URLSearchParams({
-            number: 40 // Increased number to show more recipes
+            number: 60 // Increased number to show more recipes
         });
         
         // Only add query param if it's not empty

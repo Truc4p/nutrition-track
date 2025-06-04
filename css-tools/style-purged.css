@@ -135,16 +135,6 @@ button:disabled {
     cursor: not-allowed;
 }
 
-button.reset {
-    background-color: transparent;
-    color: #ff3b30; /* Red color */
-    border: 1px solid transparent; /* Maintain layout */
-}
-
-button.reset:hover:not(:disabled) {
-    background-color: #f0f0f0; /* Slight background on hover */
-}
-
 #loading-indicator {
     margin-top: 10px;
     font-style: italic;
@@ -1434,7 +1424,7 @@ html {
     margin-left: 4px;
 }
 
-.form-group input[type="number"],
+
 .form-group select,
 .form-group textarea {
     width: 100%;
@@ -1448,7 +1438,7 @@ html {
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.form-group input[type="number"]:focus,
+
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
@@ -1457,7 +1447,7 @@ html {
     transform: translateY(-1px);
 }
 
-.form-group input[type="number"]:hover,
+
 .form-group select:hover,
 .form-group textarea:hover {
     border-color: #3498db;
@@ -1837,7 +1827,7 @@ body {
     width: 100%;
 }
 
-.form-group input[type="number"],
+
 .form-group select,
 .form-group textarea {
     width: 100%;
@@ -2611,75 +2601,4 @@ body {
     overflow: visible;
     max-height: none;
     height: auto;
-}
-
-
-/* Chart container styling */
-#chart-container,
-#nutrition-chart-container {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-top: 20px;
-    max-width: 100%;
-    overflow: hidden;
-}
-
-#chart-container h4,
-#nutrition-chart-container h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #333;
-    font-size: 18px;
-    border-bottom: 2px solid #4CAF50;
-    padding-bottom: 10px;
-}
-
-/* Chart canvas styling */
-#recommended-nutrition-chart,
-#nutrition-chart {
-    max-width: 100% !important;
-    max-height: 400px !important;
-    width: 100% !important;
-    height: 400px !important;
-    display: block;
-}
-
-/* Chart wrapper to prevent overflow */
-.chart-wrapper {
-    position: relative;
-    width: 100%;
-    height: 400px;
-    overflow: hidden;
-}
-
-/* Chart select container styling */
-.chart-select-container {
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 5px;
-}
-
-.chart-select-container label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #333;
-}
-
-.chart-select-container select {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-    font-size: 14px;
-}
-
-.chart-select-container select:focus {
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }

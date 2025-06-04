@@ -7,7 +7,6 @@
     <title>Nutrition Tracker</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="data:,">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -73,14 +72,6 @@
             <div id="recommendation-output">
                 <h3>Recommended Daily Intake</h3>
                 <p id="recommendation-text"></p>
-                
-                <!-- Chart container for recommended nutrition -->
-                <div id="chart-container" style="display: none;">
-                    <h4>Recommended Nutrition Chart</h4>
-                    <div class="chart-wrapper">
-                        <canvas id="recommended-nutrition-chart" width="600" height="400"></canvas>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -89,10 +80,9 @@
             <div id="results">
                 <h1>What did you eat today?</h1>
                 <textarea id="food-input"
-                    placeholder="e.g., 1 cup of rice and 100g chicken breast">Today I ate 100 grams of chicken breast, 200 grams of wheat bread, 200 grams of eggs, and 50 grams of spinach                </textarea>
+                    placeholder="e.g., 1 cup of rice and 100g chicken breast">Today I ate 100 grams of chicken breast, 200 grams of wheat bread, 200 grams of eggs, and 50 grams of spinach</textarea>
                 <div class="button-container">
                     <button id="submit-button" disabled>Submit</button>
-                    <button id="reset-button" class="reset" disabled>Reset</button>
                 </div>
                 <div id="loading-indicator" style="display: none;">Loading...</div>
                 <h2 id="results-header">Foods</h2>
@@ -105,14 +95,6 @@
                     <div class="total-item"><span>Fiber:</span> <span id="total-fiber">0.00</span></div>
                     <div class="total-item"><span>Cholesterol:</span> <span id="total-cholesterol">0.00</span></div>
                     <div class="total-item"><span>Calories:</span> <span id="total-calories">0.00</span></div>
-                </div>
-                
-                <!-- Chart container for nutrition totals -->
-                <div id="nutrition-chart-container" style="display: none;">
-                    <h3>Nutrition Chart</h3>
-                    <div class="chart-wrapper">
-                        <canvas id="nutrition-chart" width="600" height="400"></canvas>
-                    </div>
                 </div>
             </div>
         </div>

@@ -1,7 +1,6 @@
 // --- DOM Elements ---
 const foodInput = document.getElementById('food-input');
 const submitButton = document.getElementById('submit-button');
-const resetButton = document.getElementById('reset-button');
 const loadingIndicator = document.getElementById('loading-indicator');
 const resultsHeader = document.getElementById('results-header');
 const foodListContainer = document.getElementById('food-list');
@@ -200,11 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-
-                renderRecommendedNutritionChart();
-                
-                // Show the chart container
-                document.getElementById('chart-container').style.display = 'block';
                 
                 // Add event listeners for tab buttons
                 document.querySelectorAll('.tab-button').forEach(button => {
@@ -520,9 +514,6 @@ if (foodInput) {
 if (submitButton) {
     submitButton.addEventListener('click', handleSubmit);
 }
-if (resetButton) {
-    resetButton.addEventListener('click', handleReset);
-}
 
 // --- Functions ---
 
@@ -530,7 +521,6 @@ if (resetButton) {
 function handleInputChange() {
     const isEmpty = foodInput.value.trim() === '';
     submitButton.disabled = isEmpty;
-    resetButton.disabled = isEmpty;
 }
 
 // Handle form submission
@@ -542,14 +532,6 @@ async function handleSubmit() {
     await processText(inputText);
     setLoading(false);
     updateUI(); // Update UI after fetching
-}
-
-// Handle reset button click
-function handleReset() {
-    foodInput.value = '';
-    foods = [];
-    handleInputChange(); // Update button states
-    updateUI(); // Clear results
 }
 
 // Show/hide loading indicator
@@ -622,7 +604,6 @@ function updateUI() {
 
     if (foods.length === 0) {
         totalsSection.style.display = 'none'; // Hide totals if no food
-        document.getElementById('nutrition-chart-container').style.display = 'none'; // Hide chart if no food
         return; // Nothing more to render
     }
 
@@ -683,324 +664,6 @@ function updateUI() {
     totalCaloriesSpan.textContent = totalCalories.toFixed(2);
 
     totalsSection.style.display = 'block'; // Show totals
-
-    // Show the nutrition chart container
-    document.getElementById('nutrition-chart-container').style.display = 'block';
-
-    // --- Render Chart ---
-    const chartElement = document.getElementById('nutrition-chart');
-    if (!chartElement) {
-        console.error('Chart element with ID "nutrition-chart" not found');
-        return;
-    }
-    
-    const ctx = chartElement.getContext('2d');
-    const chartData = {
-        labels: ['Fats', 'Carbs', 'Protein', 'Fiber', 'Cholesterol', 'Calories'],
-        datasets: [
-            {
-                label: 'Nutrition Totals',
-                data: [totalFats, totalCarbs, totalProtein, totalFiber, totalCholesterol, totalCalories],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)', // Fats
-                    'rgba(54, 162, 235, 0.2)', // Carbs
-                    'rgba(75, 192, 192, 0.2)', // Protein
-                    'rgba(153, 102, 255, 0.2)', // Fiber
-                    'rgba(255, 159, 64, 0.2)', // Cholesterol
-                    'rgba(255, 206, 86, 0.2)'  // Calories
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 1
-            },
-        ]
-    };
-
-    const chartOptions = {
-        responsive: false,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        },
-        plugins: {
-            tooltip: {
-                enabled: true // Keep tooltips enabled
-            },
-            datalabels: {
-                display: true,
-                color: 'black',
-                font: {
-                    weight: 'bold'
-                },
-                formatter: (value) => value.toFixed(2) // Format the value if needed
-            }
-        }
-    };
-
-    // Add this plugin to render values on top of bars
-    Chart.register({
-        id: 'value-on-top',
-        afterDatasetsDraw(chart) {
-            const { ctx, data } = chart;
-            chart.data.datasets.forEach((dataset, i) => {
-                const meta = chart.getDatasetMeta(i);
-                meta.data.forEach((bar, index) => {
-                    const value = dataset.data[index];
-                    const roundedValue = parseFloat(value.toFixed(2)); // Round to 2 decimal places
-                    if (roundedValue !== 0) { // Only show if not 0.00
-                        ctx.fillStyle = 'black';
-                        ctx.font = '12px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(roundedValue, bar.x, bar.y - 5); // Position the text above the bar
-                    }
-                });
-            });
-        }
-    });
-
-    // Destroy existing chart instance if it exists
-    if (window.nutritionChart) {
-        window.nutritionChart.destroy();
-    }
-
-    // Create new chart instance
-    window.nutritionChart = new Chart(ctx, {
-        type: 'bar',
-        data: chartData,
-        options: chartOptions
-    });
-}
-
-function renderRecommendedNutritionChart() {
-    if (!recommendation) return;
-    
-    // Check if the chart element exists
-    const chartElement = document.getElementById('recommended-nutrition-chart');
-    if (!chartElement) {
-        console.error('Chart element with ID "recommended-nutrition-chart" not found');
-        return;
-    }
-    
-    const ctx = chartElement.getContext('2d');
-    
-    // Create a dropdown to select which nutrient category to display
-    const chartContainer = document.getElementById('chart-container');
-    
-    // Check if the dropdown already exists
-    let chartCategorySelect = document.getElementById('chart-category-select');
-    if (!chartCategorySelect) {
-        // Create the dropdown if it doesn't exist
-        const selectContainer = document.createElement('div');
-        selectContainer.className = 'chart-select-container';
-        selectContainer.innerHTML = `
-            <label for="chart-category-select">Select nutrient category to display:</label>
-            <select id="chart-category-select">
-                <option value="macros" selected>Macronutrients</option>
-                <option value="fats">Fats</option>
-                <option value="minerals">Minerals</option>
-                <option value="vitamins">Vitamins</option>
-            </select>
-        `;
-        
-        // Insert the dropdown before the chart-wrapper
-        const chartWrapper = chartContainer.querySelector('.chart-wrapper');
-        if (chartWrapper) {
-            chartContainer.insertBefore(selectContainer, chartWrapper);
-        } else {
-            // Fallback: append to container if wrapper not found
-            chartContainer.appendChild(selectContainer);
-        }
-        
-        // Get the newly created dropdown
-        chartCategorySelect = document.getElementById('chart-category-select');
-    }
-    
-    // Define chart data for different categories
-    const chartCategories = {
-        macros: {
-            labels: ['Calories (kcal)', 'Fats (g)', 'Carbs (g)', 'Protein (g)', 'Fiber (g)', 'Cholesterol (mg)'],
-            values: [
-                recommendation.calories,
-                (recommendation.fats.min + recommendation.fats.max) / 2, // Average of min and max
-                (recommendation.carbs.min + recommendation.carbs.max) / 2, // Average of min and max
-                (recommendation.protein.min + recommendation.protein.max) / 2, // Average of min and max
-                recommendation.fiber,
-                recommendation.cholesterol
-            ]
-        },
-        fats: {
-            labels: ['Omega-3 (g)', 'Omega-6 (g)', 'Saturated Fat (g)', 'Trans Fat (g)'],
-            values: [
-                recommendation.omega3,
-                recommendation.omega6,
-                recommendation.saturatedFat,
-                recommendation.transFat
-            ]
-        },
-        minerals: {
-            labels: ['Iron (mg)', 'Sodium (mg)', 'Potassium (mg)', 'Calcium (mg)', 'Magnesium (mg)', 'Zinc (mg)', 'Phosphorus (mg)'],
-            values: [
-                recommendation.iron,
-                recommendation.sodium / 100, // Scaled down for better visualization
-                recommendation.potassium / 100, // Scaled down for better visualization
-                recommendation.calcium / 10, // Scaled down for better visualization
-                recommendation.magnesium,
-                recommendation.zinc,
-                recommendation.phosphorus / 10 // Scaled down for better visualization
-            ]
-        },
-        vitamins: {
-            labels: ['Vitamin A (mcg)', 'Vitamin B6 (mg)', 'Vitamin B12 (mcg)', 'Vitamin C (mg)', 'Vitamin D (IU)', 'Vitamin E (mg)', 'Folate (mcg)'],
-            values: [
-                recommendation.vitaminA / 10, // Scaled down for better visualization
-                recommendation.vitaminB6,
-                recommendation.vitaminB12,
-                recommendation.vitaminC,
-                recommendation.vitaminD / 10, // Scaled down for better visualization
-                recommendation.vitaminE,
-                recommendation.folate / 10 // Scaled down for better visualization
-            ]
-        }
-    };
-    
-    // Get the selected category
-    const selectedCategory = chartCategorySelect.value;
-    
-    // Prepare data for chart based on selected category
-    const labels = chartCategories[selectedCategory].labels;
-    const values = chartCategories[selectedCategory].values;
-    
-    // Define colors - generate enough colors for all categories
-    const generateColors = (count) => {
-        const colors = [];
-        for (let i = 0; i < count; i++) {
-            const hue = (i * 137.5) % 360; // Use golden angle approximation for even distribution
-            colors.push(`hsla(${hue}, 70%, 60%, 0.2)`);
-        }
-        return colors;
-    };
-    
-    const generateBorderColors = (count) => {
-        const colors = [];
-        for (let i = 0; i < count; i++) {
-            const hue = (i * 137.5) % 360;
-            colors.push(`hsla(${hue}, 70%, 50%, 1)`);
-        }
-        return colors;
-    };
-    
-    const backgroundColors = generateColors(labels.length);
-    const borderColors = generateBorderColors(labels.length);
-    
-    // Prepare chart data
-    const chartData = {
-        labels: labels,
-        datasets: [{
-            label: 'Recommended Daily Intake',
-            data: values,
-            backgroundColor: backgroundColors,
-            borderColor: borderColors,
-            borderWidth: 1
-        }]
-    };
-    
-    // Chart options
-    const chartOptions = {
-        responsive: false,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return value.toLocaleString();
-                    }
-                }
-            }
-        },
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                            label += ': ';
-                        }
-                        if (context.parsed.y !== null) {
-                            label += renderRecommendedNutritionChart.formatter(context.parsed.y);
-                            
-                            // Add scaling note for scaled values
-                            const nutrientLabel = labels[context.dataIndex].toLowerCase();
-                            if (nutrientLabel.includes('sodium') || nutrientLabel.includes('potassium')) {
-                                label += ' (×100)';
-                            } else if (nutrientLabel.includes('calcium') || nutrientLabel.includes('phosphorus') || 
-                                      nutrientLabel.includes('vitamin a') || nutrientLabel.includes('vitamin d') || 
-                                      nutrientLabel.includes('folate')) {
-                                label += ' (×10)';
-                            }
-                        }
-                        return label;
-                    }
-                }
-            },
-            legend: {
-                display: false
-            }
-        },
-        animation: {
-            onComplete: function() {
-                renderRecommendedNutritionChart.afterDatasetsDraw(this);
-            }
-        }
-    };
-    
-    // Custom formatter for tooltip values
-    renderRecommendedNutritionChart.formatter = function(value) {
-        return value.toLocaleString();
-    };
-    
-    // Custom function to add values on top of bars
-    renderRecommendedNutritionChart.afterDatasetsDraw = function(chart) {
-        const ctx = chart.ctx;
-        chart.data.datasets.forEach((dataset, i) => {
-            const meta = chart.getDatasetMeta(i);
-            if (!meta.hidden) {
-                meta.data.forEach((bar, index) => {
-                    const value = dataset.data[index];
-                    const roundedValue = parseFloat(value.toFixed(2));
-                    if (roundedValue !== 0) { // Only show if not 0.00
-                        ctx.fillStyle = 'black';
-                        ctx.font = '12px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(roundedValue, bar.x, bar.y - 5); // Position the text above the bar
-                    }
-                });
-            }
-        });
-    };
-    
-    // Destroy existing chart instance if it exists
-    if (window.recommendedNutritionChart) {
-        window.recommendedNutritionChart.destroy();
-    }
-    
-    // Create new chart instance
-    window.recommendedNutritionChart = new Chart(ctx, {
-        type: 'bar',
-        data: chartData,
-        options: chartOptions
-    });
-    
-    // Add event listener to the dropdown to update the chart when selection changes
-    chartCategorySelect.addEventListener('change', renderRecommendedNutritionChart);
 }
 
 // Utility function to format values
@@ -1107,7 +770,6 @@ function displayTotalNutrition(totals) {
         nutritionTotalsDiv.appendChild(totalItem);
     });
 }
-
 // --- Initial Setup ---
 handleInputChange(); // Set initial button states
 updateUI(); // Initial render (likely empty)
