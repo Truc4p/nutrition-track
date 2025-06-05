@@ -1,0 +1,484 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pick Up Limes Recipe Collection</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .header {
+                text-align: center;
+                background: linear-gradient(135deg, #6b8e23, #8fbc8f);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 30px;
+            }
+            .recipe-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 20px;
+            }
+            .recipe-card {
+                background: white;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: transform 0.2s;
+            }
+            .recipe-card:hover {
+                transform: translateY(-5px);
+            }
+            .recipe-image {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+            }
+            .recipe-content {
+                padding: 15px;
+            }
+            .recipe-title {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
+            }
+            .recipe-time {
+                color: #666;
+                margin-bottom: 10px;
+                font-weight: bold;
+            }
+            .recipe-tags {
+                margin-bottom: 10px;
+            }
+            .tag {
+                display: inline-block;
+                background: #e8f5e8;
+                color: #2d5a2d;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                margin: 2px;
+            }
+            .ingredients {
+                margin-top: 10px;
+                font-size: 14px;
+                color: #555;
+            }
+            .ingredients-title {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .ingredient {
+                margin: 2px 0;
+                padding-left: 10px;
+            }
+            .view-recipe {
+                display: inline-block;
+                background: #6b8e23;
+                color: white;
+                padding: 8px 15px;
+                text-decoration: none;
+                border-radius: 5px;
+                margin-top: 10px;
+                font-size: 14px;
+            }
+            .view-recipe:hover {
+                background: #5a7a1f;
+            }
+            .stats {
+                text-align: center;
+                margin-bottom: 20px;
+                padding: 15px;
+                background: white;
+                border-radius: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🍳 Pick Up Limes Recipe Collection</h1>
+            <p>Scraped from pickuplimes.com</p>
+        </div>
+        
+        <div class="stats">
+            <h3>📊 Collection Stats</h3>
+            <p><strong>24 recipes</strong> • All vegan & plant-based • Complete with images, ingredients & cooking times</p>
+        </div>
+        
+        <div class="recipe-grid">
+    
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/98/ea/98eaca8cbc292ac09c82cee8dfe33d75.jpg" alt="Green Goddess Salad Dressing" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Green Goddess Salad Dressing</div>
+                    <div class="recipe-time">⏱️ 05 min</div>
+                    <div class="recipe-tags"><span class="tag">One-bowl / one-pot</span><span class="tag">No cook</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">gluten free</span><span class="tag">vegan</span><span class="tag">vegetarian</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (12 items):</div>
+                        <div class="ingredient">• &#8532; cup unsweetened soy yogurt</div><div class="ingredient">• &#8531; cup vegan mayonnaise</div><div class="ingredient">• 1 lemon</div><div class="ingredient">• 2 garlic clove</div><div class="ingredient">• &#188; cup fresh chives</div><div class="ingredient">• &#188; cup fresh parsley</div><div class="ingredient">... and 6 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/green-goddess-salad-dressing-2919" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/81/d5/81d5061c2bbe7b76bdddf8443526b752.jpg" alt="Shallot Dressing" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Shallot Dressing</div>
+                    <div class="recipe-time">⏱️ 05 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">No cook</span><span class="tag">soy free</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">gluten free</span><span class="tag">vegan</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (7 items):</div>
+                        <div class="ingredient">• 1 medium shallot</div><div class="ingredient">• &#8531; cup extra-virgin olive oil</div><div class="ingredient">• &#188; cup white wine vinegar</div><div class="ingredient">• &#188; cup maple syrup</div><div class="ingredient">•  dijon mustard</div><div class="ingredient">• &#8539; tsp salt</div><div class="ingredient">... and 1 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/shallot-dressing-2068" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/93/5c/935c72c41eec5073d272932c18e137ab.jpg" alt="Buffalo Pasta Salad" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Buffalo Pasta Salad</div>
+                    <div class="recipe-time">⏱️ 30 min</div>
+                    <div class="recipe-tags"><span class="tag">Budget-friendly</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (12 items):</div>
+                        <div class="ingredient">• 2&#189; cup dry orecchiette pasta</div><div class="ingredient">• 2 carrot</div><div class="ingredient">• 2 celery rib</div><div class="ingredient">• &#189; small red onion</div><div class="ingredient">• 1 cup cherry tomatoes</div><div class="ingredient">• &#188; cup chopped pickles</div><div class="ingredient">... and 6 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/buffalo-pasta-salad-1530" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/e0/08/e008d4a6737beb446aac1a83e46c6176.jpg" alt="Eggplant Pesto Orzo" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Eggplant Pesto Orzo</div>
+                    <div class="recipe-time">⏱️ 30 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">Budget-friendly</span><span class="tag">peanut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (15 items):</div>
+                        <div class="ingredient">• 1 cup dry orzo pasta</div><div class="ingredient">• &#189; Tbsp vegetable oil</div><div class="ingredient">• 1 medium onion</div><div class="ingredient">• &#188; cup tomato paste</div><div class="ingredient">• &#188; cup vegan red pesto</div><div class="ingredient">• 1 medium eggplant</div><div class="ingredient">... and 9 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/eggplant-orzo-2361" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/56/aa/56aa4ae07ef740cfa77886d9b51acde2.jpg" alt="Peanut Granola" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Peanut Granola</div>
+                    <div class="recipe-time">⏱️ 40 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">Budget-friendly</span><span class="tag">soy free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (8 items):</div>
+                        <div class="ingredient">• 3 cup rolled oats</div><div class="ingredient">• &#189; cup roasted unsalted peanuts</div><div class="ingredient">• &#189; tsp ground cinnamon</div><div class="ingredient">• &#188; tsp salt</div><div class="ingredient">• &#8531; cup peanut butter</div><div class="ingredient">• &#188; cup maple syrup</div><div class="ingredient">... and 2 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/peanut-granola-2027" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/70/aa/70aa5de1f272337f74e930ceedbd2018.jpg" alt="Homemade Vegan Mayonnaise" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Homemade Vegan Mayonnaise</div>
+                    <div class="recipe-time">⏱️ 05 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">No cook</span><span class="tag">Budget-friendly</span><span class="tag">soy free</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">gluten free</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (5 items):</div>
+                        <div class="ingredient">• &#188; cup aquafaba</div><div class="ingredient">•  fresh lemon juice</div><div class="ingredient">•  dijon mustard</div><div class="ingredient">• 1 pinch salt</div><div class="ingredient">• &#190; cup grapeseed oil</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/homemade-vegan-mayonnaise-946" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/5f/14/5f147f12cc76ed746863a84a035e073f.jpg" alt="The Best All-Purpose Stir Fry Sauce!" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">The Best All-Purpose Stir Fry Sauce!</div>
+                    <div class="recipe-time">⏱️ 05 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">No cook</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (9 items):</div>
+                        <div class="ingredient">• &#189; cup water</div><div class="ingredient">• &#189; cup sodium-reduced soy sauce</div><div class="ingredient">• 2 Tbsp agave syrup</div><div class="ingredient">• 2 Tbsp rice vinegar</div><div class="ingredient">• 1 Tbsp cornstarch</div><div class="ingredient">•  toasted sesame oil</div><div class="ingredient">... and 3 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/the-best-all-purpose-stir-fry-sauce-2659" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/6b/ff/6bff68310768a24c5c0234953a4dbfe3.jpg" alt="Classic Vanilla Cake" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Classic Vanilla Cake</div>
+                    <div class="recipe-time">⏱️ 50 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (13 items):</div>
+                        <div class="ingredient">• 1&#189; cup unsweetened soy milk</div><div class="ingredient">• 1 Tbsp white vinegar</div><div class="ingredient">• &#190; cup granulated sugar</div><div class="ingredient">• &#189; cup vegetable oil</div><div class="ingredient">•  pure vanilla extract</div><div class="ingredient">• 2&#189; cup all-purpose flour</div><div class="ingredient">... and 7 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/classic-vegan-vanilla-cake-887" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/4c/fb/4cfb44ecddb105d61bae5ee1aeca2cac.jpg" alt="Baked Donuts" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Baked Donuts</div>
+                    <div class="recipe-time">⏱️ 35 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (15 items):</div>
+                        <div class="ingredient">• 2 cup all-purpose flour</div><div class="ingredient">•  baking powder</div><div class="ingredient">• &#8532; cup granulated sugar</div><div class="ingredient">• &#189; tsp salt</div><div class="ingredient">• 1 cup unsweetened soy milk</div><div class="ingredient">• 1.975 oz unsalted vegan butter</div><div class="ingredient">... and 9 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/vegan-baked-donuts-682" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/e7/04/e7047c040fdde58ef15dee2c4b9e7b6f.jpg" alt="The Best Brownies Ever" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">The Best Brownies Ever</div>
+                    <div class="recipe-time">⏱️ 50 min</div>
+                    <div class="recipe-tags"><span class="tag">soy free</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (14 items):</div>
+                        <div class="ingredient">• &#188; cup ground flaxseeds</div><div class="ingredient">• &#188; cup brewed espresso</div><div class="ingredient">• &#188; cup water</div><div class="ingredient">• 1 cup granulated sugar</div><div class="ingredient">• &#8531; cup light brown sugar</div><div class="ingredient">•  pure vanilla extract</div><div class="ingredient">... and 8 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/the-best-brownies-ever-1216" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/ee/df/eedfdbd90b48193579e375b8e7ef06f3.jpg" alt="Simple Spicy Chili" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Simple Spicy Chili</div>
+                    <div class="recipe-time">⏱️ 15 min</div>
+                    <div class="recipe-tags"><span class="tag">One-bowl / one-pot</span><span class="tag">Freezer-friendly</span><span class="tag">soy free</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (20 items):</div>
+                        <div class="ingredient">• 2 Tbsp vegetable oil</div><div class="ingredient">• 2 stalk green onion</div><div class="ingredient">• 3 garlic clove</div><div class="ingredient">•  ground cumin</div><div class="ingredient">•  ground coriander</div><div class="ingredient">•  chili powder</div><div class="ingredient">... and 14 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/simple-spicy-chili-1844" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/40/48/4048d20f215ada5042722887c710e2ca.jpg" alt="Creamy Gnocchi Soup" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Creamy Gnocchi Soup</div>
+                    <div class="recipe-time">⏱️ 40 min</div>
+                    <div class="recipe-tags"><span class="tag">One-bowl / one-pot</span><span class="tag">Freezer-friendly</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (16 items):</div>
+                        <div class="ingredient">• 2 Tbsp olive oil</div><div class="ingredient">• 1 medium onion</div><div class="ingredient">• 3 garlic clove</div><div class="ingredient">• 2 celery rib</div><div class="ingredient">• 1 carrot</div><div class="ingredient">• 2 Tbsp all-purpose flour</div><div class="ingredient">... and 10 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/creamy-gnocchi-soup-2657" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/4c/7b/4c7b6ca3e8c278236e52f7b26eb27624.jpg" alt="Smokey Lentil Stew with Aioli" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Smokey Lentil Stew with Aioli</div>
+                    <div class="recipe-time">⏱️ 45 min</div>
+                    <div class="recipe-tags"><span class="tag">One-bowl / one-pot</span><span class="tag">Budget-friendly</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (14 items):</div>
+                        <div class="ingredient">• 2 Tbsp vegetable oil</div><div class="ingredient">• 2 medium onion</div><div class="ingredient">• &#189; tsp salt</div><div class="ingredient">• 3 garlic clove</div><div class="ingredient">• 2 Tbsp tomato paste</div><div class="ingredient">• &#189; Tbsp smoked sweet paprika powder</div><div class="ingredient">... and 8 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/smokey-lentil-stew-with-aioli-1861" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/5e/be/5ebe59315053ffe2a958853e34105b6e.jpg" alt="Aioli - Garlic Mayo" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Aioli - Garlic Mayo</div>
+                    <div class="recipe-time">⏱️ 10 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">No cook</span><span class="tag">Budget-friendly</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">gluten free</span><span class="tag">vegan</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (6 items):</div>
+                        <div class="ingredient">• 4 garlic clove</div><div class="ingredient">• 2 Tbsp fresh lemon juice</div><div class="ingredient">• &#188; cup unsweetened soy milk</div><div class="ingredient">• &#188; cup olive oil</div><div class="ingredient">• &#188; cup vegetable oil</div><div class="ingredient">• &#8539; tsp salt</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/aioli-garlic-mayo-1862" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/e7/72/e772a0e0bec5e1b155b8514b16ee8cd3.jpg" alt="The Best Chocolate Chip Cookies" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">The Best Chocolate Chip Cookies</div>
+                    <div class="recipe-time">⏱️ 01 hour 40 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (10 items):</div>
+                        <div class="ingredient">• &#189; cup unsalted vegan butter</div><div class="ingredient">• &#190; cup light brown sugar</div><div class="ingredient">• &#188; cup granulated sugar</div><div class="ingredient">• &#188; cup unsweetened soy milk</div><div class="ingredient">• 1 Tbsp pure vanilla extract</div><div class="ingredient">• 2 cup all-purpose flour</div><div class="ingredient">... and 4 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/the-best-chocolate-chip-cookies-1437" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/46/98/46984497cc8d3f3d63d88e7806263e71.jpg" alt="Red Lentil & Spinach Soup" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Red Lentil & Spinach Soup</div>
+                    <div class="recipe-time">⏱️ 35 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">Freezer-friendly</span><span class="tag">One-bowl / one-pot</span><span class="tag">Budget-friendly</span><span class="tag">soy free</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (12 items):</div>
+                        <div class="ingredient">• &#189; Tbsp vegetable oil</div><div class="ingredient">• 1 large onion</div><div class="ingredient">• &#189; Tbsp freshly grated ginger</div><div class="ingredient">• 2 medium tomato</div><div class="ingredient">• 1 cup dry red lentils</div><div class="ingredient">• 1&#189; vegetable bouillon cube</div><div class="ingredient">... and 6 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/red-lentil-spinach-soup-1553" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/b4/89/b4891fb888112412331cc96b44ed6adf.jpg" alt="Hummus Pasta Salad" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Hummus Pasta Salad</div>
+                    <div class="recipe-time">⏱️ 30 min</div>
+                    <div class="recipe-tags"><span class="tag">Budget-friendly</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (14 items):</div>
+                        <div class="ingredient">• 7.055 oz dry fusilli pasta</div><div class="ingredient">• 1 Tbsp olive oil</div><div class="ingredient">• 1 zucchini</div><div class="ingredient">•  curry powder</div><div class="ingredient">• &#188; tsp salt</div><div class="ingredient">• 1 carrot</div><div class="ingredient">... and 8 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/hummus-pasta-salad-1551" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/f2/54/f254b174c057c4eb0ca1c973796fb436.jpg" alt="Roasted Bell Pepper Pesto Sandwich" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Roasted Bell Pepper Pesto Sandwich</div>
+                    <div class="recipe-time">⏱️ 20 min</div>
+                    <div class="recipe-tags"><span class="tag">10 ingredients or less</span><span class="tag">Budget-friendly</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (12 items):</div>
+                        <div class="ingredient">• 5.82 oz firm tofu</div><div class="ingredient">• 1 Tbsp cornstarch</div><div class="ingredient">• &#8539; tsp salt</div><div class="ingredient">• &#189; Tbsp vegetable oil</div><div class="ingredient">• 4 slice multigrain bread</div><div class="ingredient">• &#188; cup hummus</div><div class="ingredient">... and 6 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/roasted-bell-pepper-pesto-sandwich-1555" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/be/ac/beac1273e44e1252652903a435991df2.jpg" alt="Lentil Harvest Bowl" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Lentil Harvest Bowl</div>
+                    <div class="recipe-time">⏱️ 01 hour 00 min</div>
+                    <div class="recipe-tags"><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (24 items):</div>
+                        <div class="ingredient">•  vegetable oil</div><div class="ingredient">• 1 small onion</div><div class="ingredient">• &#189; tsp freshly grated ginger</div><div class="ingredient">• &#8531; cup dry red lentils</div><div class="ingredient">• 1 medium tomato</div><div class="ingredient">• &#8531; cup water</div><div class="ingredient">... and 18 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/lentil-harvest-bowl-1552" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/44/76/447681471e0640091e762671cfa02cf6.jpg" alt="Red Lentil Bolognese Pasta" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Red Lentil Bolognese Pasta</div>
+                    <div class="recipe-time">⏱️ 35 min</div>
+                    <div class="recipe-tags"><span class="tag">soy free</span><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (13 items):</div>
+                        <div class="ingredient">• 7.055 oz dry rigatoni</div><div class="ingredient">•  vegetable oil</div><div class="ingredient">• 1 medium onion</div><div class="ingredient">•  freshly grated ginger</div><div class="ingredient">• &#8532; cup dry red lentils</div><div class="ingredient">• 2 medium tomato</div><div class="ingredient">... and 7 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/red-lentil-bolognese-pasta-1556" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/c9/b5/c9b5b7a063a862b5da97c936e566995b.jpg" alt="Dan Dan Noodles" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Dan Dan Noodles</div>
+                    <div class="recipe-time">⏱️ 30 min</div>
+                    <div class="recipe-tags"><span class="tag">tree nut free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (18 items):</div>
+                        <div class="ingredient">•  Sichuan peppercorns</div><div class="ingredient">• &#8531; cup Asian sesame paste</div><div class="ingredient">• &#8531; cup hot water</div><div class="ingredient">• 2 Tbsp Chinese light soy sauce</div><div class="ingredient">• 2 Tbsp chili oil</div><div class="ingredient">• 1 Tbsp light brown sugar</div><div class="ingredient">... and 12 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/dan-dan-noodles-894" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/50/d2/50d25a701bca28b366f5e13a4e700af0.jpg" alt="Gochujang Tempeh Bowl" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Gochujang Tempeh Bowl</div>
+                    <div class="recipe-time">⏱️ 45 min</div>
+                    <div class="recipe-tags"><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (18 items):</div>
+                        <div class="ingredient">• 14.109 oz tempeh</div><div class="ingredient">• 2&#189; Tbsp vegetable oil</div><div class="ingredient">• 2 garlic clove</div><div class="ingredient">• 3 Tbsp gochujang</div><div class="ingredient">• 3 Tbsp sodium-reduced soy sauce</div><div class="ingredient">• 2 Tbsp light brown sugar</div><div class="ingredient">... and 12 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/gochujang-tempeh-bowl-2279" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/d2/cc/d2cc9be6e7e408ec1f399c4a320b30e7.jpg" alt="Creamy Alfredo-Style High Protein Pasta" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Creamy Alfredo-Style High Protein Pasta</div>
+                    <div class="recipe-time">⏱️ 35 min</div>
+                    <div class="recipe-tags"><span class="tag">peanut free</span><span class="tag">sesame free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (15 items):</div>
+                        <div class="ingredient">• 8.818 oz firm tofu</div><div class="ingredient">• &#189; cup raw cashews</div><div class="ingredient">• 3 cup unsweetened soy milk</div><div class="ingredient">• &#8531; cup nutritional yeast flakes</div><div class="ingredient">• 2 vegetable bouillon cube</div><div class="ingredient">• &#189; Tbsp cornstarch</div><div class="ingredient">... and 9 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/creamy-alfredo-style-high-protein-pasta-2417" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+            <div class="recipe-card">
+                <img src="https://cdn.pickuplimes.com/cache/46/ef/46efbf1adf0bdde62f559e6d17a182c7.jpg" alt="Seitan Doner Kebab" class="recipe-image" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="recipe-content">
+                    <div class="recipe-title">Seitan Doner Kebab</div>
+                    <div class="recipe-time">⏱️ 27 min</div>
+                    <div class="recipe-tags"><span class="tag">peanut free</span><span class="tag">tree nut free</span><span class="tag">vegan</span><span class="tag">vegetarian</span><span class="tag">plant-based</span></div>
+                    <div class="ingredients">
+                        <div class="ingredients-title">🥗 Ingredients (22 items):</div>
+                        <div class="ingredient">• 14.109 oz seitan</div><div class="ingredient">• 1 Tbsp vegetable oil</div><div class="ingredient">•  chicken spice mix</div><div class="ingredient">• &#8531; cup unsweetened soy yogurt</div><div class="ingredient">• 1 Tbsp tahini</div><div class="ingredient">• 1 garlic clove</div><div class="ingredient">... and 16 more</div>
+                    </div>
+                    <a href="https://www.pickuplimes.com/recipe/seitan-doner-kebab-1827" target="_blank" class="view-recipe">View Full Recipe</a>
+                </div>
+            </div>
+        
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 10px;">
+            <p><em>Generated by Pick Up Limes Recipe Scraper</em></p>
+        </div>
+    </body>
+    </html>
+    
