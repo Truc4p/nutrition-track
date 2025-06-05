@@ -44,177 +44,114 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add console.log to debug the recommendation variable
                 console.log("Recommendation data:", recommendation);
 
-                // Create tabs for different nutrient categories
-                recommendationText.innerHTML = `
-                    <div class="recommendation-tabs">
-                        <button class="tab-button active" data-tab="macros">Macronutrients</button>
-                        <button class="tab-button" data-tab="fats">Fats</button>
-                        <button class="tab-button" data-tab="minerals">Minerals</button>
-                        <button class="tab-button" data-tab="vitamins">Vitamins</button>
-                    </div>
-                    
-                    <div class="tab-content" id="macros-tab" style="display: block;">
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Calories:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.calories)} kcal</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Fats:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.fats.min)}g - ${formatValue(recommendation.fats.max)}g</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Carbs:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.carbs.min)}g - ${formatValue(recommendation.carbs.max)}g</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Protein:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.protein.min)}g - ${formatValue(recommendation.protein.max)}g</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Fiber:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.fiber)}g</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Cholesterol:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.cholesterol)}mg</span>
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="fats-tab" style="display: none;">
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Omega-3:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.omega3)}g</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Omega-6:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.omega6)}g</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Saturated Fat:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.saturatedFat)}g</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Trans Fat:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.transFat)}g</span>
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="minerals-tab" style="display: none;">
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Iron:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.iron)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Sodium:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.sodium)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Potassium:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.potassium)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Calcium:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.calcium)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Magnesium:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.magnesium)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Zinc:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.zinc)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Copper:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.copper)}mcg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Manganese:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.manganese)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Phosphorus:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.phosphorus)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Selenium:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.selenium)}mcg</span>
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="vitamins-tab" style="display: none;">
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Vitamin A:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.vitaminA)}mcg RAE</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Vitamin B6:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.vitaminB6)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Vitamin B12:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.vitaminB12)}mcg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Vitamin C:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.vitaminC)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Vitamin D:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.vitaminD)}IU</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Vitamin E:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.vitaminE)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Vitamin K:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.vitaminK)}mcg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Folate:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.folate)}mcg DFE</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Thiamin:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.thiamin)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Riboflavin:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.riboflavin)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Niacin:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.niacin)}mg</span>
-                        </div>
-                        <div class="nutrient-item">
-                            <span class="nutrient-name">Choline:</span>
-                            <span class="nutrient-value">${formatValue(recommendation.choline)}mg</span>
-                        </div>
-                    </div>
-                `;
-                
-                // Add event listeners for tab buttons
-                document.querySelectorAll('.tab-button').forEach(button => {
-                    button.addEventListener('click', () => {
-                        // Remove active class from all buttons
-                        document.querySelectorAll('.tab-button').forEach(btn => {
-                            btn.classList.remove('active');
-                        });
-                        
-                        // Add active class to clicked button
-                        button.classList.add('active');
-                        
-                        // Hide all tab content
-                        document.querySelectorAll('.tab-content').forEach(content => {
-                            content.style.display = 'none';
-                        });
-                        
-                        // Show selected tab content
-                        const tabId = button.getAttribute('data-tab');
-                        document.getElementById(`${tabId}-tab`).style.display = 'block';
-                    });
+                // Clear and rebuild recommendation section
+                recommendationText.innerHTML = '';
+
+                // Create a single list item for recommendations (same structure as totals)
+                const recommendationListItem = document.createElement('div');
+                recommendationListItem.className = 'recommendation-food-item';
+
+                // No header for recommendations - start directly with nutrition categories
+
+                // Organize recommendations by category
+                const categories = {
+                    'Proximates': [],
+                    'Minerals': [],
+                    'Vitamins': [],
+                    'Lipids': [],
+                    'Protein': [],
+                    'Carbohydrates': [],
+                    'Other': []
+                };
+
+                // Add all nutrients to appropriate categories
+                const nutrients = [
+                    { name: 'Calories', value: recommendation.calories, unit: 'kcal' },
+                    { name: 'Fats', value: `${formatValue(recommendation.fats.min)} - ${formatValue(recommendation.fats.max)}`, unit: 'g' },
+                    { name: 'Carbohydrates', value: `${formatValue(recommendation.carbs.min)} - ${formatValue(recommendation.carbs.max)}`, unit: 'g' },
+                    { name: 'Protein', value: `${formatValue(recommendation.protein.min)} - ${formatValue(recommendation.protein.max)}`, unit: 'g' },
+                    { name: 'Fiber', value: recommendation.fiber, unit: 'g' },
+                    { name: 'Cholesterol', value: recommendation.cholesterol, unit: 'mg' },
+                    { name: 'Omega-3', value: recommendation.omega3, unit: 'g' },
+                    { name: 'Omega-6', value: recommendation.omega6, unit: 'g' },
+                    { name: 'Saturated Fat', value: recommendation.saturatedFat, unit: 'g' },
+                    { name: 'Trans Fat', value: recommendation.transFat, unit: 'g' },
+                    { name: 'Iron', value: recommendation.iron, unit: 'mg' },
+                    { name: 'Sodium', value: recommendation.sodium, unit: 'mg' },
+                    { name: 'Potassium', value: recommendation.potassium, unit: 'mg' },
+                    { name: 'Calcium', value: recommendation.calcium, unit: 'mg' },
+                    { name: 'Magnesium', value: recommendation.magnesium, unit: 'mg' },
+                    { name: 'Zinc', value: recommendation.zinc, unit: 'mg' },
+                    { name: 'Copper', value: recommendation.copper, unit: 'mcg' },
+                    { name: 'Manganese', value: recommendation.manganese, unit: 'mg' },
+                    { name: 'Phosphorus', value: recommendation.phosphorus, unit: 'mg' },
+                    { name: 'Selenium', value: recommendation.selenium, unit: 'mcg' },
+                    { name: 'Vitamin A', value: recommendation.vitaminA, unit: 'mcg RAE' },
+                    { name: 'Vitamin B6', value: recommendation.vitaminB6, unit: 'mg' },
+                    { name: 'Vitamin B12', value: recommendation.vitaminB12, unit: 'mcg' },
+                    { name: 'Vitamin C', value: recommendation.vitaminC, unit: 'mg' },
+                    { name: 'Vitamin D', value: recommendation.vitaminD, unit: 'IU' },
+                    { name: 'Vitamin E', value: recommendation.vitaminE, unit: 'mg' },
+                    { name: 'Vitamin K', value: recommendation.vitaminK, unit: 'mcg' },
+                    { name: 'Folate', value: recommendation.folate, unit: 'mcg DFE' },
+                    { name: 'Thiamin', value: recommendation.thiamin, unit: 'mg' },
+                    { name: 'Riboflavin', value: recommendation.riboflavin, unit: 'mg' },
+                    { name: 'Niacin', value: recommendation.niacin, unit: 'mg' },
+                    { name: 'Choline', value: recommendation.choline, unit: 'mg' }
+                ];
+
+                nutrients.forEach(nutrient => {
+                    const displayValue = typeof nutrient.value === 'string' ? nutrient.value : formatValue(nutrient.value);
+                    const nutrientInfo = `
+                        <div class="nutrition-total-item">
+                            <span class="nutrient-name">${nutrient.name}:</span>
+                            <span class="nutrient-value">${displayValue} ${nutrient.unit}</span>
+                        </div>`;
+
+                    const name = nutrient.name;
+                    if (name.includes('Vitamin')) {
+                        categories['Vitamins'].push(nutrientInfo);
+                    } else if (name.includes('Iron') || name.includes('Calcium') || name.includes('Zinc') || 
+                              name.includes('Magnesium') || name.includes('Potassium') || name.includes('Sodium') || 
+                              name.includes('Phosphorus') || name.includes('Selenium') || name.includes('Copper') || 
+                              name.includes('Manganese')) {
+                        categories['Minerals'].push(nutrientInfo);
+                    } else if (name.includes('Protein') || name.includes('Amino')) {
+                        categories['Protein'].push(nutrientInfo);
+                    } else if (name.includes('Carbohydrate') || name.includes('Fiber')) {
+                        categories['Carbohydrates'].push(nutrientInfo);
+                    } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol') || 
+                              name.includes('Omega')) {
+                        categories['Lipids'].push(nutrientInfo);
+                    } else if (name.includes('Calories')) {
+                        categories['Proximates'].push(nutrientInfo);
+                    } else {
+                        categories['Other'].push(nutrientInfo);
+                    }
                 });
+
+                // Create nutrition div with same structure as food items
+                const nutritionDiv = document.createElement('div');
+                nutritionDiv.className = 'food-nutrition';
+
+                // Display nutrients by category using same structure as food items
+                Object.entries(categories).forEach(([categoryName, nutrients]) => {
+                    if (nutrients.length > 0) {
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'nutrition-category';
+                        
+                        const categoryTitle = document.createElement('h4');
+                        categoryTitle.className = 'category-title';
+                        categoryTitle.textContent = categoryName;
+                        categoryDiv.appendChild(categoryTitle);
+
+                        categoryDiv.innerHTML += nutrients.join('');
+                        nutritionDiv.appendChild(categoryDiv);
+                    }
+                });
+
+                recommendationListItem.appendChild(nutritionDiv);
+                recommendationText.appendChild(recommendationListItem);
             } catch (error) {
                 console.error("Error calculating recommendation:", error);
                 recommendationText.textContent = "Failed to calculate recommendation. Please try again.";

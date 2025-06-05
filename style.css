@@ -151,10 +151,6 @@ button:disabled {
 }
 
 #recommendation-output {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 20px;
     margin-top: 20px;
 }
 
@@ -836,15 +832,12 @@ html {
 }
 
 #recommendation-text .nutrient-name {
-    color: #2c3e50;
-    font-weight: 600;
-    font-size: 1.1em;
+    color: #666;
 }
 
 #recommendation-text .nutrient-value {
     color: #3498DA;
     font-weight: 500;
-    font-size: 1.1em;
 }
 
 /* Style for select dropdowns */
@@ -1290,6 +1283,20 @@ html {
 .total-food-item:hover {
     transform: translateX(5px);
     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.15);
+}
+
+.recommendation-food-item {
+    padding: 15px;
+    margin: 10px 0;
+    background: #ffffff;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: block;
+    width: 100%;
+}
+
+.recommendation-food-item:hover {
+    transform: translateX(5px);
 }
 
 .total-item {
