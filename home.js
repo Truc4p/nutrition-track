@@ -5,12 +5,6 @@ const loadingIndicator = document.getElementById('loading-indicator');
 const resultsHeader = document.getElementById('results-header');
 const foodListContainer = document.getElementById('food-list');
 const totalsSection = document.getElementById('totals-section');
-const totalFatsSpan = document.getElementById('total-fats');
-const totalCarbsSpan = document.getElementById('total-carbs');
-const totalProteinSpan = document.getElementById('total-protein');
-const totalFiberSpan = document.getElementById('total-fiber');
-const totalCholesterolSpan = document.getElementById('total-cholesterol');
-const totalCaloriesSpan = document.getElementById('total-calories');
 
 const weightInput = document.getElementById('weight');
 const heightInput = document.getElementById('height');
@@ -558,8 +552,9 @@ async function processText(inputText) {
         }
 
         const data = await response.json(); // Corresponds to NutritionResponse
+        console.log('Backend response:', data); // Debug log
 
-        // Process the result into the 'foods' array (similar to your ViewModel mapping)
+        // Process the result into the 'foods' array with all nutrients
         foods = data.result.map(ingredient => {
             const fatsValue = parseFloat(ingredient.total_fat) || 0.0;
             const carbsValue = parseFloat(ingredient.carbohydrates) || 0.0;
@@ -569,21 +564,58 @@ async function processText(inputText) {
             const quantityValue = parseFloat(ingredient.quantity) || 0.0;
             const conversion = parseFloat(ingredient.conversion_factor) || 1.0;
 
-            // Calculate total calories based on macros * conversion
-            const totalCalories = (fatsValue * 9 + carbsValue * 4 + proteinValue * 4) * conversion;
+            // Get calories from all_nutrients if available, otherwise calculate
+            let totalCalories = 0;
+            if (ingredient.all_nutrients && ingredient.all_nutrients['energy']) {
+                totalCalories = parseFloat(ingredient.all_nutrients['energy'].value) * conversion;
+            } else {
+                totalCalories = (fatsValue * 9 + carbsValue * 4 + proteinValue * 4) * conversion;
+            }
+
+            // Process all nutrients from all_nutrients field
+            const allNutrients = {};
+            if (ingredient.all_nutrients) {
+                Object.entries(ingredient.all_nutrients).forEach(([key, nutrient]) => {
+                    const value = parseFloat(nutrient.value) || 0;
+                    if (value > 0) {
+                        // Better formatting for nutrient names
+                        let formattedName = key
+                            .replace(/,\s*/g, ', ')
+                            .replace(/\b\w/g, l => l.toUpperCase())
+                            .replace(/\s+/g, ' ')
+                            .trim();
+                        
+                        // Handle special cases
+                        if (formattedName.toLowerCase().includes('vitamin')) {
+                            formattedName = formattedName.replace(/Vitamin\s+(\w)/g, 'Vitamin $1');
+                        }
+                        if (formattedName.toLowerCase().includes('fatty acids')) {
+                            formattedName = formattedName.replace(/Fatty Acids/gi, 'Fatty Acids');
+                        }
+                        
+                        allNutrients[key] = {
+                            name: formattedName,
+                            value: value * conversion,
+                            unit: nutrient.unit.toUpperCase(),
+                            category: nutrient.category || 'other'
+                        };
+                    }
+                });
+            }
 
             return {
                 id: ingredient.id,
                 name: ingredient.name,
                 fats: fatsValue * conversion,
-                saturatedFats: (parseFloat(ingredient.saturated_fat) || 0.0) * conversion, // Keep if needed later
+                saturatedFats: (parseFloat(ingredient.saturated_fat) || 0.0) * conversion,
                 carbohydrates: carbsValue * conversion,
                 protein: proteinValue * conversion,
                 fiber: fiberValue * conversion,
                 cholesterol: cholesterolValue * conversion,
                 totalCalories: totalCalories,
                 quantity: quantityValue,
-                measurementType: ingredient.measurement_type || '' // Handle potential null/undefined
+                measurementType: ingredient.measurement_type || '',
+                allNutrients: allNutrients // Add all nutrients
             };
         });
 
@@ -610,58 +642,226 @@ function updateUI() {
     // --- Populate Food List ---
     foods.forEach(food => {
         const listItem = document.createElement('li');
+        listItem.className = 'food-item';
 
-        // Left side: Name and Quantity
-        const detailsDiv = document.createElement('div');
-        detailsDiv.className = 'food-details';
-        const nameP = document.createElement('div'); // Use div for block display
-        nameP.className = 'food-name';
-        nameP.textContent = food.name;
-        const quantityP = document.createElement('div'); // Use div for block display
-        quantityP.className = 'food-quantity';
-        quantityP.textContent = `${food.quantity.toFixed(2)} ${food.measurementType}`;
-        detailsDiv.appendChild(nameP);
-        detailsDiv.appendChild(quantityP);
+        // Top: Food name and quantity as h3
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'food-header';
+        const headerH3 = document.createElement('h3');
+        headerH3.className = 'food-title';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'food-name';
+        nameSpan.textContent = food.name;
+        
+        const quantitySpan = document.createElement('span');
+        quantitySpan.className = 'food-quantity';
+        quantitySpan.textContent = `${food.quantity.toFixed(2)} ${food.measurementType}`;
+        
+        headerH3.appendChild(nameSpan);
+        headerH3.appendChild(quantitySpan);
+        headerDiv.appendChild(headerH3);
 
-        // Right side: Nutrition Info
+        // All Nutrition Info organized by categories (same style as search.js)
         const nutritionDiv = document.createElement('div');
         nutritionDiv.className = 'food-nutrition';
 
-        // Helper to add nutrient if > 0
-        const addNutrient = (label, value) => {
-            if (value > 0) {
-                const span = document.createElement('span');
-                span.textContent = `${label}: ${value.toFixed(2)}`;
-                nutritionDiv.appendChild(span);
-            }
+        // Organize nutrients by category (using same categories as search.js)
+        const categories = {
+            'Proximates': [],
+            'Minerals': [],
+            'Vitamins': [],
+            'Lipids': [],
+            'Protein': [],
+            'Carbohydrates': [],
+            'Other': []
         };
 
-        addNutrient('Fats', food.fats);
-        addNutrient('Carbs', food.carbohydrates);
-        addNutrient('Protein', food.protein);
-        addNutrient('Fiber', food.fiber);
-        addNutrient('Cholesterol', food.cholesterol);
-        addNutrient('Calories', food.totalCalories); // Add calories per item
+        // Add basic nutrients first if not in allNutrients
+        if (!food.allNutrients['energy']) {
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">Calories:</span>
+                    <span class="nutrient-value">${food.totalCalories.toFixed(2)} kcal</span>
+                </div>`;
+            categories['Proximates'].push(nutrientInfo);
+        }
 
-        listItem.appendChild(detailsDiv);
+        // Organize all nutrients by category using same logic as search.js
+        Object.values(food.allNutrients)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .forEach(nutrient => {
+                if (nutrient.value <= 0) return;
+                
+                const name = nutrient.name;
+                const value = nutrient.value;
+                const unit = nutrient.unit.toLowerCase();
+                const nutrientInfo = `
+                    <div class="nutrition-total-item">
+                        <span class="nutrient-name">${name}:</span>
+                        <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
+                    </div>`;
+
+                if (name.includes('Vitamin')) {
+                    categories['Vitamins'].push(nutrientInfo);
+                } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
+                          name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
+                          name.includes('Sodium') || name.includes('Phosphorus')) {
+                    categories['Minerals'].push(nutrientInfo);
+                } else if (name.includes('Protein') || name.includes('Amino')) {
+                    categories['Protein'].push(nutrientInfo);
+                } else if (name.includes('Carbohydrate') || name.includes('Fiber') || name.includes('Sugar')) {
+                    categories['Carbohydrates'].push(nutrientInfo);
+                } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
+                    categories['Lipids'].push(nutrientInfo);
+                } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash')) {
+                    categories['Proximates'].push(nutrientInfo);
+                } else {
+                    categories['Other'].push(nutrientInfo);
+                }
+            });
+
+        // Display nutrients by category using same structure as search.js
+        Object.entries(categories).forEach(([categoryName, nutrients]) => {
+            if (nutrients.length > 0) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'nutrition-category';
+                
+                const categoryTitle = document.createElement('h4');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = categoryName;
+                categoryDiv.appendChild(categoryTitle);
+
+                categoryDiv.innerHTML += nutrients.join('');
+                nutritionDiv.appendChild(categoryDiv);
+            }
+        });
+
+        listItem.appendChild(headerDiv);
         listItem.appendChild(nutritionDiv);
         foodListContainer.appendChild(listItem);
     });
 
-    // --- Calculate and Display Totals ---
-    const totalFats = foods.reduce((sum, food) => sum + food.fats, 0);
-    const totalCarbs = foods.reduce((sum, food) => sum + food.carbohydrates, 0);
-    const totalProtein = foods.reduce((sum, food) => sum + food.protein, 0);
-    const totalFiber = foods.reduce((sum, food) => sum + food.fiber, 0);
-    const totalCholesterol = foods.reduce((sum, food) => sum + food.cholesterol, 0);
-    const totalCalories = foods.reduce((sum, food) => sum + food.totalCalories, 0);
+    // --- Calculate and Display Comprehensive Totals ---
+    calculateAndDisplayTotals();
+}
 
-    totalFatsSpan.textContent = totalFats.toFixed(2);
-    totalCarbsSpan.textContent = totalCarbs.toFixed(2);
-    totalProteinSpan.textContent = totalProtein.toFixed(2);
-    totalFiberSpan.textContent = totalFiber.toFixed(2);
-    totalCholesterolSpan.textContent = totalCholesterol.toFixed(2);
-    totalCaloriesSpan.textContent = totalCalories.toFixed(2);
+// New function to calculate and display comprehensive totals
+function calculateAndDisplayTotals() {
+    // Calculate totals for all nutrients
+    const nutritionTotals = {};
+
+    foods.forEach(food => {
+        // Add all nutrients from allNutrients
+        Object.values(food.allNutrients).forEach(nutrient => {
+            const key = nutrient.name.toLowerCase();
+            if (!nutritionTotals[key]) {
+                nutritionTotals[key] = {
+                    name: nutrient.name,
+                    value: 0,
+                    unit: nutrient.unit,
+                    category: nutrient.category
+                };
+            }
+            nutritionTotals[key].value += nutrient.value;
+        });
+
+        // Add calories if not in allNutrients
+        if (!nutritionTotals['energy'] && !nutritionTotals['calories']) {
+            if (!nutritionTotals['calories']) {
+                nutritionTotals['calories'] = {
+                    name: 'Calories',
+                    value: 0,
+                    unit: 'KCAL',
+                    category: 'macronutrient'
+                };
+            }
+            nutritionTotals['calories'].value += food.totalCalories;
+        }
+    });
+
+    // Clear and rebuild totals section
+    totalsSection.innerHTML = '<h3>Total Daily Nutrition</h3>';
+
+    // Organize totals by category
+    const categories = {
+        'macronutrient': [],
+        'mineral': [],
+        'vitamin': [],
+        'lipid': [],
+        'other': []
+    };
+
+    Object.values(nutritionTotals).forEach(nutrient => {
+        const category = nutrient.category || 'other';
+        categories[category].push(nutrient);
+    });
+
+    // Create tabs for different categories
+    const tabsContainer = document.createElement('div');
+    tabsContainer.className = 'totals-tabs';
+
+    const tabContentsContainer = document.createElement('div');
+    tabContentsContainer.className = 'totals-tab-contents';
+
+    let isFirst = true;
+    Object.entries(categories).forEach(([categoryName, nutrients]) => {
+        if (nutrients.length > 0) {
+            // Create tab button
+            const tabButton = document.createElement('button');
+            tabButton.className = `totals-tab-button ${isFirst ? 'active' : ''}`;
+            tabButton.textContent = categoryName.charAt(0).toUpperCase() + categoryName.slice(1) + 's';
+            tabButton.setAttribute('data-tab', categoryName);
+            tabsContainer.appendChild(tabButton);
+
+            // Create tab content
+            const tabContent = document.createElement('div');
+            tabContent.className = 'totals-tab-content';
+            tabContent.id = `totals-${categoryName}-tab`;
+            tabContent.style.display = isFirst ? 'block' : 'none';
+
+            // Sort nutrients alphabetically
+            nutrients.sort((a, b) => a.name.localeCompare(b.name));
+
+            nutrients.forEach(nutrient => {
+                const totalItem = document.createElement('div');
+                totalItem.className = 'total-item';
+                totalItem.innerHTML = `
+                    <span class="nutrient-name">${nutrient.name}:</span>
+                    <span class="nutrient-value">${nutrient.value.toFixed(2)} ${nutrient.unit.toLowerCase()}</span>
+                `;
+                tabContent.appendChild(totalItem);
+            });
+
+            tabContentsContainer.appendChild(tabContent);
+            isFirst = false;
+        }
+    });
+
+    totalsSection.appendChild(tabsContainer);
+    totalsSection.appendChild(tabContentsContainer);
+
+    // Add event listeners for tab buttons
+    document.querySelectorAll('.totals-tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            document.querySelectorAll('.totals-tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            button.classList.add('active');
+
+            // Hide all tab content
+            document.querySelectorAll('.totals-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            // Show selected tab content
+            const tabId = button.getAttribute('data-tab');
+            document.getElementById(`totals-${tabId}-tab`).style.display = 'block';
+        });
+    });
 
     totalsSection.style.display = 'block'; // Show totals
 }
