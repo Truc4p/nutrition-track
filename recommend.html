@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,">
+</head>
+
+<body>
+    <div id="nav-placeholder"></div>
+
+    <div class="two-sections">
+        <!-- Left Section -->
+        <div class="left-section">
+            <div class="user-details-form">
+                <h3>Enter Your Details</h3>
+                <div class="form-group">
+                    <label for="weight" class="required">Weight (kg)</label>
+                    <input type="number" id="weight" placeholder="e.g., 70" value="48">
+                </div>
+
+                <div class="form-group">
+                    <label for="height" class="required">Height (cm)</label>
+                    <input type="number" id="height" placeholder="e.g., 170" value="158">
+                </div>
+
+                <div class="form-group">
+                    <label for="age" class="required">Age</label>
+                    <input type="number" id="age" placeholder="e.g., 25" value="27">
+                </div>
+
+                <div class="form-group">
+                    <label for="gender" class="required">Gender</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female" selected>Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="activity-level" class="required">How active are you on an average day?</label>
+                    <select id="activity-level">
+                        <option value="sedentary" selected>Sedentary</option>
+                        <option value="lightly-active">Lightly Active</option>
+                        <option value="moderately-active">Moderately Active</option>
+                        <option value="very-active">Very Active</option>
+                        <option value="athlete">Athlete Level</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="goal" class="required">Health Goal</label>
+                    <select id="goal">
+                        <option value="maintain" selected>Maintain Weight</option>
+                        <option value="lose">Lose Weight</option>
+                        <option value="gain">Gain Weight</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="health-condition">Do you have any diagnosed health conditions?</label>
+                    <textarea id="health-condition" placeholder="e.g., Diabetes, Hypertension">Diabetes</textarea>
+                </div>
+
+                <button id="recommend-button">Get Recommendation</button>
+            </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="right-section">
+            <h3>Recommended Daily Intake</h3>
+            <p id="recommendation-text"></p>
+        </div>
+    </div>
+
+    <!-- Floating Chat Interface -->
+    <!-- Placeholder for Floating Chat Interface -->
+    <div id="float-chat-placeholder"></div>
+
+    <script src="home.js"></script>
+    <script src="nav-bar.js"></script>
+    <script src="float-chat.js"></script>
+</body>
+
+</html>

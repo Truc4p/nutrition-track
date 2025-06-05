@@ -15,68 +15,6 @@
     <div class="two-sections">
         <!-- Left Section -->
         <div class="left-section">
-            <div class="user-details-form">
-                <h3>Enter Your Details</h3>
-                <div class="form-group">
-                    <label for="weight" class="required">Weight (kg)</label>
-                    <input type="number" id="weight" placeholder="e.g., 70" value="48">
-                </div>
-
-                <div class="form-group">
-                    <label for="height" class="required">Height (cm)</label>
-                    <input type="number" id="height" placeholder="e.g., 170" value="158">
-                </div>
-
-                <div class="form-group">
-                    <label for="age" class="required">Age</label>
-                    <input type="number" id="age" placeholder="e.g., 25" value="27">
-                </div>
-
-                <div class="form-group">
-                    <label for="gender" class="required">Gender</label>
-                    <select id="gender">
-                        <option value="male">Male</option>
-                        <option value="female" selected>Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="activity-level" class="required">How active are you on an average day?</label>
-                    <select id="activity-level">
-                        <option value="sedentary" selected>Sedentary</option>
-                        <option value="lightly-active">Lightly Active</option>
-                        <option value="moderately-active">Moderately Active</option>
-                        <option value="very-active">Very Active</option>
-                        <option value="athlete">Athlete Level</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="goal" class="required">Health Goal</label>
-                    <select id="goal">
-                        <option value="maintain" selected>Maintain Weight</option>
-                        <option value="lose">Lose Weight</option>
-                        <option value="gain">Gain Weight</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="health-condition">Do you have any diagnosed health conditions?</label>
-                    <textarea id="health-condition" placeholder="e.g., Diabetes, Hypertension">Diabetes</textarea>
-                </div>
-
-                <button id="recommend-button">Get Recommendation</button>
-            </div>
-
-            <div id="recommendation-output">
-                <h3>Recommended Daily Intake</h3>
-                <p id="recommendation-text"></p>
-            </div>
-        </div>
-
-        <!-- Right Section -->
-        <div class="right-section">
             <div id="results">
                 <h1>What did you eat today?</h1>
                 <textarea id="food-input"
@@ -87,6 +25,12 @@
                 <div id="loading-indicator" style="display: none;">Loading...</div>
                 <h2 id="results-header">Foods</h2>
                 <ul id="food-list"></ul>
+            </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="right-section">
+            <div id="results">
                 <div id="totals-section" style="display: none;">
                     <!-- Totals will be dynamically generated -->
                 </div>
