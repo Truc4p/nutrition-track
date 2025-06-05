@@ -1259,12 +1259,13 @@ html {
 
 .recommendation-food-item {
     padding: 15px;
-    margin: 10px 0;
+    margin: 10px auto;
     background: #ffffff;
     border-radius: 12px;
     transition: all 0.3s ease;
     display: block;
     width: 100%;
+    max-width: 500px;
 }
 
 .recommendation-food-item:hover {
