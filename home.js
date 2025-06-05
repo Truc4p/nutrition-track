@@ -588,7 +588,7 @@ function updateUI() {
         headerH3.className = 'food-title';
         
         const nameSpan = document.createElement('span');
-        nameSpan.className = 'food-name';
+        nameSpan.className = 'food-name2';
         nameSpan.textContent = food.name;
         
         const quantitySpan = document.createElement('span');
@@ -731,8 +731,8 @@ function calculateAndDisplayTotals() {
     headerH3.className = 'food-title';
     
     const nameSpan = document.createElement('span');
-    nameSpan.className = 'food-name';
-    nameSpan.textContent = 'TOTAL DAILY NUTRITION';
+    nameSpan.className = 'food-name2';
+    nameSpan.textContent = 'TOTAL NUTRITION';
     
     const summarySpan = document.createElement('span');
     summarySpan.className = 'food-quantity';

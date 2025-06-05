@@ -315,6 +315,7 @@ ul#food-list li:last-child {
 }
 
 .food-name {
+    color: #333;
     font-size: 1.2em;
     font-weight: 500;
     margin-bottom: 4px;
@@ -342,7 +343,7 @@ ul#food-list li:last-child {
     align-items: center;
 }
 
-.food-name {
+.food-name2 {
     background: linear-gradient(135deg, #3498db, #2ecc71);
     background-clip: text;
     -webkit-background-clip: text;
