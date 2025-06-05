@@ -781,87 +781,97 @@ function calculateAndDisplayTotals() {
     });
 
     // Clear and rebuild totals section
-    totalsSection.innerHTML = '<h3>Total Daily Nutrition</h3>';
+    totalsSection.innerHTML = '';
 
-    // Organize totals by category
+    // Create a single list item for totals (same structure as food-list)
+    const totalListItem = document.createElement('div');
+    totalListItem.className = 'total-food-item';
+
+    // Create header similar to food items
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'food-header';
+    const headerH3 = document.createElement('h3');
+    headerH3.className = 'food-title';
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'food-name';
+    nameSpan.textContent = 'TOTAL DAILY NUTRITION';
+    
+    const summarySpan = document.createElement('span');
+    summarySpan.className = 'food-quantity';
+    summarySpan.textContent = `${foods.length} item${foods.length !== 1 ? 's' : ''}`;
+    
+    headerH3.appendChild(nameSpan);
+    headerH3.appendChild(summarySpan);
+    headerDiv.appendChild(headerH3);
+
+    // Organize totals by category (using same categories as food items)
     const categories = {
-        'macronutrient': [],
-        'mineral': [],
-        'vitamin': [],
-        'lipid': [],
-        'other': []
+        'Proximates': [],
+        'Minerals': [],
+        'Vitamins': [],
+        'Lipids': [],
+        'Protein': [],
+        'Carbohydrates': [],
+        'Other': []
     };
 
-    Object.values(nutritionTotals).forEach(nutrient => {
-        const category = nutrient.category || 'other';
-        categories[category].push(nutrient);
-    });
+    Object.values(nutritionTotals)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach(nutrient => {
+            if (nutrient.value <= 0) return;
+            
+            const name = nutrient.name;
+            const value = nutrient.value;
+            const unit = nutrient.unit.toLowerCase();
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">${name}:</span>
+                    <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
+                </div>`;
 
-    // Create tabs for different categories
-    const tabsContainer = document.createElement('div');
-    tabsContainer.className = 'totals-tabs';
+            if (name.includes('Vitamin')) {
+                categories['Vitamins'].push(nutrientInfo);
+            } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
+                      name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
+                      name.includes('Sodium') || name.includes('Phosphorus')) {
+                categories['Minerals'].push(nutrientInfo);
+            } else if (name.includes('Protein') || name.includes('Amino')) {
+                categories['Protein'].push(nutrientInfo);
+            } else if (name.includes('Carbohydrate') || name.includes('Fiber') || name.includes('Sugar')) {
+                categories['Carbohydrates'].push(nutrientInfo);
+            } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
+                categories['Lipids'].push(nutrientInfo);
+            } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash') || name.includes('Calories')) {
+                categories['Proximates'].push(nutrientInfo);
+            } else {
+                categories['Other'].push(nutrientInfo);
+            }
+        });
 
-    const tabContentsContainer = document.createElement('div');
-    tabContentsContainer.className = 'totals-tab-contents';
+    // Create nutrition div with same structure as food items
+    const nutritionDiv = document.createElement('div');
+    nutritionDiv.className = 'food-nutrition';
 
-    let isFirst = true;
+    // Display nutrients by category using same structure as food items
     Object.entries(categories).forEach(([categoryName, nutrients]) => {
         if (nutrients.length > 0) {
-            // Create tab button
-            const tabButton = document.createElement('button');
-            tabButton.className = `totals-tab-button ${isFirst ? 'active' : ''}`;
-            tabButton.textContent = categoryName.charAt(0).toUpperCase() + categoryName.slice(1) + 's';
-            tabButton.setAttribute('data-tab', categoryName);
-            tabsContainer.appendChild(tabButton);
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'nutrition-category';
+            
+            const categoryTitle = document.createElement('h4');
+            categoryTitle.className = 'category-title';
+            categoryTitle.textContent = categoryName;
+            categoryDiv.appendChild(categoryTitle);
 
-            // Create tab content
-            const tabContent = document.createElement('div');
-            tabContent.className = 'totals-tab-content';
-            tabContent.id = `totals-${categoryName}-tab`;
-            tabContent.style.display = isFirst ? 'block' : 'none';
-
-            // Sort nutrients alphabetically
-            nutrients.sort((a, b) => a.name.localeCompare(b.name));
-
-            nutrients.forEach(nutrient => {
-                const totalItem = document.createElement('div');
-                totalItem.className = 'total-item';
-                totalItem.innerHTML = `
-                    <span class="nutrient-name">${nutrient.name}:</span>
-                    <span class="nutrient-value">${nutrient.value.toFixed(2)} ${nutrient.unit.toLowerCase()}</span>
-                `;
-                tabContent.appendChild(totalItem);
-            });
-
-            tabContentsContainer.appendChild(tabContent);
-            isFirst = false;
+            categoryDiv.innerHTML += nutrients.join('');
+            nutritionDiv.appendChild(categoryDiv);
         }
     });
 
-    totalsSection.appendChild(tabsContainer);
-    totalsSection.appendChild(tabContentsContainer);
-
-    // Add event listeners for tab buttons
-    document.querySelectorAll('.totals-tab-button').forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons
-            document.querySelectorAll('.totals-tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Add active class to clicked button
-            button.classList.add('active');
-
-            // Hide all tab content
-            document.querySelectorAll('.totals-tab-content').forEach(content => {
-                content.style.display = 'none';
-            });
-
-            // Show selected tab content
-            const tabId = button.getAttribute('data-tab');
-            document.getElementById(`totals-${tabId}-tab`).style.display = 'block';
-        });
-    });
+    totalListItem.appendChild(headerDiv);
+    totalListItem.appendChild(nutritionDiv);
+    totalsSection.appendChild(totalListItem);
 
     totalsSection.style.display = 'block'; // Show totals
 }

@@ -222,7 +222,6 @@ ul#food-list li {
     justify-content: space-between;
     align-items: flex-start; /* Align items to the top */
     padding: 12px 15px;
-    border-bottom: 1px solid #e0e0e0;
 }
 
 ul#food-list li:last-child {
@@ -1262,7 +1261,7 @@ html {
 #food-list li {
     padding: 15px;
     margin: 10px 0;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    background: #ffffff;
     border-radius: 12px;
     transition: all 0.3s ease;
     display: block;
@@ -1274,20 +1273,23 @@ html {
 }
 
 #totals-section {
-    background: linear-gradient(145deg, #f8f9fa, #ffffff);
-    border-radius: 15px;
-    padding: 25px;
     margin-top: 30px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-#totals-section h3 {
-    color: #2c3e50;
-    font-size: 1.4em;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid #f0f0f0;
+.total-food-item {
+    padding: 15px;
+    margin: 10px 0;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: block;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.1);
+}
+
+.total-food-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.15);
 }
 
 .total-item {
