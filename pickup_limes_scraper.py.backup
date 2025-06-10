@@ -110,13 +110,13 @@ def get_all_recipes_from_pickup_limes(page=1):
 
 def get_recipe_details(recipe_url):
     """
-    Get detailed information about a specific recipe including name, image, total-time, ingredients
+    Get detailed information about a specific recipe including name, image, total-time, ingredients, tags
     
     Args:
         recipe_url (str): URL of the recipe
         
     Returns:
-        dict: Recipe with all requested details: name, image, total_time, ingredients
+        dict: Recipe with all requested details: name, image, total_time, ingredients, tags
     """
     try:
         headers = {
@@ -144,7 +144,7 @@ def get_recipe_details(recipe_url):
         title_elem = soup.find('h1')
         if title_elem:
             title = title_elem.text.strip()
-        # else:  # REMOVED
+        else:
             # Fallback: try to find title in meta tags
             meta_title = soup.find('meta', property='og:title')
             if meta_title:
@@ -224,10 +224,10 @@ def get_recipe_details(recipe_url):
                     total_time = match.group(1).strip()
                     break
         
-        # REMOVED: Tag scraping section
-        # tags = []  # REMOVED: No longer scraping tags
+        # Try to find recipe tags/categories
+        tags = []
         
-        # REMOVED: Tag scraping code
+        # Look for tags in structured data first
         for script in json_scripts:
             try:
                 data = json.loads(script.string)
@@ -310,7 +310,7 @@ def get_recipe_details(recipe_url):
             'image': image_url,
             'url': recipe_url,
             'total_time': total_time,
-            # 'tags': tags,  # REMOVED: No longer including tags
+            'tags': tags,
             'ingredients': ingredients
         }
     
@@ -405,7 +405,7 @@ def export_to_csv(recipes, filename="pickup_limes_recipes.csv"):
     
     # Define the fields to export - name, image, total_time, ingredients, tags
     fields = [
-        'id', 'name', 'image', 'url', 'total_time', 'ingredients_text', # 'tags_text'  # REMOVED
+        'id', 'name', 'image', 'url', 'total_time', 'ingredients_text', 'tags_text'
     ]
     
     try:
@@ -427,15 +427,15 @@ def export_to_csv(recipes, filename="pickup_limes_recipes.csv"):
                 ingredients = recipe.get('ingredients', [])
                 if isinstance(ingredients, list):
                     row['ingredients_text'] = '\n'.join(ingredients)
-                # else:  # REMOVED
+                else:
                     row['ingredients_text'] = str(ingredients)
                 
-                # REMOVED: Tags processing
-                # tags = recipe.get('tags', [])  # REMOVED
-                # if isinstance(tags, list):  # REMOVED
-                    # row['tags_text'] = ', '.join(tags)  # REMOVED
-                # else:  # REMOVED
-                    # row['tags_text'] = str(tags)  # REMOVED
+                # Convert tags to text
+                tags = recipe.get('tags', [])
+                if isinstance(tags, list):
+                    row['tags_text'] = ', '.join(tags)
+                else:
+                    row['tags_text'] = str(tags)
                 
                 writer.writerow(row)
         
@@ -510,7 +510,7 @@ def main():
     print(f"After removing duplicates: {len(unique_recipes)} unique recipes")
     
     if get_details:
-        print("Fetching detailed recipe information (name, image, total_time, ingredients)...")
+        print("Fetching detailed recipe information (name, image, total_time, ingredients, tags)...")
         detailed_recipes = []
         
         for i, recipe in enumerate(unique_recipes):
@@ -540,7 +540,7 @@ def main():
         print(f"  - JSON: {json_path}")
         print(f"  - CSV: {csv_path}")
         print(f"Total recipes with full details: {len(detailed_recipes)}")
-    # else:  # REMOVED
+    else:
         # Save basic recipe info
         json_path = os.path.join(db_dir, "json", "pickup_limes_all_recipes_basic.json")
         save_recipes_to_json(unique_recipes, json_path)
