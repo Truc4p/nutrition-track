@@ -55,15 +55,15 @@ def search_recipes(database: Dict[str, Any], query: str = None, ingredient: str 
             ingredients_text = " ".join(recipe.get("ingredients", [])).lower()
             match = ingredient.lower() in ingredients_text
         
-        # REMOVED: Tag searching
+        # Check tags
         if tag and match:
-            # tags = recipe.get(\"tags\", [])  # REMOVED
-            # REMOVED: Tag processing
-            # clean_tags = []  # REMOVED
-            # for t in tags:  # REMOVED
-                # clean_tags.extend([tag.strip().lower() for tag in re.split(r'\s*\n+\s*', t) if tag.strip()])  # REMOVED
+            tags = recipe.get("tags", [])
+            # Clean up tags (they often have newlines and extra spaces)
+            clean_tags = []
+            for t in tags:
+                clean_tags.extend([tag.strip().lower() for tag in re.split(r'\s*\n+\s*', t) if tag.strip()])
             
-            # match = tag.lower() in clean_tags  # REMOVED
+            match = tag.lower() in clean_tags
         
         if match:
             results.append(recipe)

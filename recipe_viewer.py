@@ -20,9 +20,9 @@ def display_recipes_text():
         print(f"🖼️  Image: {recipe.get('image', 'N/A')}")
         print(f"⏱️  Time: {recipe.get('total_time', 'N/A')}")
         
-        # REMOVED: Tags display
-        # # tags = recipe.get('tags', [])  # REMOVED  # REMOVED
-        # if tags:  # REMOVED
+        # Display tags
+        tags = recipe.get('tags', [])
+        if tags:
             print(f"🏷️  Tags: {', '.join(tags[:5])}{'...' if len(tags) > 5 else ''}")
         
         # Display ingredients
@@ -164,9 +164,9 @@ def create_html_viewer():
             # Convert PT05M to "5 minutes", PT01H40M to "1 hour 40 minutes"
             time_display = time_display.replace('PT', '').replace('H', ' hour ').replace('M', ' min')
         
-        # REMOVED: Tags HTML generation
-        # # tags = recipe.get('tags', [])  # REMOVED  # REMOVED
-        # tags_html = ''.join([f'<span class=\"tag\">{tag}</span>' for tag in tags[:8]])  # REMOVED
+        # Get tags
+        tags = recipe.get('tags', [])
+        tags_html = ''.join([f'<span class="tag">{tag}</span>' for tag in tags[:8]])
         
         # Get ingredients
         ingredients = recipe.get('ingredients', [])
@@ -181,7 +181,7 @@ def create_html_viewer():
                 <div class="recipe-content">
                     <div class="recipe-title">{recipe.get('name', 'Unknown Recipe')}</div>
                     <div class="recipe-time">⏱️ {time_display}</div>
-                    <!-- <div class=\"recipe-tags\">{tags_html}</div> REMOVED -->
+                    <div class="recipe-tags">{tags_html}</div>
                     <div class="ingredients">
                         <div class="ingredients-title">🥗 Ingredients ({len(ingredients)} items):</div>
                         {ingredients_html}
@@ -218,7 +218,7 @@ def export_csv_summary():
     
     with open('recipe_summary.csv', 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(['#', 'Recipe Name', 'Cooking Time', 'Ingredients Count', # 'Tags Count'  # REMOVED, 'URL'])
+        writer.writerow(['#', 'Recipe Name', 'Cooking Time', 'Ingredients Count', 'Tags Count', 'URL'])
         
         for i, recipe in enumerate(recipes, 1):
             writer.writerow([
@@ -226,7 +226,7 @@ def export_csv_summary():
                 recipe.get('name', 'N/A'),
                 recipe.get('total_time', 'N/A'),
                 len(recipe.get('ingredients', [])),
-                # len(recipe.get('tags', [])),  # REMOVED
+                len(recipe.get('tags', [])),
                 recipe.get('url', 'N/A')
             ])
     
