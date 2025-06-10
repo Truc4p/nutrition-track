@@ -89,10 +89,8 @@ def get_all_recipes_from_pickup_limes(page=1):
             if time_elem:
                 time_text = time_elem.strip()
             
-            # Find category tags
-            category_elems = parent.find_all('span', class_=lambda c: c and 'tag' in c)
-            if category_elems:
-                categories = [cat.text.strip() for cat in category_elems]
+            # Category tags removed as per request
+            categories = []
             
             recipes.append({
                 'title': title,
@@ -144,7 +142,8 @@ def get_recipe_details(recipe_url):
         title_elem = soup.find('h1')
         if title_elem:
             title = title_elem.text.strip()
-        # else:  # REMOVED
+        
+        if not title:
             # Fallback: try to find title in meta tags
             meta_title = soup.find('meta', property='og:title')
             if meta_title:
@@ -208,13 +207,28 @@ def get_recipe_details(recipe_url):
         
         # If no structured data, try to find time in the page content
         if not total_time:
-            # Look for time info in various formats
+            # Look for time info in various formats, including days
             time_patterns = [
+                # Complex time patterns (days + hours/minutes) - handle "Total6 days + 20 min" format
+                r'total[:\s]*(\d+\s*days?\s*\+\s*\d+\s*(?:hr|hours?|min|minutes?))',
+                r'(\d+\s*days?\s*\+\s*\d+\s*(?:hr|hours?|min|minutes?))',
+                r'ready in[:\s]*(\d+\s*days?\s*\+\s*\d+\s*(?:hr|hours?|min|minutes?))',
+                
+                # Single day patterns
+                r'total[:\s]*(\d+\s*days?)',
+                r'(\d+\s*days?)',
+                r'ready in[:\s]*(\d+\s*days?)',
+                
+                # Hours and minutes patterns
                 r'total time[:\s]*(\d+\s*(?:hr|hours?|min|minutes?))',
                 r'cook time[:\s]*(\d+\s*(?:hr|hours?|min|minutes?))',
                 r'prep time[:\s]*(\d+\s*(?:hr|hours?|min|minutes?))',
                 r'(\d+\s*(?:hr|hours?|min|minutes?))\s*total',
-                r'ready in[:\s]*(\d+\s*(?:hr|hours?|min|minutes?))'
+                r'ready in[:\s]*(\d+\s*(?:hr|hours?|min|minutes?))',
+                
+                # More flexible patterns to catch edge cases
+                r'time[:\s]*(\d+\s*days?\s*(?:\+\s*)?\d*\s*(?:hr|hours?|min|minutes?)?)',
+                r'(\d+\s*days?\s*(?:\+\s*)?\d*\s*(?:hr|hours?|min|minutes?)?)\s*(?:total|time)'
             ]
             
             page_text = soup.get_text()
@@ -224,38 +238,7 @@ def get_recipe_details(recipe_url):
                     total_time = match.group(1).strip()
                     break
         
-        # REMOVED: Tag scraping section
-        # tags = []  # REMOVED: No longer scraping tags
-        
-        # REMOVED: Tag scraping code
-        for script in json_scripts:
-            try:
-                data = json.loads(script.string)
-                if isinstance(data, dict) and '@type' in data and 'Recipe' in data['@type']:
-                    if 'keywords' in data:
-                        keywords = data['keywords']
-                        if isinstance(keywords, str):
-                            tags = [tag.strip() for tag in keywords.split(',')]
-                        elif isinstance(keywords, list):
-                            tags = keywords
-                        break
-                    elif 'recipeCategory' in data:
-                        tags.extend(data['recipeCategory'] if isinstance(data['recipeCategory'], list) else [data['recipeCategory']])
-                    elif 'recipeCuisine' in data:
-                        tags.extend(data['recipeCuisine'] if isinstance(data['recipeCuisine'], list) else [data['recipeCuisine']])
-            except:
-                continue
-        
-        # If no structured data tags, look for tags in the page content
-        if not tags:
-            # Look for tag elements in various formats
-            tag_elements = soup.find_all(['span', 'div', 'a'], class_=lambda c: c and any(keyword in c.lower() for keyword in ['tag', 'category', 'label', 'badge']))
-            tags = [elem.text.strip() for elem in tag_elements if elem.text.strip() and len(elem.text.strip()) < 30]
-            
-            # Remove duplicates and filter out common non-tag text
-            exclude_words = {'recipe', 'recipes', 'cooking', 'food', 'ingredients', 'instructions', 'method', 'preparation'}
-            tags = list(set([tag for tag in tags if tag.lower() not in exclude_words]))
-            
+        # Tags scraping removed as per request
         # Try to find ingredients
         ingredients = []
         
@@ -310,7 +293,6 @@ def get_recipe_details(recipe_url):
             'image': image_url,
             'url': recipe_url,
             'total_time': total_time,
-            # 'tags': tags,  # REMOVED: No longer including tags
             'ingredients': ingredients
         }
     
@@ -403,9 +385,9 @@ def export_to_csv(recipes, filename="pickup_limes_recipes.csv"):
     """
     import csv
     
-    # Define the fields to export - name, image, total_time, ingredients, tags
+    # Define the fields to export - name, image, total_time, ingredients
     fields = [
-        'id', 'name', 'image', 'url', 'total_time', 'ingredients_text', # 'tags_text'  # REMOVED
+        'id', 'name', 'image', 'url', 'total_time', 'ingredients_text'
     ]
     
     try:
@@ -427,15 +409,8 @@ def export_to_csv(recipes, filename="pickup_limes_recipes.csv"):
                 ingredients = recipe.get('ingredients', [])
                 if isinstance(ingredients, list):
                     row['ingredients_text'] = '\n'.join(ingredients)
-                # else:  # REMOVED
+                else:
                     row['ingredients_text'] = str(ingredients)
-                
-                # REMOVED: Tags processing
-                # tags = recipe.get('tags', [])  # REMOVED
-                # if isinstance(tags, list):  # REMOVED
-                    # row['tags_text'] = ', '.join(tags)  # REMOVED
-                # else:  # REMOVED
-                    # row['tags_text'] = str(tags)  # REMOVED
                 
                 writer.writerow(row)
         
@@ -540,7 +515,7 @@ def main():
         print(f"  - JSON: {json_path}")
         print(f"  - CSV: {csv_path}")
         print(f"Total recipes with full details: {len(detailed_recipes)}")
-    # else:  # REMOVED
+    else:
         # Save basic recipe info
         json_path = os.path.join(db_dir, "json", "pickup_limes_all_recipes_basic.json")
         save_recipes_to_json(unique_recipes, json_path)

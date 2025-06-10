@@ -20,7 +20,7 @@ def load_database(database_file: str) -> Dict[str, Any]:
 
 
 def search_recipes(database: Dict[str, Any], query: str = None, ingredient: str = None, 
-                  tag: str = None, max_results: int = 10) -> List[Dict[str, Any]]:
+                  max_results: int = 10) -> List[Dict[str, Any]]:
     """
     Search for recipes matching the given criteria
     
@@ -28,7 +28,6 @@ def search_recipes(database: Dict[str, Any], query: str = None, ingredient: str 
         database: The recipe database
         query: General search query (searches title and description)
         ingredient: Ingredient to search for
-        tag: Tag to filter by
         max_results: Maximum number of results to return
         
     Returns:
@@ -55,15 +54,7 @@ def search_recipes(database: Dict[str, Any], query: str = None, ingredient: str 
             ingredients_text = " ".join(recipe.get("ingredients", [])).lower()
             match = ingredient.lower() in ingredients_text
         
-        # Check tags
-        if tag and match:
-            tags = recipe.get("tags", [])
-            # Clean up tags (they often have newlines and extra spaces)
-            clean_tags = []
-            for t in tags:
-                clean_tags.extend([tag.strip().lower() for tag in re.split(r'\s*\n+\s*', t) if tag.strip()])
-            
-            match = tag.lower() in clean_tags
+        # Tag search functionality removed
         
         if match:
             results.append(recipe)
@@ -113,15 +104,15 @@ def main():
                         help='Path to the recipe database JSON file')
     parser.add_argument('--query', '-q', help='General search query (searches title and description)')
     parser.add_argument('--ingredient', '-i', help='Ingredient to search for')
-    parser.add_argument('--tag', '-t', help='Tag to filter by')
+
     parser.add_argument('--max', '-m', type=int, default=10, help='Maximum number of results to return')
     parser.add_argument('--details', '-D', action='store_true', help='Show detailed recipe information')
     
     args = parser.parse_args()
     
     # Ensure at least one search criteria is provided
-    if not any([args.query, args.ingredient, args.tag]):
-        parser.error("At least one search criteria (--query, --ingredient, or --tag) must be provided")
+    if not any([args.query, args.ingredient]):
+        parser.error("At least one search criteria (--query or --ingredient) must be provided")
     
     # Load the database
     database = load_database(args.database)
@@ -138,7 +129,6 @@ def main():
         database, 
         query=args.query, 
         ingredient=args.ingredient, 
-        tag=args.tag, 
         max_results=args.max
     )
     

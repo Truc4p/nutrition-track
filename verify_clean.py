@@ -1,6 +1,6 @@
 import json
 
-with open('pickup_limes_clean/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
+with open('pickup_limes_database/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
     recipes = json.load(f)
 
 print(f'🎉 CLEAN RESULTS:')

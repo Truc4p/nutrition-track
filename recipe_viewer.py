@@ -4,7 +4,7 @@ import os
 
 def display_recipes_text():
     """Display all recipes in text format"""
-    with open('pickup_limes_clean/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
+    with open('pickup_limes_database/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
         recipes = json.load(f)
     
     print("🍳 PICK UP LIMES RECIPE COLLECTION")
@@ -37,7 +37,7 @@ def display_recipes_text():
 
 def create_html_viewer():
     """Create an HTML file to view all recipes in a browser"""
-    with open('pickup_limes_clean/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
+    with open('pickup_limes_database/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
         recipes = json.load(f)
     
     html_content = f"""
@@ -211,7 +211,7 @@ def create_html_viewer():
 
 def export_csv_summary():
     """Create a simple CSV summary for quick viewing"""
-    with open('pickup_limes_clean/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
+    with open('pickup_limes_database/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
         recipes = json.load(f)
     
     import csv
