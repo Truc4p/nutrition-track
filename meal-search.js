@@ -8,8 +8,6 @@ const RAINBOW_PLANT_LIFE_CHANNEL_ID = 'UCDbZvuDA_tZ6XP5wKKFuemQ'; // Rainbow Pla
 const searchInput = document.getElementById('meal-search-input');
 const searchButton = document.getElementById('search-button');
 const resultsContainer = document.getElementById('recipe-results');
-const cuisineFilter = document.getElementById('cuisine-filter');
-const dietFilter = document.getElementById('diet-filter');
 const youtubeResults = document.getElementById('youtube-results');
 
 // Tab Elements
@@ -47,14 +45,13 @@ youtubeTab.addEventListener('click', () => switchTab('youtube'));
 
 window.addEventListener('DOMContentLoaded', () => {
     // Show healthy meal recipes by default
-    performSearch('healthy');
+    performSearch('');
     // Set results tab as active by default
     switchTab('results');
 });
 
 async function performSearch(defaultQuery) {
     const query = typeof defaultQuery === 'string' ? defaultQuery : searchInput.value.trim();
-    const diet = dietFilter.value;
     
     // Allow empty query to show all recipes
     // if (!query) return;
@@ -63,12 +60,11 @@ async function performSearch(defaultQuery) {
     
     try {
         const params = new URLSearchParams({
-            number: 60 // Increased number to show more recipes
+            number: 500 // Increased number to show more recipes
         });
         
         // Only add query param if it's not empty
         if (query) params.append('query', query);
-        if (diet) params.append('diet', diet);
         
         const url = `${BASE_URL}/search?${params}`;
         console.log('Fetching from URL:', url);
@@ -118,6 +114,10 @@ function createRecipeCard(recipe) {
         <img src="${recipe.image}" alt="${recipe.title}" onerror="this.parentNode.remove()">
         <div class="recipe-card-content">
             <h3>${recipe.title}</h3>
+            <div class="recipe-time">
+                <span class="time-icon">⏱️</span>
+                <span>${recipe.readyInMinutes || 30} mins</span>
+            </div>
         </div>
     `;
     
