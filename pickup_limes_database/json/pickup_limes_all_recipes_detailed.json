@@ -4872,6 +4872,19 @@
     ]
   },
   {
+    "id": 6,
+    "name": "Vegan Ranch Dip",
+    "image": "https://cdn.pickuplimes.com/cache/77/66/776678903ab3736ae39d8ba882683399.jpg",
+    "url": "https://www.pickuplimes.com/recipe/vegan-ranch-dip-6",
+    "total_time": "PT05M",
+    "ingredients": [
+      "1 cup vegan mayonnaise",
+      "2 Tbsp ranch spice mix",
+      "&#188; cup unsweetened soy milk",
+      "&#189; lemon"
+    ]
+  },
+  {
     "id": 1,
     "name": "Oven Roasted Sweet Potato & Tofu Veggie Skewers",
     "image": "https://cdn.pickuplimes.com/cache/0b/53/0b539636d355da2055eb04b157f366fe.jpg",
@@ -4897,51 +4910,6 @@
       "1 large sweet potato",
       "&#189; zucchini",
       "21 cherry tomatoes"
-    ]
-  },
-  {
-    "id": 6,
-    "name": "Vegan Ranch Dip",
-    "image": "https://cdn.pickuplimes.com/cache/77/66/776678903ab3736ae39d8ba882683399.jpg",
-    "url": "https://www.pickuplimes.com/recipe/vegan-ranch-dip-6",
-    "total_time": "PT05M",
-    "ingredients": [
-      "1 cup vegan mayonnaise",
-      "2 Tbsp ranch spice mix",
-      "&#188; cup unsweetened soy milk",
-      "&#189; lemon"
-    ]
-  },
-  {
-    "id": 11,
-    "name": "Spiced Black Bean & Rice Salad in a Jar",
-    "image": "https://cdn.pickuplimes.com/cache/a1/e7/a1e77d79e6f0ab1908395dd98092d986.jpg",
-    "url": "https://www.pickuplimes.com/recipe/spiced-black-bean-rice-salad-in-a-jar-11",
-    "total_time": "PT35M",
-    "ingredients": [
-      "1&#189; cup uncooked white rice",
-      "1 Tbsp vegetable oil",
-      "3 cup cooked black beans",
-      " chili powder",
-      " garlic powder",
-      " onion powder",
-      " paprika powder",
-      " ground cumin",
-      "&#189; tsp ground black pepper",
-      "&#189; tsp salt",
-      "&#188; cup extra-virgin olive oil",
-      "2 lime",
-      "2 garlic clove",
-      " paprika powder",
-      " ground cumin",
-      "&#189; tsp ground black pepper",
-      "&#189; tsp salt",
-      "2 cup canned corn",
-      "2 red bell pepper",
-      "1 small red onion",
-      "2 avocado",
-      "2 cup cherry tomatoes",
-      "&#188; cup pickled jalapeños"
     ]
   },
   {
@@ -4991,6 +4959,38 @@
       "1 cup green olives",
       "2 cup cherry tomatoes",
       "1 cup fresh parsley"
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Spiced Black Bean & Rice Salad in a Jar",
+    "image": "https://cdn.pickuplimes.com/cache/a1/e7/a1e77d79e6f0ab1908395dd98092d986.jpg",
+    "url": "https://www.pickuplimes.com/recipe/spiced-black-bean-rice-salad-in-a-jar-11",
+    "total_time": "PT35M",
+    "ingredients": [
+      "1&#189; cup uncooked white rice",
+      "1 Tbsp vegetable oil",
+      "3 cup cooked black beans",
+      " chili powder",
+      " garlic powder",
+      " onion powder",
+      " paprika powder",
+      " ground cumin",
+      "&#189; tsp ground black pepper",
+      "&#189; tsp salt",
+      "&#188; cup extra-virgin olive oil",
+      "2 lime",
+      "2 garlic clove",
+      " paprika powder",
+      " ground cumin",
+      "&#189; tsp ground black pepper",
+      "&#189; tsp salt",
+      "2 cup canned corn",
+      "2 red bell pepper",
+      "1 small red onion",
+      "2 avocado",
+      "2 cup cherry tomatoes",
+      "&#188; cup pickled jalapeños"
     ]
   },
   {
@@ -5091,23 +5091,6 @@
     ]
   },
   {
-    "id": 34,
-    "name": "Vegan Breakfast Waffles",
-    "image": "https://cdn.pickuplimes.com/cache/7e/e2/7ee2ef41cd2f9a2e873a0b51f50b2c8f.jpg",
-    "url": "https://www.pickuplimes.com/recipe/vegan-breakfast-waffles-34",
-    "total_time": "PT30M",
-    "ingredients": [
-      "1&#189; cup unsweetened soy milk",
-      "1 Tbsp apple cider vinegar",
-      "2 cup whole wheat flour",
-      "&#8531; cup unsweetened applesauce",
-      " baking powder",
-      " ground cinnamon",
-      " pure vanilla extract",
-      "&#189; tsp salt"
-    ]
-  },
-  {
     "id": 38,
     "name": "Baked Berry & Pecan Oatmeal",
     "image": "https://cdn.pickuplimes.com/cache/12/3b/123bea5149c9778c5d7735e4540bfa8b.jpg",
@@ -5128,6 +5111,23 @@
       "&#190; cup fresh strawberries",
       "1 cup unsweetened soy yogurt",
       "&#8531; cup almond butter"
+    ]
+  },
+  {
+    "id": 34,
+    "name": "Vegan Breakfast Waffles",
+    "image": "https://cdn.pickuplimes.com/cache/7e/e2/7ee2ef41cd2f9a2e873a0b51f50b2c8f.jpg",
+    "url": "https://www.pickuplimes.com/recipe/vegan-breakfast-waffles-34",
+    "total_time": "PT30M",
+    "ingredients": [
+      "1&#189; cup unsweetened soy milk",
+      "1 Tbsp apple cider vinegar",
+      "2 cup whole wheat flour",
+      "&#8531; cup unsweetened applesauce",
+      " baking powder",
+      " ground cinnamon",
+      " pure vanilla extract",
+      "&#189; tsp salt"
     ]
   },
   {
@@ -6379,7 +6379,7 @@
     "name": "Mexican Pizza",
     "image": "https://cdn.pickuplimes.com/cache/31/93/31932818febdd38f5a8839c5679ffd51.jpg",
     "url": "https://www.pickuplimes.com/recipe/mexican-pizza-106",
-    "total_time": "",
+    "total_time": "7 days",
     "ingredients": [
       "1 tsp (5ml) vegetable oil",
       "3 garlic cloves, crushed",
@@ -7974,23 +7974,6 @@
     ]
   },
   {
-    "id": 230,
-    "name": "Golden Glow Sauce",
-    "image": "https://cdn.pickuplimes.com/cache/0f/59/0f59a11372db49b99d178365fed4858b.jpg",
-    "url": "https://www.pickuplimes.com/recipe/golden-glow-sauce-230",
-    "total_time": "PT03M",
-    "ingredients": [
-      "&#188; cup tahini",
-      "3 Tbsp water",
-      " miso paste",
-      " dijon mustard",
-      "&#189; tsp ground turmeric",
-      "&#189; lemon",
-      "&#189; tsp onion powder",
-      "1 pinch ground black pepper"
-    ]
-  },
-  {
     "id": 229,
     "name": "Autumn Glow Nourish Bowl",
     "image": "https://cdn.pickuplimes.com/cache/09/7d/097d815d93f08899e0794e07c9c7db7d.jpg",
@@ -8016,6 +7999,23 @@
       " dijon mustard",
       " agave syrup",
       "&#189; tsp ground turmeric",
+      "&#189; tsp onion powder",
+      "1 pinch ground black pepper"
+    ]
+  },
+  {
+    "id": 230,
+    "name": "Golden Glow Sauce",
+    "image": "https://cdn.pickuplimes.com/cache/0f/59/0f59a11372db49b99d178365fed4858b.jpg",
+    "url": "https://www.pickuplimes.com/recipe/golden-glow-sauce-230",
+    "total_time": "PT03M",
+    "ingredients": [
+      "&#188; cup tahini",
+      "3 Tbsp water",
+      " miso paste",
+      " dijon mustard",
+      "&#189; tsp ground turmeric",
+      "&#189; lemon",
       "&#189; tsp onion powder",
       "1 pinch ground black pepper"
     ]
@@ -8886,7 +8886,7 @@
     "name": "One-Bowl Chocolate Banana Bread",
     "image": "https://cdn.pickuplimes.com/cache/7f/05/7f05d89dc5df914404b77aff3573043d.jpg",
     "url": "https://www.pickuplimes.com/recipe/one-bowl-chocolate-banana-bread-273",
-    "total_time": "",
+    "total_time": "7 days",
     "ingredients": [
       "2 Tbsp (14g) ground flaxseeds",
       "6 Tbsp (90ml) water",
@@ -9324,7 +9324,7 @@
     "name": "Homemade Kombucha: Continuous Brew",
     "image": "https://cdn.pickuplimes.com/cache/92/bc/92bc4a3764c33a94f77e3ab18df4f099.jpg",
     "url": "https://www.pickuplimes.com/recipe/homemade-kombucha-continuous-brew-29",
-    "total_time": "",
+    "total_time": "6 days + 20 min",
     "ingredients": [
       "14 cups (3360ml) boiling water, ideally 185°F (85°C)",
       "1 cup (200g) organic cane sugar",

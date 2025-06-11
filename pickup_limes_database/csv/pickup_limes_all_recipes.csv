@@ -2738,6 +2738,10 @@ id,name,image,url,total_time,ingredients_text
 &#189; cup cayenne pepper hot sauce
 &#188; cup unsalted vegan butter
 &#189; tsp onion powder"
+6,Vegan Ranch Dip,https://cdn.pickuplimes.com/cache/77/66/776678903ab3736ae39d8ba882683399.jpg,https://www.pickuplimes.com/recipe/vegan-ranch-dip-6,PT05M,"1 cup vegan mayonnaise
+2 Tbsp ranch spice mix
+&#188; cup unsweetened soy milk
+&#189; lemon"
 1,Oven Roasted Sweet Potato & Tofu Veggie Skewers,https://cdn.pickuplimes.com/cache/0b/53/0b539636d355da2055eb04b157f366fe.jpg,https://www.pickuplimes.com/recipe/oven-roasted-sweet-potato-tofu-veggie-skewers-1,PT50M,"15.873 oz firm tofu
  olive oil
 1 Tbsp cornstarch
@@ -2757,33 +2761,6 @@ id,name,image,url,total_time,ingredients_text
 1 large sweet potato
 &#189; zucchini
 21 cherry tomatoes"
-6,Vegan Ranch Dip,https://cdn.pickuplimes.com/cache/77/66/776678903ab3736ae39d8ba882683399.jpg,https://www.pickuplimes.com/recipe/vegan-ranch-dip-6,PT05M,"1 cup vegan mayonnaise
-2 Tbsp ranch spice mix
-&#188; cup unsweetened soy milk
-&#189; lemon"
-11,Spiced Black Bean & Rice Salad in a Jar,https://cdn.pickuplimes.com/cache/a1/e7/a1e77d79e6f0ab1908395dd98092d986.jpg,https://www.pickuplimes.com/recipe/spiced-black-bean-rice-salad-in-a-jar-11,PT35M,"1&#189; cup uncooked white rice
-1 Tbsp vegetable oil
-3 cup cooked black beans
- chili powder
- garlic powder
- onion powder
- paprika powder
- ground cumin
-&#189; tsp ground black pepper
-&#189; tsp salt
-&#188; cup extra-virgin olive oil
-2 lime
-2 garlic clove
- paprika powder
- ground cumin
-&#189; tsp ground black pepper
-&#189; tsp salt
-2 cup canned corn
-2 red bell pepper
-1 small red onion
-2 avocado
-2 cup cherry tomatoes
-&#188; cup pickled jalapeños"
 9,Traditional Vegan Kimchi,https://cdn.pickuplimes.com/cache/9d/68/9d688d579149bb070309a6905659c4d7.jpg,https://www.pickuplimes.com/recipe/homemade-vegan-kimchi-9,P2DT02H30M,"1 napa cabbage
 &#188; cup coarse sea salt
 1 cup water
@@ -2815,6 +2792,29 @@ id,name,image,url,total_time,ingredients_text
 1 cup green olives
 2 cup cherry tomatoes
 1 cup fresh parsley"
+11,Spiced Black Bean & Rice Salad in a Jar,https://cdn.pickuplimes.com/cache/a1/e7/a1e77d79e6f0ab1908395dd98092d986.jpg,https://www.pickuplimes.com/recipe/spiced-black-bean-rice-salad-in-a-jar-11,PT35M,"1&#189; cup uncooked white rice
+1 Tbsp vegetable oil
+3 cup cooked black beans
+ chili powder
+ garlic powder
+ onion powder
+ paprika powder
+ ground cumin
+&#189; tsp ground black pepper
+&#189; tsp salt
+&#188; cup extra-virgin olive oil
+2 lime
+2 garlic clove
+ paprika powder
+ ground cumin
+&#189; tsp ground black pepper
+&#189; tsp salt
+2 cup canned corn
+2 red bell pepper
+1 small red onion
+2 avocado
+2 cup cherry tomatoes
+&#188; cup pickled jalapeños"
 8,Kimchi Noodle Jar,https://www.pickuplimes.com/static/images/logo/pul_logo_main_flat_987_247.9cf5ed7b1374.png,https://www.pickuplimes.com/recipe/kimchi-noodle-jar-8,PT50M,"&#188; cup cornstarch
 2 Tbsp vegetable oil
 2 Tbsp sodium-reduced soy sauce
@@ -2867,14 +2867,6 @@ id,name,image,url,total_time,ingredients_text
 3 cup ice cube
 1&#189; cup grapefruit juice
 3 cup carbonated water"
-34,Vegan Breakfast Waffles,https://cdn.pickuplimes.com/cache/7e/e2/7ee2ef41cd2f9a2e873a0b51f50b2c8f.jpg,https://www.pickuplimes.com/recipe/vegan-breakfast-waffles-34,PT30M,"1&#189; cup unsweetened soy milk
-1 Tbsp apple cider vinegar
-2 cup whole wheat flour
-&#8531; cup unsweetened applesauce
- baking powder
- ground cinnamon
- pure vanilla extract
-&#189; tsp salt"
 38,Baked Berry & Pecan Oatmeal,https://cdn.pickuplimes.com/cache/12/3b/123bea5149c9778c5d7735e4540bfa8b.jpg,https://www.pickuplimes.com/recipe/baked-berry-pecan-oatmeal-38,PT50M,"1 Tbsp ground flaxseeds
 3 Tbsp water
 2 ripe banana
@@ -2889,6 +2881,14 @@ id,name,image,url,total_time,ingredients_text
 &#190; cup fresh strawberries
 1 cup unsweetened soy yogurt
 &#8531; cup almond butter"
+34,Vegan Breakfast Waffles,https://cdn.pickuplimes.com/cache/7e/e2/7ee2ef41cd2f9a2e873a0b51f50b2c8f.jpg,https://www.pickuplimes.com/recipe/vegan-breakfast-waffles-34,PT30M,"1&#189; cup unsweetened soy milk
+1 Tbsp apple cider vinegar
+2 cup whole wheat flour
+&#8531; cup unsweetened applesauce
+ baking powder
+ ground cinnamon
+ pure vanilla extract
+&#189; tsp salt"
 33,Chickpea Omelette Sandwich,https://cdn.pickuplimes.com/cache/55/58/55583d0748ebfe3742d8e866dc671405.jpg,https://www.pickuplimes.com/recipe/chickpea-omelette-sandwich-33,PT30M,"1 Tbsp ground flaxseeds
 3 Tbsp water
 &#189; cup chickpea flour
@@ -3638,7 +3638,7 @@ id,name,image,url,total_time,ingredients_text
 1 cup arugula
 2 avocado
 2 medium tomato"
-106,Mexican Pizza,https://cdn.pickuplimes.com/cache/31/93/31932818febdd38f5a8839c5679ffd51.jpg,https://www.pickuplimes.com/recipe/mexican-pizza-106,,"1 tsp (5ml) vegetable oil
+106,Mexican Pizza,https://cdn.pickuplimes.com/cache/31/93/31932818febdd38f5a8839c5679ffd51.jpg,https://www.pickuplimes.com/recipe/mexican-pizza-106,7 days,"1 tsp (5ml) vegetable oil
 3 garlic cloves, crushed
 1 cup (115g) veggie ground†
 2 Tbsp (17g) Mexican seasoning burrito seasoning
@@ -4508,14 +4508,6 @@ pizza dough
  agave syrup
  garlic powder
  onion powder"
-230,Golden Glow Sauce,https://cdn.pickuplimes.com/cache/0f/59/0f59a11372db49b99d178365fed4858b.jpg,https://www.pickuplimes.com/recipe/golden-glow-sauce-230,PT03M,"&#188; cup tahini
-3 Tbsp water
- miso paste
- dijon mustard
-&#189; tsp ground turmeric
-&#189; lemon
-&#189; tsp onion powder
-1 pinch ground black pepper"
 229,Autumn Glow Nourish Bowl,https://cdn.pickuplimes.com/cache/09/7d/097d815d93f08899e0794e07c9c7db7d.jpg,https://www.pickuplimes.com/recipe/autumn-glow-nourish-bowl-229,PT01H00M,"1 Tbsp vegetable oil
 1 medium onion
 2 garlic clove
@@ -4535,6 +4527,14 @@ pizza dough
  dijon mustard
  agave syrup
 &#189; tsp ground turmeric
+&#189; tsp onion powder
+1 pinch ground black pepper"
+230,Golden Glow Sauce,https://cdn.pickuplimes.com/cache/0f/59/0f59a11372db49b99d178365fed4858b.jpg,https://www.pickuplimes.com/recipe/golden-glow-sauce-230,PT03M,"&#188; cup tahini
+3 Tbsp water
+ miso paste
+ dijon mustard
+&#189; tsp ground turmeric
+&#189; lemon
 &#189; tsp onion powder
 1 pinch ground black pepper"
 223,Burrito Nourish Bowl with Creamy Guacamole,https://cdn.pickuplimes.com/cache/b5/e8/b5e8ba72fc3b490b241b3c8f9e787ea2.jpg,https://www.pickuplimes.com/recipe/burrito-nourish-bowl-with-creamy-guacamole-223,PT40M,"1&#189; cup uncooked brown rice
@@ -5011,7 +5011,7 @@ pizza dough
 &#188; small red onion
 &#188; carrot
 1 Tbsp sweet chili sauce"
-273,One-Bowl Chocolate Banana Bread,https://cdn.pickuplimes.com/cache/7f/05/7f05d89dc5df914404b77aff3573043d.jpg,https://www.pickuplimes.com/recipe/one-bowl-chocolate-banana-bread-273,,"2 Tbsp (14g) ground flaxseeds
+273,One-Bowl Chocolate Banana Bread,https://cdn.pickuplimes.com/cache/7f/05/7f05d89dc5df914404b77aff3573043d.jpg,https://www.pickuplimes.com/recipe/one-bowl-chocolate-banana-bread-273,7 days,"2 Tbsp (14g) ground flaxseeds
 6 Tbsp (90ml) water
 3 ripe bananas
 ½ cups (110g) granulated sugar
@@ -5224,7 +5224,7 @@ pizza dough
 1 cup kale
 2 cup unsweetened soy milk
  ground flaxseeds"
-29,Homemade Kombucha: Continuous Brew,https://cdn.pickuplimes.com/cache/92/bc/92bc4a3764c33a94f77e3ab18df4f099.jpg,https://www.pickuplimes.com/recipe/homemade-kombucha-continuous-brew-29,,"14 cups (3360ml) boiling water, ideally 185°F (85°C)
+29,Homemade Kombucha: Continuous Brew,https://cdn.pickuplimes.com/cache/92/bc/92bc4a3764c33a94f77e3ab18df4f099.jpg,https://www.pickuplimes.com/recipe/homemade-kombucha-continuous-brew-29,6 days + 20 min,"14 cups (3360ml) boiling water, ideally 185°F (85°C)
 1 cup (200g) organic cane sugar
 1 SCOBY (symbiotic culture of bacteria and yeast) †
 2 cups (480ml) starter tea, from previous batch of kombucha, or from unpasteurized, neutral-flavored, store-bought kombucha
