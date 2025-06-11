@@ -7,8 +7,50 @@ class ChatUI {
 
         this.isProcessing = false;
         this.GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/";
+        this.messages = []; // Store messages for state persistence
 
         this.initializeEventListeners();
+        this.initializeStateManagement();
+    }
+
+    initializeStateManagement() {
+        // State management event listeners
+        window.addEventListener('savePageState', (event) => {
+            if (event.detail.pageKey === 'chat') {
+                const state = {
+                    messages: this.messages,
+                    chatInput: this.chatInput ? this.chatInput.value : ''
+                };
+                event.detail.saveState('chat', state);
+            }
+        });
+
+        window.addEventListener('loadPageState', (event) => {
+            if (event.detail.pageKey === 'chat') {
+                const state = event.detail.loadState('chat');
+                if (state) {
+                    // Restore messages
+                    if (state.messages) {
+                        this.messages = state.messages;
+                        this.restoreMessages();
+                    }
+                    
+                    // Restore input
+                    if (this.chatInput && state.chatInput) {
+                        this.chatInput.value = state.chatInput;
+                        this.autoResizeTextarea();
+                    }
+                }
+            }
+        });
+    }
+
+    restoreMessages() {
+        // Clear current messages and restore from state
+        this.chatMessages.innerHTML = '';
+        this.messages.forEach(message => {
+            this.addMessageToUI(message.text, message.isUser, false); // false = don't store again
+        });
     }
 
     initializeEventListeners() {
@@ -42,6 +84,14 @@ class ChatUI {
     }
 
     addMessage(message, isUser) {
+        // Store message in state
+        this.messages.push({ text: message, isUser: isUser });
+        
+        // Add to UI
+        this.addMessageToUI(message, isUser, true);
+    }
+
+    addMessageToUI(message, isUser, withAnimation = true) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
         
@@ -52,16 +102,18 @@ class ChatUI {
         this.chatMessages.appendChild(messageDiv);
         this.scrollToBottom();
 
-        // Add animation class
-        requestAnimationFrame(() => {
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transform = 'translateY(20px)';
+        // Add animation class only for new messages
+        if (withAnimation) {
             requestAnimationFrame(() => {
-                messageDiv.style.transition = 'all 0.3s ease';
-                messageDiv.style.opacity = '1';
-                messageDiv.style.transform = 'translateY(0)';
+                messageDiv.style.opacity = '0';
+                messageDiv.style.transform = 'translateY(20px)';
+                requestAnimationFrame(() => {
+                    messageDiv.style.transition = 'all 0.3s ease';
+                    messageDiv.style.opacity = '1';
+                    messageDiv.style.transform = 'translateY(0)';
+                });
             });
-        });
+        }
     }
 
     formatMessage(message) {

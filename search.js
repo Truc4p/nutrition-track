@@ -1,5 +1,47 @@
 // DOM Elements for search functionality
 document.addEventListener('DOMContentLoaded', () => {
+    // State management event listeners
+    window.addEventListener('savePageState', (event) => {
+        if (event.detail.pageKey === 'search') {
+            const state = {
+                searchInput: searchInput ? searchInput.value : '',
+                selectedFood: selectedFood,
+                addedFoods: addedFoods || [],
+                foodQuantity: foodQuantity ? foodQuantity.value : '100'
+            };
+            event.detail.saveState('search', state);
+        }
+    });
+
+    window.addEventListener('loadPageState', (event) => {
+        if (event.detail.pageKey === 'search') {
+            const state = event.detail.loadState('search');
+            if (state) {
+                // Restore search input
+                if (searchInput && state.searchInput) {
+                    searchInput.value = state.searchInput;
+                }
+                
+                // Restore selected food and display details
+                if (state.selectedFood) {
+                    selectedFood = state.selectedFood;
+                    window.displayNutritionDetails(selectedFood);
+                }
+                
+                // Restore added foods and update display
+                if (state.addedFoods) {
+                    addedFoods = state.addedFoods;
+                    updateAddedFoodsList();
+                    calculateTotalNutrition();
+                }
+                
+                // Restore quantity
+                if (foodQuantity && state.foodQuantity) {
+                    foodQuantity.value = state.foodQuantity;
+                }
+            }
+        }
+    });
     const searchInput = document.getElementById('food-search-input');
     const searchButton = document.getElementById('search-button');
     const searchResults = document.getElementById('search-results');

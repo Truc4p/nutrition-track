@@ -6,158 +6,54 @@ const resultsHeader = document.getElementById('results-header');
 const foodListContainer = document.getElementById('food-list');
 const totalsSection = document.getElementById('totals-section');
 
-const weightInput = document.getElementById('weight');
-const heightInput = document.getElementById('height');
-const ageInput = document.getElementById('age');
-const recommendButton = document.getElementById('recommend-button');
-const recommendationText = document.getElementById('recommendation-text');
+// Note: weight, height, age, recommendButton, and recommendationText elements 
+// are now handled in recommend.js for the recommendation page
 
-// Initialize these variables only when needed
-let goal = '';
-let healthCondition = '';
+// Note: goal and healthCondition variables are now handled in recommend.js
 
 document.addEventListener('DOMContentLoaded', () => {
+    // State management event listeners
+    window.addEventListener('savePageState', (event) => {
+        if (event.detail.pageKey === 'home') {
+            const state = {
+                foodInput: foodInput ? foodInput.value : '',
+                foods: foods || [],
+                addedFoods: addedFoods || []
+            };
+            
+            event.detail.saveState('home', state);
+        }
+    });
+
+    window.addEventListener('loadPageState', (event) => {
+        if (event.detail.pageKey === 'home') {
+            const state = event.detail.loadState('home');
+            if (state) {
+                // Restore input field
+                if (foodInput && state.foodInput) {
+                    foodInput.value = state.foodInput;
+                    handleInputChange(); // Update button state
+                }
+                
+                // Restore foods array and update UI
+                if (state.foods) {
+                    foods = state.foods;
+                    updateUI();
+                    calculateAndDisplayTotals();
+                }
+                
+                // Restore other state
+                if (state.addedFoods) {
+                    addedFoods = state.addedFoods;
+                }
+            }
+        }
+    });
+
     // Event listeners for this page
 
-    // Event listeners
-    if (recommendButton) {
-        recommendButton.addEventListener('click', async () => {
-            // Get the current values when the button is clicked
-            goal = document.getElementById('goal').value;
-            healthCondition = document.getElementById('health-condition').value.trim();
-            
-            const weight = parseFloat(weightInput.value);
-            const height = parseFloat(heightInput.value);
-            const age = parseInt(ageInput.value, 10);
-            const gender = document.getElementById('gender').value;
-            const activityLevel = document.getElementById('activity-level').value;
-
-            if (!weight || !height || !age || !gender || !activityLevel || !goal) {
-                alert("Please fill in all fields.");
-                return;
-            }
-
-            try {
-                // Update the global recommendation variable
-                recommendation = calculateNutrition(weight, height, age, gender, activityLevel, healthCondition);
-
-                // Add console.log to debug the recommendation variable
-                console.log("Recommendation data:", recommendation);
-
-                // Clear and rebuild recommendation section
-                recommendationText.innerHTML = '';
-
-                // Create a single list item for recommendations (same structure as totals)
-                const recommendationListItem = document.createElement('div');
-                recommendationListItem.className = 'recommendation-food-item';
-
-                // No header for recommendations - start directly with nutrition categories
-
-                // Organize recommendations by category
-                const categories = {
-                    'Proximates': [],
-                    'Minerals': [],
-                    'Vitamins': [],
-                    'Lipids': [],
-                    'Protein': [],
-                    'Carbohydrates': [],
-                    'Other': []
-                };
-
-                // Add all nutrients to appropriate categories
-                const nutrients = [
-                    { name: 'Calories', value: recommendation.calories, unit: 'kcal' },
-                    { name: 'Fats', value: `${formatValue(recommendation.fats.min)} - ${formatValue(recommendation.fats.max)}`, unit: 'g' },
-                    { name: 'Carbohydrates', value: `${formatValue(recommendation.carbs.min)} - ${formatValue(recommendation.carbs.max)}`, unit: 'g' },
-                    { name: 'Protein', value: `${formatValue(recommendation.protein.min)} - ${formatValue(recommendation.protein.max)}`, unit: 'g' },
-                    { name: 'Fiber', value: recommendation.fiber, unit: 'g' },
-                    { name: 'Cholesterol', value: recommendation.cholesterol, unit: 'mg' },
-                    { name: 'Omega-3', value: recommendation.omega3, unit: 'g' },
-                    { name: 'Omega-6', value: recommendation.omega6, unit: 'g' },
-                    { name: 'Saturated Fat', value: recommendation.saturatedFat, unit: 'g' },
-                    { name: 'Trans Fat', value: recommendation.transFat, unit: 'g' },
-                    { name: 'Iron', value: recommendation.iron, unit: 'mg' },
-                    { name: 'Sodium', value: recommendation.sodium, unit: 'mg' },
-                    { name: 'Potassium', value: recommendation.potassium, unit: 'mg' },
-                    { name: 'Calcium', value: recommendation.calcium, unit: 'mg' },
-                    { name: 'Magnesium', value: recommendation.magnesium, unit: 'mg' },
-                    { name: 'Zinc', value: recommendation.zinc, unit: 'mg' },
-                    { name: 'Copper', value: recommendation.copper, unit: 'mcg' },
-                    { name: 'Manganese', value: recommendation.manganese, unit: 'mg' },
-                    { name: 'Phosphorus', value: recommendation.phosphorus, unit: 'mg' },
-                    { name: 'Selenium', value: recommendation.selenium, unit: 'mcg' },
-                    { name: 'Vitamin A', value: recommendation.vitaminA, unit: 'mcg RAE' },
-                    { name: 'Vitamin B6', value: recommendation.vitaminB6, unit: 'mg' },
-                    { name: 'Vitamin B12', value: recommendation.vitaminB12, unit: 'mcg' },
-                    { name: 'Vitamin C', value: recommendation.vitaminC, unit: 'mg' },
-                    { name: 'Vitamin D', value: recommendation.vitaminD, unit: 'IU' },
-                    { name: 'Vitamin E', value: recommendation.vitaminE, unit: 'mg' },
-                    { name: 'Vitamin K', value: recommendation.vitaminK, unit: 'mcg' },
-                    { name: 'Folate', value: recommendation.folate, unit: 'mcg DFE' },
-                    { name: 'Thiamin', value: recommendation.thiamin, unit: 'mg' },
-                    { name: 'Riboflavin', value: recommendation.riboflavin, unit: 'mg' },
-                    { name: 'Niacin', value: recommendation.niacin, unit: 'mg' },
-                    { name: 'Choline', value: recommendation.choline, unit: 'mg' }
-                ];
-
-                nutrients.forEach(nutrient => {
-                    const displayValue = typeof nutrient.value === 'string' ? nutrient.value : formatValue(nutrient.value);
-                    const nutrientInfo = `
-                        <div class="nutrition-total-item">
-                            <span class="nutrient-name">${nutrient.name}:</span>
-                            <span class="nutrient-value">${displayValue} ${nutrient.unit}</span>
-                        </div>`;
-
-                    const name = nutrient.name;
-                    if (name.includes('Vitamin')) {
-                        categories['Vitamins'].push(nutrientInfo);
-                    } else if (name.includes('Iron') || name.includes('Calcium') || name.includes('Zinc') || 
-                              name.includes('Magnesium') || name.includes('Potassium') || name.includes('Sodium') || 
-                              name.includes('Phosphorus') || name.includes('Selenium') || name.includes('Copper') || 
-                              name.includes('Manganese')) {
-                        categories['Minerals'].push(nutrientInfo);
-                    } else if (name.includes('Protein') || name.includes('Amino')) {
-                        categories['Protein'].push(nutrientInfo);
-                    } else if (name.includes('Carbohydrate') || name.includes('Fiber')) {
-                        categories['Carbohydrates'].push(nutrientInfo);
-                    } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol') || 
-                              name.includes('Omega')) {
-                        categories['Lipids'].push(nutrientInfo);
-                    } else if (name.includes('Calories')) {
-                        categories['Proximates'].push(nutrientInfo);
-                    } else {
-                        categories['Other'].push(nutrientInfo);
-                    }
-                });
-
-                // Create nutrition div with same structure as food items
-                const nutritionDiv = document.createElement('div');
-                nutritionDiv.className = 'food-nutrition';
-
-                // Display nutrients by category using same structure as food items
-                Object.entries(categories).forEach(([categoryName, nutrients]) => {
-                    if (nutrients.length > 0) {
-                        const categoryDiv = document.createElement('div');
-                        categoryDiv.className = 'nutrition-category';
-                        
-                        const categoryTitle = document.createElement('h4');
-                        categoryTitle.className = 'category-title';
-                        categoryTitle.textContent = categoryName;
-                        categoryDiv.appendChild(categoryTitle);
-
-                        categoryDiv.innerHTML += nutrients.join('');
-                        nutritionDiv.appendChild(categoryDiv);
-                    }
-                });
-
-                recommendationListItem.appendChild(nutritionDiv);
-                recommendationText.appendChild(recommendationListItem);
-            } catch (error) {
-                console.error("Error calculating recommendation:", error);
-                recommendationText.textContent = "Failed to calculate recommendation. Please try again.";
-            }
-        });
-    }
+    // Note: Recommendation functionality is now handled in recommend.js
+    // Event listeners for home page only
 });
 
 function calculateNutrition(weight, height, age, gender, activityLevel, healthCondition) {
@@ -431,7 +327,7 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
 // --- State ---
 let foods = [];
 let isLoading = false;
-let recommendation = null;
+// Note: recommendation variable moved to recommend.js
 const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
 
 // Add these variables at the top with other declarations

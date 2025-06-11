@@ -44,10 +44,65 @@ resultsTab.addEventListener('click', () => switchTab('results'));
 youtubeTab.addEventListener('click', () => switchTab('youtube'));
 
 window.addEventListener('DOMContentLoaded', () => {
-    // Show healthy meal recipes by default
-    performSearch('');
-    // Set results tab as active by default
-    switchTab('results');
+    // State management event listeners
+    window.addEventListener('savePageState', (event) => {
+        if (event.detail.pageKey === 'meal-search') {
+            const activeTab = document.querySelector('.tab-button.active')?.id === 'youtube-tab' ? 'youtube' : 'results';
+            const state = {
+                searchInput: searchInput ? searchInput.value : '',
+                activeTab: activeTab,
+                recipeResults: resultsContainer ? resultsContainer.innerHTML : '',
+                youtubeResults: youtubeResults ? youtubeResults.innerHTML : ''
+            };
+            event.detail.saveState('meal-search', state);
+        }
+    });
+
+    window.addEventListener('loadPageState', (event) => {
+        if (event.detail.pageKey === 'meal-search') {
+            const state = event.detail.loadState('meal-search');
+            if (state) {
+                // Restore search input
+                if (searchInput && state.searchInput) {
+                    searchInput.value = state.searchInput;
+                }
+                
+                // Restore active tab
+                if (state.activeTab) {
+                    switchTab(state.activeTab);
+                }
+                
+                // Restore recipe results
+                if (state.recipeResults && resultsContainer) {
+                    resultsContainer.innerHTML = state.recipeResults;
+                    // Re-attach click events to recipe cards
+                    reattachRecipeCardEvents();
+                }
+                
+                // Restore YouTube results
+                if (state.youtubeResults && youtubeResults) {
+                    youtubeResults.innerHTML = state.youtubeResults;
+                }
+                
+                return; // Skip default loading if state was restored
+            }
+        }
+        
+        // Only show default content if no state was restored
+        if (!event.detail.loadState || !event.detail.loadState('meal-search')) {
+            performSearch('');
+            switchTab('results');
+        }
+    });
+    
+    // Show healthy meal recipes by default if no state loaded
+    // This will be overridden by state loading if available
+    setTimeout(() => {
+        if (!window.StateManager || !window.StateManager.loadPageState('meal-search')) {
+            performSearch('');
+            switchTab('results');
+        }
+    }, 100);
 });
 
 async function performSearch(defaultQuery) {
@@ -131,6 +186,25 @@ function createRecipeCard(recipe) {
 
 function clearResults() {
     resultsContainer.innerHTML = '';
+}
+
+function reattachRecipeCardEvents() {
+    // Re-attach click events to recipe cards after restoring from state
+    const recipeCards = resultsContainer.querySelectorAll('.recipe-card');
+    recipeCards.forEach(card => {
+        const recipeId = card.getAttribute('data-recipe-id');
+        if (recipeId) {
+            card.addEventListener('click', () => {
+                // Try to get the recipe URL from the card's structure
+                const img = card.querySelector('img');
+                if (img && img.src) {
+                    // For restored cards, we might not have the full recipe object
+                    // so we'll create a generic URL or redirect to the recipe source
+                    window.open(`https://spoonacular.com/recipes/${card.querySelector('h3').textContent.toLowerCase().replace(/\s+/g, '-')}-${recipeId}`, '_blank');
+                }
+            });
+        }
+    });
 }
 
 function showError(message, container = resultsContainer) {
