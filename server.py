@@ -62,26 +62,66 @@ def search_recipes():
             if not match_found:
                 continue
 
-        # Convert time format from PT05M to minutes
+        # Handle different time formats
         total_time = recipe.get('total_time', 'PT30M')
         ready_in_minutes = 30  # default
-        if total_time and total_time.startswith('PT'):
-            time_str = total_time.replace('PT', '')
-            minutes = 0
-            if 'H' in time_str and 'M' in time_str:
-                # e.g., PT01H40M
-                parts = time_str.split('H')
-                hours = int(parts[0]) if parts[0] else 0
-                minutes_part = parts[1].replace('M', '') if len(parts) > 1 else '0'
-                minutes = hours * 60 + (int(minutes_part) if minutes_part else 0)
-            elif 'H' in time_str:
-                # e.g., PT01H
-                hours = int(time_str.replace('H', ''))
-                minutes = hours * 60
-            elif 'M' in time_str:
-                # e.g., PT05M
-                minutes = int(time_str.replace('M', ''))
-            ready_in_minutes = minutes if minutes > 0 else 30
+        
+        if total_time:
+            if total_time.startswith('P') and 'D' in total_time and 'T' in total_time:
+                # Handle format like P6DT20M (6 days + 20 minutes)
+                parts = total_time.replace('P', '').split('DT')
+                if len(parts) == 2:
+                    days = int(parts[0]) if parts[0] else 0
+                    time_part = parts[1]
+                    minutes = days * 1440  # Convert days to minutes
+                    
+                    # Parse the time part
+                    if 'H' in time_part and 'M' in time_part:
+                        time_components = time_part.split('H')
+                        hours = int(time_components[0]) if time_components[0] else 0
+                        mins_part = time_components[1].replace('M', '') if len(time_components) > 1 else '0'
+                        minutes += hours * 60 + (int(mins_part) if mins_part else 0)
+                    elif 'H' in time_part:
+                        hours = int(time_part.replace('H', ''))
+                        minutes += hours * 60
+                    elif 'M' in time_part:
+                        mins = int(time_part.replace('M', ''))
+                        minutes += mins
+                else:
+                    # Just days, no time component
+                    days = int(parts[0]) if parts[0] else 0
+                    minutes = days * 1440
+                
+                ready_in_minutes = minutes if minutes > 0 else 30
+            elif total_time.startswith('PT'):
+                # ISO 8601 duration format (e.g., PT08H15M)
+                time_str = total_time.replace('PT', '')
+                minutes = 0
+                
+                if 'H' in time_str and 'M' in time_str:
+                    # e.g., PT08H15M
+                    parts = time_str.split('H')
+                    hours = int(parts[0]) if parts[0] else 0
+                    minutes_part = parts[1].replace('M', '') if len(parts) > 1 else '0'
+                    minutes = hours * 60 + (int(minutes_part) if minutes_part else 0)
+                elif 'H' in time_str:
+                    # e.g., PT08H
+                    hours = int(time_str.replace('H', ''))
+                    minutes = hours * 60
+                elif 'M' in time_str:
+                    # e.g., PT15M
+                    minutes = int(time_str.replace('M', ''))
+                
+                ready_in_minutes = minutes if minutes > 0 else 30
+            elif 'day' in total_time.lower() or 'hr' in total_time.lower():
+                # Already formatted string like "6 days + 20 min"
+                ready_in_minutes = total_time  # Pass the formatted string through
+            else:
+                # Try to parse as a number
+                try:
+                    ready_in_minutes = int(total_time)
+                except (ValueError, TypeError):
+                    ready_in_minutes = 30
 
         # Use the image URL directly from the recipe data
         image_url = recipe.get('image', '')

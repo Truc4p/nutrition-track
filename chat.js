@@ -104,15 +104,15 @@ class ChatUI {
 
         // Add animation class only for new messages
         if (withAnimation) {
+        requestAnimationFrame(() => {
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(20px)';
             requestAnimationFrame(() => {
-                messageDiv.style.opacity = '0';
-                messageDiv.style.transform = 'translateY(20px)';
-                requestAnimationFrame(() => {
-                    messageDiv.style.transition = 'all 0.3s ease';
-                    messageDiv.style.opacity = '1';
-                    messageDiv.style.transform = 'translateY(0)';
-                });
+                messageDiv.style.transition = 'all 0.3s ease';
+                messageDiv.style.opacity = '1';
+                messageDiv.style.transform = 'translateY(0)';
             });
+        });
         }
     }
 

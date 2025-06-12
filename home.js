@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 foodInput: foodInput ? foodInput.value : '',
                 foods: foods || [],
                 addedFoods: addedFoods || []
-            };
-            
+                };
+
             event.detail.saveState('home', state);
         }
     });
@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     addedFoods = state.addedFoods;
                 }
             }
-        }
-    });
+                    }
+                });
 
     // Event listeners for this page
 

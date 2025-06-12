@@ -4,6 +4,59 @@ const YOUTUBE_API_KEY = 'AIzaSyCl2hSa3ZZ2MIXBiyMZaWite5lIn3Snowg'; // You'll nee
 const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ'; // Pick Up Limes channel ID
 const RAINBOW_PLANT_LIFE_CHANNEL_ID = 'UCDbZvuDA_tZ6XP5wKKFuemQ'; // Rainbow Plant Life channel ID
 
+// Function to format time in a more readable way
+function formatTime(minutes) {
+    // Handle string inputs that might already be formatted
+    if (typeof minutes === 'string') {
+        // If it's already formatted like "6 days + 20 min", return as is
+        if (minutes.includes('day') || minutes.includes('hr')) {
+            return minutes;
+        }
+        
+        // Try to parse if it's a number string
+        const parsed = parseInt(minutes);
+        if (isNaN(parsed)) {
+            return minutes; // Return original if can't parse
+        }
+        minutes = parsed;
+    }
+    
+    // Handle very large durations (days)
+    if (minutes >= 1440) { // 1440 minutes = 1 day
+        const days = Math.floor(minutes / 1440);
+        const remainingMinutes = minutes % 1440;
+        const hours = Math.floor(remainingMinutes / 60);
+        const mins = remainingMinutes % 60;
+        
+        let result = `${days} day${days > 1 ? 's' : ''}`;
+        
+        if (hours > 0 && mins > 0) {
+            result += ` + ${hours} hr + ${mins} min`;
+        } else if (hours > 0) {
+            result += ` + ${hours} hr`;
+        } else if (mins > 0) {
+            result += ` + ${mins} min`;
+        }
+        
+        return result;
+    }
+    
+    // Handle hours and minutes
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        
+        if (mins > 0) {
+            return `${hours} hr + ${mins} min`;
+        } else {
+            return `${hours} hr`;
+        }
+    }
+    
+    // Handle minutes only
+    return `${minutes} min`;
+}
+
 // DOM Elements
 const searchInput = document.getElementById('meal-search-input');
 const searchButton = document.getElementById('search-button');
@@ -171,7 +224,7 @@ function createRecipeCard(recipe) {
             <h3>${recipe.title}</h3>
             <div class="recipe-time">
                 <span class="time-icon">⏱️</span>
-                <span>${recipe.readyInMinutes || 30} mins</span>
+                <span>${formatTime(recipe.readyInMinutes || 30)}</span>
             </div>
         </div>
     `;
