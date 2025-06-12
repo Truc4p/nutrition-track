@@ -467,8 +467,6 @@ function displayYoutubeVideos(videos) {
             </div>
             <div class="video-info">
                 <h3><a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer">${video.snippet.title}</a></h3>
-                <p>${video.snippet.description}</p>
-                <p class="video-date">Published: ${formattedDate}</p>
             </div>
         `;
         
