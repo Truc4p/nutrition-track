@@ -1,6 +1,10 @@
 // Floating Chat Interface Functionality
 const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/";
 
+// State management for floating chat
+let floatChatMessages = [];
+let isChatOpen = false;
+
 // Function to load the chat interface from external HTML file
 async function loadChatInterface() {
     try {
@@ -13,11 +17,130 @@ async function loadChatInterface() {
         if (chatPlaceholder) {
             chatPlaceholder.innerHTML = html;
             initializeChatInterface();
+            initializeFloatChatStateManagement();
         } else {
             console.error('Chat placeholder not found in the document');
         }
     } catch (error) {
         console.error('Error loading chat interface:', error);
+    }
+}
+
+// Initialize state management for floating chat
+function initializeFloatChatStateManagement() {
+    // State management event listeners for floating chat
+    window.addEventListener('savePageState', (event) => {
+        // Save floating chat state for all pages
+        const floatChatState = {
+            messages: floatChatMessages,
+            isOpen: isChatOpen,
+            currentInput: getChatInputValue()
+        };
+        
+        // Save float chat state with a global key
+        if (window.StateManager) {
+            window.StateManager.savePageState('float-chat-global', floatChatState);
+        }
+    });
+
+    window.addEventListener('loadPageState', (event) => {
+        // Load floating chat state
+        if (window.StateManager) {
+            const state = window.StateManager.loadPageState('float-chat-global');
+            if (state) {
+                // Restore messages
+                if (state.messages) {
+                    floatChatMessages = state.messages;
+                    restoreFloatChatMessages();
+                }
+                
+                // Restore chat open/closed state
+                if (state.isOpen) {
+                    isChatOpen = state.isOpen;
+                    restoreChatOpenState();
+                }
+                
+                // Restore current input
+                if (state.currentInput) {
+                    restoreChatInput(state.currentInput);
+                }
+            }
+        }
+    });
+
+    // Save state when chat is toggled
+    const chatButton = document.querySelector('.chatbox__button button');
+    if (chatButton) {
+        chatButton.addEventListener('click', () => {
+            setTimeout(() => {
+                isChatOpen = document.querySelector('.chatbox__support').classList.contains('chatbox--active');
+                saveFloatChatState();
+            }, 100);
+        });
+    }
+
+    // Auto-save input as user types
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) {
+        chatInput.addEventListener('input', () => {
+            saveFloatChatState();
+        });
+    }
+
+    // Add clear chat button functionality
+    const clearChatButton = document.getElementById('clear-chat-button');
+    if (clearChatButton) {
+        clearChatButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to clear this chat history?')) {
+                window.clearFloatChatState();
+            }
+        });
+    }
+}
+
+// Function to get current chat input value
+function getChatInputValue() {
+    const chatInput = document.getElementById('chat-input');
+    return chatInput ? chatInput.value : '';
+}
+
+// Function to restore chat input
+function restoreChatInput(inputValue) {
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput && inputValue) {
+        chatInput.value = inputValue;
+    }
+}
+
+// Function to restore chat open state
+function restoreChatOpenState() {
+    const chatSupport = document.querySelector('.chatbox__support');
+    if (chatSupport && isChatOpen) {
+        chatSupport.classList.add('chatbox--active');
+    }
+}
+
+// Function to restore float chat messages
+function restoreFloatChatMessages() {
+    const chatMessages = document.getElementById('chat-messages');
+    if (chatMessages) {
+        chatMessages.innerHTML = '';
+        floatChatMessages.forEach(msg => {
+            appendMessageToContainer(msg.sender, msg.message, chatMessages, false);
+        });
+    }
+}
+
+// Function to save float chat state
+function saveFloatChatState() {
+    if (window.StateManager) {
+        const floatChatState = {
+            messages: floatChatMessages,
+            isOpen: isChatOpen,
+            currentInput: getChatInputValue()
+        };
+        window.StateManager.savePageState('float-chat-global', floatChatState);
     }
 }
 
@@ -105,12 +228,27 @@ async function handleSendMessage(input, messagesContainer) {
 
 // Function to append a message to the chat container
 function appendMessage(sender, message, container) {
+    appendMessageToContainer(sender, message, container, true);
+}
+
+// Function to append a message to the chat container with optional state saving
+function appendMessageToContainer(sender, message, container, saveToState = true) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('messages__item');
     messageElement.classList.add(sender === 'You' ? 'messages__item--operator' : 'messages__item--visitor');
     messageElement.innerHTML = formatResponse(message);
     container.appendChild(messageElement);
     container.scrollTop = container.scrollHeight;
+    
+    // Save to state if this is a floating chat message and saveToState is true
+    if (saveToState && container.id === 'chat-messages') {
+        floatChatMessages.push({
+            sender: sender,
+            message: message,
+            timestamp: new Date().toISOString()
+        });
+        saveFloatChatState();
+    }
 }
 
 // Function to format the response with markdown-like syntax
@@ -137,3 +275,30 @@ function formatResponse(response) {
     
     return formattedResponse;
 }
+
+// Add clear chat function for global state management
+window.clearFloatChatState = function() {
+    floatChatMessages = [];
+    isChatOpen = false;
+    
+    // Clear the chat messages from UI
+    const chatMessages = document.getElementById('chat-messages');
+    if (chatMessages) {
+        chatMessages.innerHTML = '';
+    }
+    
+    // Clear input
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) {
+        chatInput.value = '';
+    }
+    
+    // Close chat if open
+    const chatSupport = document.querySelector('.chatbox__support');
+    if (chatSupport) {
+        chatSupport.classList.remove('chatbox--active');
+    }
+    
+    // Save cleared state
+    saveFloatChatState();
+};

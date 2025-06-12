@@ -947,6 +947,28 @@ html {
     font-size: 1.2rem;
     color: white;
     margin: 0;
+    flex-grow: 1;
+}
+
+.chatbox__clear--header {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.chatbox__clear--header:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
 }
 
 /* Messages */

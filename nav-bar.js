@@ -34,7 +34,7 @@ const StateManager = {
         try {
             const keys = Object.keys(localStorage);
             keys.forEach(key => {
-                if (key.startsWith('app_state_')) {
+                if (key.startsWith('app_state_') || key === 'float-chat-global') {
                     localStorage.removeItem(key);
                 }
             });
@@ -101,6 +101,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     e.preventDefault();
                     if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
                         StateManager.clearAllStates();
+                        
+                        // Also clear floating chat state if available
+                        if (window.clearFloatChatState) {
+                            window.clearFloatChatState();
+                        }
+                        
                         alert('All saved data has been cleared. The page will now reload.');
                         window.location.reload();
                     }
