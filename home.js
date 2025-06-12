@@ -47,8 +47,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     addedFoods = state.addedFoods;
                 }
             }
-                    }
-                });
+        }
+    });
+    
+    // Listen for the clearPageInputs event to clear input fields when state is cleared
+    window.addEventListener('clearPageInputs', () => {
+        if (foodInput) {
+            foodInput.value = '';
+            handleInputChange(); // Update button state
+        }
+        
+        // Reset foods and addedFoods arrays
+        foods = [];
+        addedFoods = [];
+        
+        // Clear UI
+        if (foodListContainer) {
+            foodListContainer.innerHTML = '';
+        }
+        if (totalsSection) {
+            totalsSection.innerHTML = '';
+        }
+        if (resultsHeader) {
+            resultsHeader.style.display = 'none';
+        }
+    });
 
     // Event listeners for this page
 

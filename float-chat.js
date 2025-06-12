@@ -67,6 +67,11 @@ function initializeFloatChatStateManagement() {
             }
         }
     });
+    
+    // Listen for the clearPageInputs event
+    window.addEventListener('clearPageInputs', () => {
+        clearFloatChatState();
+    });
 
     // Save state when chat is toggled
     const chatButton = document.querySelector('.chatbox__button button');
@@ -276,7 +281,7 @@ function formatResponse(response) {
     return formattedResponse;
 }
 
-// Add clear chat function for global state management
+// Global function to clear float chat state
 window.clearFloatChatState = function() {
     floatChatMessages = [];
     isChatOpen = false;
@@ -297,6 +302,11 @@ window.clearFloatChatState = function() {
     const chatSupport = document.querySelector('.chatbox__support');
     if (chatSupport) {
         chatSupport.classList.remove('chatbox--active');
+    }
+    
+    // Clear stored state if StateManager is available
+    if (window.StateManager) {
+        window.StateManager.clearPageState('float-chat-global');
     }
     
     // Save cleared state

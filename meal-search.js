@@ -1,61 +1,10 @@
-// Using local API instead of Spoonacular
+// Using local API 
 const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
 const YOUTUBE_API_KEY = 'AIzaSyCl2hSa3ZZ2MIXBiyMZaWite5lIn3Snowg'; // You'll need to replace this with a valid YouTube API key
 const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ'; // Pick Up Limes channel ID
 const RAINBOW_PLANT_LIFE_CHANNEL_ID = 'UCDbZvuDA_tZ6XP5wKKFuemQ'; // Rainbow Plant Life channel ID
 
-// Function to format time in a more readable way
-function formatTime(minutes) {
-    // Handle string inputs that might already be formatted
-    if (typeof minutes === 'string') {
-        // If it's already formatted like "6 days + 20 min", return as is
-        if (minutes.includes('day') || minutes.includes('hr')) {
-            return minutes;
-        }
-        
-        // Try to parse if it's a number string
-        const parsed = parseInt(minutes);
-        if (isNaN(parsed)) {
-            return minutes; // Return original if can't parse
-        }
-        minutes = parsed;
-    }
-    
-    // Handle very large durations (days)
-    if (minutes >= 1440) { // 1440 minutes = 1 day
-        const days = Math.floor(minutes / 1440);
-        const remainingMinutes = minutes % 1440;
-        const hours = Math.floor(remainingMinutes / 60);
-        const mins = remainingMinutes % 60;
-        
-        let result = `${days} day${days > 1 ? 's' : ''}`;
-        
-        if (hours > 0 && mins > 0) {
-            result += ` + ${hours} hr + ${mins} min`;
-        } else if (hours > 0) {
-            result += ` + ${hours} hr`;
-        } else if (mins > 0) {
-            result += ` + ${mins} min`;
-        }
-        
-        return result;
-    }
-    
-    // Handle hours and minutes
-    if (minutes >= 60) {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        
-        if (mins > 0) {
-            return `${hours} hr + ${mins} min`;
-        } else {
-            return `${hours} hr`;
-        }
-    }
-    
-    // Handle minutes only
-    return `${minutes} min`;
-}
+
 
 // DOM Elements
 const searchInput = document.getElementById('meal-search-input');
@@ -148,6 +97,13 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+    // Listen for the clearPageInputs event to clear input fields when state is cleared
+    window.addEventListener('clearPageInputs', () => {
+        if (searchInput) {
+            searchInput.value = '';
+        }
+    });
+    
     // Show healthy meal recipes by default if no state loaded
     // This will be overridden by state loading if available
     setTimeout(() => {
@@ -207,24 +163,60 @@ function displayResults(recipes) {
     });
 }
 
+function formatTimeDisplay(timeString) {
+    if (!timeString) return '';
+
+    let days = 0;
+    let hours = 0;
+    let minutes = 0;
+
+    const dayMatch = timeString.match(/(\d+)\s*day/i);
+    if (dayMatch) {
+        days = parseInt(dayMatch[1], 10);
+    }
+
+    const hourMatch = timeString.match(/(\d+)\s*hour/i);
+    if (hourMatch) {
+        hours = parseInt(hourMatch[1], 10);
+    }
+
+    const minMatch = timeString.match(/(\d+)\s*min/i);
+    if (minMatch) {
+        minutes = parseInt(minMatch[1], 10);
+    }
+
+    // If we couldn't parse anything, return original string.
+    if (days === 0 && hours === 0 && minutes === 0 && !dayMatch && !hourMatch && !minMatch) {
+        return timeString;
+    }
+
+    const parts = [];
+    if (days > 0) {
+        parts.push(`${days} day${days > 1 ? 's' : ''}`);
+    }
+    if (hours > 0) {
+        parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
+    }
+    if (minutes > 0) {
+        parts.push(`${minutes} min`);
+    }
+
+    return parts.join(' ');
+}
+
 function createRecipeCard(recipe) {
     const card = document.createElement('div');
     card.className = 'recipe-card';
     card.setAttribute('data-recipe-id', recipe.id);
     card.style.cursor = 'pointer';
-    
-    const dietaryTags = [];
-    if (recipe.vegetarian) dietaryTags.push('<span class="badge vegetarian">Vegetarian</span>');
-    if (recipe.vegan) dietaryTags.push('<span class="badge vegan">Vegan</span>');
-    if (recipe.glutenFree) dietaryTags.push('<span class="badge gluten-free">Gluten Free</span>');
-    
+
     card.innerHTML = `
         <img src="${recipe.image}" alt="${recipe.title}" onerror="this.parentNode.remove()">
         <div class="recipe-card-content">
             <h3>${recipe.title}</h3>
             <div class="recipe-time">
                 <span class="time-icon">⏱️</span>
-                <span>${formatTime(recipe.readyInMinutes || 30)}</span>
+                <span>${formatTimeDisplay(recipe.timeDisplay)}</span>
             </div>
         </div>
     `;
@@ -250,11 +242,6 @@ function reattachRecipeCardEvents() {
             card.addEventListener('click', () => {
                 // Try to get the recipe URL from the card's structure
                 const img = card.querySelector('img');
-                if (img && img.src) {
-                    // For restored cards, we might not have the full recipe object
-                    // so we'll create a generic URL or redirect to the recipe source
-                    window.open(`https://spoonacular.com/recipes/${card.querySelector('h3').textContent.toLowerCase().replace(/\s+/g, '-')}-${recipeId}`, '_blank');
-                }
             });
         }
     });

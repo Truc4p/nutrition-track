@@ -100,6 +100,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearStateBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
+                        // First, dispatch a custom event to clear current page inputs
+                        window.dispatchEvent(new CustomEvent('clearPageInputs'));
+                        
+                        // Then clear all states from localStorage
                         StateManager.clearAllStates();
                         
                         // Also clear floating chat state if available

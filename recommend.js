@@ -84,6 +84,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    
+    // Listen for the clearPageInputs event to clear input fields when state is cleared
+    window.addEventListener('clearPageInputs', () => {
+        const weightField = document.getElementById('weight');
+        const heightField = document.getElementById('height');
+        const ageField = document.getElementById('age');
+        const genderField = document.getElementById('gender');
+        const activityField = document.getElementById('activity-level');
+        const goalField = document.getElementById('goal');
+        const healthConditionField = document.getElementById('health-condition');
+        const recommendationField = document.getElementById('recommendation-text');
+        
+        if (weightField) weightField.value = '';
+        if (heightField) heightField.value = '';
+        if (ageField) ageField.value = '';
+        if (genderField) genderField.value = 'male';  // Default option
+        if (activityField) activityField.value = 'sedentary';  // Default option
+        if (goalField) goalField.value = 'maintain';  // Default option
+        if (healthConditionField) healthConditionField.value = '';
+        if (recommendationField) recommendationField.innerHTML = '';
+        
+        // Reset global variables
+        recommendation = null;
+        goal = '';
+        healthCondition = '';
+    });
 
     // Event listeners for recommendation page
     if (recommendButton) {

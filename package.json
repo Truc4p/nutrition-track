@@ -1,7 +1,7 @@
 {
   "name": "web-ui",
   "version": "1.0.0",
-  "description": "This web application displays recipes from the Pickup Limes database. It replaces the previous implementation that used the Spoonacular API.",
+  "description": "This web application displays recipes from the Pickup Limes database",
   "main": "chat.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

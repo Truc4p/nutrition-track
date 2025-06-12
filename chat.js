@@ -43,6 +43,18 @@ class ChatUI {
                 }
             }
         });
+        
+        // Listen for the clearPageInputs event to clear input fields when state is cleared
+        window.addEventListener('clearPageInputs', () => {
+            if (this.chatInput) {
+                this.chatInput.value = '';
+                this.autoResizeTextarea();
+            }
+            this.messages = [];
+            if (this.chatMessages) {
+                this.chatMessages.innerHTML = '';
+            }
+        });
     }
 
     restoreMessages() {

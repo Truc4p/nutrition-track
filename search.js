@@ -42,6 +42,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    
+    // Listen for the clearPageInputs event to clear input fields when state is cleared
+    window.addEventListener('clearPageInputs', () => {
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        if (foodQuantity) {
+            foodQuantity.value = '100';
+        }
+        selectedFood = null;
+        addedFoods = [];
+        if (foodDetails) {
+            foodDetails.innerHTML = '';
+        }
+        if (addedFoodsList) {
+            addedFoodsList.innerHTML = '';
+        }
+        if (nutritionTotals) {
+            nutritionTotals.innerHTML = '';
+        }
+        if (searchResults) {
+            searchResults.style.display = 'none';
+        }
+    });
+    
     const searchInput = document.getElementById('food-search-input');
     const searchButton = document.getElementById('search-button');
     const searchResults = document.getElementById('search-results');
