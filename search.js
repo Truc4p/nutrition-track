@@ -21,20 +21,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (searchInput && state.searchInput) {
                     searchInput.value = state.searchInput;
                 }
-                
+
                 // Restore selected food and display details
                 if (state.selectedFood) {
                     selectedFood = state.selectedFood;
                     window.displayNutritionDetails(selectedFood);
                 }
-                
+
                 // Restore added foods and update display
                 if (state.addedFoods) {
                     addedFoods = state.addedFoods;
                     updateAddedFoodsList();
                     calculateTotalNutrition();
                 }
-                
+
                 // Restore quantity
                 if (foodQuantity && state.foodQuantity) {
                     foodQuantity.value = state.foodQuantity;
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    
+
     // Listen for the clearPageInputs event to clear input fields when state is cleared
     window.addEventListener('clearPageInputs', () => {
         if (searchInput) {
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             searchResults.style.display = 'none';
         }
     });
-    
+
     const searchInput = document.getElementById('food-search-input');
     const searchButton = document.getElementById('search-button');
     const searchResults = document.getElementById('search-results');
@@ -96,10 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (searchInput) {
-        searchInput.addEventListener('input', function() {
+        searchInput.addEventListener('input', function () {
             clearTimeout(searchTimeout);
             const searchTerm = this.value.trim();
-            
+
             if (searchTerm.length < 2) {
                 searchResults.style.display = 'none';
                 return;
@@ -153,19 +153,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         searchResults.innerHTML = filteredFoods.map(food => {
             // Find calories for display in search results
-            const calories = food.foodNutrients?.find(n => 
+            const calories = food.foodNutrients?.find(n =>
                 n.nutrientName.toLowerCase().includes('energy'))?.value || 0;
-            
+
             return `
                 <div class="search-result-item" onclick='displayNutritionDetails(${JSON.stringify({
-                    description: food.description,
-                    brandOwner: food.brandOwner,
-                    fdcId: food.fdcId,
-                    dataType: food.dataType,
-                    servingSize: food.servingSize,
-                    servingSizeUnit: food.servingSizeUnit,
-                    foodNutrients: food.foodNutrients
-                }).replace(/'/g, "&apos;")})'> 
+                description: food.description,
+                brandOwner: food.brandOwner,
+                fdcId: food.fdcId,
+                dataType: food.dataType,
+                servingSize: food.servingSize,
+                servingSizeUnit: food.servingSizeUnit,
+                foodNutrients: food.foodNutrients
+            }).replace(/'/g, "&apos;")})'> 
                     <div class="food-name">${food.description}</div>
                     <div class="food-calories">${calories.toFixed(1)} kcal/100g</div>
                 </div>
@@ -174,48 +174,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Make displayNutritionDetails available globally
-    window.displayNutritionDetails = function(food) {
+    window.displayNutritionDetails = function (food) {
         selectedFood = food;
         const nutrients = food.foodNutrients || [];
 
         // Sort nutrients alphabetically by name for better readability
-        const sortedNutrients = nutrients.sort((a, b) => 
+        const sortedNutrients = nutrients.sort((a, b) =>
             a.nutrientName.localeCompare(b.nutrientName)
         );
 
-        // Create the HTML structure for food details
+        // Create the HTML structure exactly like food items in home.js
         let nutritionHtml = `
-            <div class="food-basic-info">
-                <h4>${food.description}</h4>
-                <div class="nutrient-item">
-                    <span class="nutrient-name">FDC ID:</span>
-                    <span class="nutrient-value">${food.fdcId}</span>
-                </div>`;
+            <div class="food-item">
+                <div class="food-header">
+                    <h4 class="food-title">
+                        <span class="food-name2">${food.description}</span>
+                    </h4>
+                    <span class="food-quantity">per 100g</span>
+                </div>
+                <div class="food-nutrition">`;
 
-        if (food.brandOwner) {
-            nutritionHtml += `
-                <div class="nutrient-item">
-                    <span class="nutrient-name">Brand:</span>
-                    <span class="nutrient-value">${food.brandOwner}</span>
-                </div>`;
-        }
-
-        if (food.servingSize) {
-            nutritionHtml += `
-                <div class="nutrient-item">
-                    <span class="nutrient-name">Serving Size:</span>
-                    <span class="nutrient-value">${food.servingSize}${food.servingSizeUnit || 'g'}</span>
-                </div>`;
-        }
-
-        nutritionHtml += `
-            <div class="nutrient-item">
-                <span class="nutrient-name">Data Type:</span>
-                <span class="nutrient-value">${food.dataType}</span>
-            </div>
-        </div>`;
-
-        // Group nutrients by category
+        // Group nutrients by category (same as home.js)
         const categories = {
             'Proximates': [],
             'Minerals': [],
@@ -226,55 +205,63 @@ document.addEventListener('DOMContentLoaded', () => {
             'Other': []
         };
 
-        // Categorize nutrients
+        // Add basic nutrients first if available
+        const energyNutrient = nutrients.find(n => n.nutrientName.toLowerCase().includes('energy'));
+        if (energyNutrient && energyNutrient.value > 0) {
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">Calories:</span>
+                    <span class="nutrient-value">${energyNutrient.value.toFixed(2)} kcal</span>
+                </div>`;
+            categories['Proximates'].push(nutrientInfo);
+        }
+
+        // Categorize nutrients (same logic as home.js)
         sortedNutrients.forEach(nutrient => {
             if (!nutrient.value || nutrient.value === 0) return;
+            if (nutrient.nutrientName.toLowerCase().includes('energy')) return; // Skip energy as we already added it
 
             const name = nutrient.nutrientName;
             const value = nutrient.value;
             const unit = nutrient.unitName.toLowerCase();
-            const nutrientHtml = `
-                <div class="nutrient-item">
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
                     <span class="nutrient-name">${name}:</span>
                     <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
                 </div>`;
 
             if (name.includes('Vitamin')) {
-                categories['Vitamins'].push(nutrientHtml);
-            } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
-                      name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
-                      name.includes('Sodium') || name.includes('Phosphorus')) {
-                categories['Minerals'].push(nutrientHtml);
+                categories['Vitamins'].push(nutrientInfo);
+            } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') ||
+                name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
+                name.includes('Sodium') || name.includes('Phosphorus')) {
+                categories['Minerals'].push(nutrientInfo);
             } else if (name.includes('Protein') || name.includes('Amino')) {
-                categories['Protein'].push(nutrientHtml);
+                categories['Protein'].push(nutrientInfo);
             } else if (name.includes('Carbohydrate') || name.includes('Fiber') || name.includes('Sugar')) {
-                categories['Carbohydrates'].push(nutrientHtml);
+                categories['Carbohydrates'].push(nutrientInfo);
             } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
-                categories['Lipids'].push(nutrientHtml);
-            } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash')) {
-                categories['Proximates'].push(nutrientHtml);
+                categories['Lipids'].push(nutrientInfo);
+            } else if (name.includes('Water') || name.includes('Ash')) {
+                categories['Proximates'].push(nutrientInfo);
             } else {
-                categories['Other'].push(nutrientHtml);
+                categories['Other'].push(nutrientInfo);
             }
         });
 
-        // Add each category to the nutrition HTML
-        Object.entries(categories).forEach(([category, nutrients]) => {
+        // Display nutrients by category using same structure as home.js
+        Object.entries(categories).forEach(([categoryName, nutrients]) => {
             if (nutrients.length > 0) {
                 nutritionHtml += `
-                    <div class="nutrient-category">
-                        <h4>${category}</h4>
+                    <div class="nutrition-category">
+                        <h4 class="category-title">${categoryName}</h4>
                         ${nutrients.join('')}
                     </div>`;
             }
         });
 
-        // Add source information
+        // Close the nutrition and item divs
         nutritionHtml += `
-            <div class="nutrient-category">
-                <div class="nutrient-item">
-                    <span class="nutrient-name">Source:</span>
-                    <span class="nutrient-value">USDA Food Data Central</span>
                 </div>
             </div>`;
 
@@ -311,10 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         addedFoodsList.innerHTML = addedFoods.map(food => {
             // Find calories for this food item
-            const calories = food.foodNutrients.find(n => 
+            const calories = food.foodNutrients.find(n =>
                 n.nutrientName.toLowerCase().includes('energy'))?.value || 0;
             const totalCalories = (calories * food.quantity / 100).toFixed(1);
-            
+
             return `
                 <div class="added-food-item" data-id="${food.id}">
                     <div class="food-item-content">
@@ -334,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Add the removeFood function to window scope
-    window.removeFood = function(foodId) {
+    window.removeFood = function (foodId) {
         addedFoods = addedFoods.filter(food => food.id !== foodId);
         updateAddedFoodsList();
     }
@@ -351,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         addedFoods.forEach(food => {
             const multiplier = food.quantity / 100; // Convert to per 100g
-            
+
             // Get all nutrients from the food
             const nutrients = food.foodNutrients || [];
             nutrients.forEach(nutrient => {
@@ -399,9 +386,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (name.includes('Vitamin')) {
                     categories['Vitamins'].push(nutrientInfo);
-                } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
-                          name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
-                          name.includes('Sodium') || name.includes('Phosphorus')) {
+                } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') ||
+                    name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
+                    name.includes('Sodium') || name.includes('Phosphorus')) {
                     categories['Minerals'].push(nutrientInfo);
                 } else if (name.includes('Protein') || name.includes('Amino')) {
                     categories['Protein'].push(nutrientInfo);

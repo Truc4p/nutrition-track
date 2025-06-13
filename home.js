@@ -487,36 +487,40 @@ function updateUI() {
     // Clear previous list items
     foodListContainer.innerHTML = '';
 
-    // Set header text
-    resultsHeader.textContent = foods.length > 0 ? "Your Daily Nutrition" : "Foods";
-
     if (foods.length === 0) {
         totalsSection.style.display = 'none'; // Hide totals if no food
         return; // Nothing more to render
     }
 
     // --- Populate Food List ---
-    foods.forEach(food => {
+    foods.forEach((food, index) => {
         const listItem = document.createElement('li');
         listItem.className = 'food-item';
+        listItem.id = `food-item-${index}`;
 
-        // Top: Food name and quantity as h3
+        // Top: Food name and quantity as h4
         const headerDiv = document.createElement('div');
         headerDiv.className = 'food-header';
-        const headerH3 = document.createElement('h3');
-        headerH3.className = 'food-title';
+        const headerH4 = document.createElement('h4');
+        headerH4.className = 'food-title';
         
         const nameSpan = document.createElement('span');
         nameSpan.className = 'food-name2';
         nameSpan.textContent = food.name;
         
+        headerH4.appendChild(nameSpan);
+        headerDiv.appendChild(headerH4);
+        
+        // Add quantity span
         const quantitySpan = document.createElement('span');
         quantitySpan.className = 'food-quantity';
         quantitySpan.textContent = `${food.quantity.toFixed(2)} ${food.measurementType}`;
+        headerDiv.appendChild(quantitySpan);
         
-        headerH3.appendChild(nameSpan);
-        headerH3.appendChild(quantitySpan);
-        headerDiv.appendChild(headerH3);
+        // Add collapse icon
+        const collapseIcon = document.createElement('i');
+        collapseIcon.className = 'fas fa-chevron-down collapse-icon';
+        headerDiv.appendChild(collapseIcon);
 
         // All Nutrition Info organized by categories (same style as search.js)
         const nutritionDiv = document.createElement('div');
@@ -596,6 +600,11 @@ function updateUI() {
         listItem.appendChild(headerDiv);
         listItem.appendChild(nutritionDiv);
         foodListContainer.appendChild(listItem);
+        
+        // Add click event listener to toggle expansion
+        listItem.addEventListener('click', function() {
+            this.classList.toggle('expanded');
+        });
     });
 
     // --- Calculate and Display Comprehensive Totals ---
@@ -641,25 +650,27 @@ function calculateAndDisplayTotals() {
 
     // Create a single list item for totals (same structure as food-list)
     const totalListItem = document.createElement('div');
-    totalListItem.className = 'total-food-item';
+    totalListItem.className = 'total-food-item expanded';
+    totalListItem.id = 'total-food-item';
 
     // Create header similar to food items
     const headerDiv = document.createElement('div');
     headerDiv.className = 'food-header';
-    const headerH3 = document.createElement('h3');
-    headerH3.className = 'food-title';
+    const headerH4 = document.createElement('h4');
+    headerH4.className = 'food-title';
     
     const nameSpan = document.createElement('span');
     nameSpan.className = 'food-name2';
     nameSpan.textContent = 'TOTAL NUTRITION';
     
+    headerH4.appendChild(nameSpan);
+    headerDiv.appendChild(headerH4);
+    
+    // Add summary span
     const summarySpan = document.createElement('span');
     summarySpan.className = 'food-quantity';
     summarySpan.textContent = `${foods.length} item${foods.length !== 1 ? 's' : ''}`;
-    
-    headerH3.appendChild(nameSpan);
-    headerH3.appendChild(summarySpan);
-    headerDiv.appendChild(headerH3);
+    headerDiv.appendChild(summarySpan);
 
     // Organize totals by category (using same categories as food items)
     const categories = {
