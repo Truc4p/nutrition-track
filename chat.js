@@ -9,6 +9,15 @@ class ChatUI {
         this.GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/";
         this.messages = []; // Store messages for state persistence
 
+        // Save the initial welcome message if it exists in the DOM
+        const initialMessage = this.chatMessages.querySelector('.assistant-message');
+        if (initialMessage && this.messages.length === 0) {
+            this.messages.push({ 
+                text: initialMessage.innerHTML, 
+                isUser: false 
+            });
+        }
+
         this.initializeEventListeners();
         this.initializeStateManagement();
     }
@@ -53,16 +62,28 @@ class ChatUI {
             this.messages = [];
             if (this.chatMessages) {
                 this.chatMessages.innerHTML = '';
+                // Add back the initial welcome message
+                const welcomeMessage = `Hello! I'm your Nutrition Assistant. I can help you with:
+                    <ul>
+                        <li>Nutritional information about foods</li>
+                        <li>Dietary recommendations</li>
+                        <li>Meal planning advice</li>
+                        <li>Health and wellness tips</li>
+                    </ul>
+                    How can I assist you today?`;
+                this.addMessage(welcomeMessage, false);
             }
         });
     }
 
     restoreMessages() {
         // Clear current messages and restore from state
-        this.chatMessages.innerHTML = '';
-        this.messages.forEach(message => {
-            this.addMessageToUI(message.text, message.isUser, false); // false = don't store again
-        });
+        if (this.messages && this.messages.length > 0) {
+            this.chatMessages.innerHTML = '';
+            this.messages.forEach(message => {
+                this.addMessageToUI(message.text, message.isUser, false); // false = don't store again
+            });
+        }
     }
 
     initializeEventListeners() {
@@ -151,10 +172,12 @@ class ChatUI {
             // Lists
             .replace(/^\s*[-*+]\s+(.*?)(?:\n|$)/gm, '<li>$1</li>') // Unordered list items
             .replace(/^\s*\d+\.\s+(.*?)(?:\n|$)/gm, '<li>$1</li>') // Ordered list items
-            .replace(/(<li>.*?<\/li>)\n?/gs, '<ul>$1</ul>') // Wrap list items in ul
+            .replace(/(<li>.*?<\/li>)\n?/gs, '<ul>$1</ul>'); // Wrap list items in ul
             
-            // Line breaks
-            .replace(/\n/g, '<br>');
+        // Only convert line breaks to <br> if the message doesn't contain HTML elements
+        if (!formattedMessage.includes('<') || (!formattedMessage.includes('<ul>') && !formattedMessage.includes('<ol>') && !formattedMessage.includes('<div>') && !formattedMessage.includes('<p>'))) {
+            formattedMessage = formattedMessage.replace(/\n/g, '<br>');
+        }
         
         return formattedMessage;
     }

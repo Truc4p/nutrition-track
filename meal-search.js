@@ -1,10 +1,10 @@
 // Using local API 
 const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
-const YOUTUBE_API_KEY = 'AIzaSyCl2hSa3ZZ2MIXBiyMZaWite5lIn3Snowg'; // You'll need to replace this with a valid YouTube API key
-const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ'; // Pick Up Limes channel ID
-const RAINBOW_PLANT_LIFE_CHANNEL_ID = 'UCDbZvuDA_tZ6XP5wKKFuemQ'; // Rainbow Plant Life channel ID
-
-
+const YOUTUBE_API_URL = 'http://127.0.0.1:5002/api/youtube';
+// The YouTube API key is no longer needed here as we're using our own API
+// const YOUTUBE_API_KEY = 'AIzaSyCl2hSa3ZZ2MIXBiyMZaWite5lIn3Snowg';
+// const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ';
+// const RAINBOW_PLANT_LIFE_CHANNEL_ID = 'UCDbZvuDA_tZ6XP5wKKFuemQ';
 
 // DOM Elements
 const searchInput = document.getElementById('meal-search-input');
@@ -298,142 +298,32 @@ async function fetchYoutubeVideos(customQuery = '') {
         
         console.log('Search terms being used:', searchTerms);
         
-        // Fetch videos from both channels and combine results
-        // Always include food-related terms in the search
-        const searchUrl1 = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${PICKUP_LIMES_CHANNEL_ID}&part=snippet,id&order=relevance&maxResults=10&type=video&videoDuration=medium&q=${encodeURIComponent(searchTerms)}`;
-        const searchUrl2 = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${RAINBOW_PLANT_LIFE_CHANNEL_ID}&part=snippet,id&order=relevance&maxResults=10&type=video&videoDuration=medium&q=${encodeURIComponent(searchTerms)}`;
+        // Use our local YouTube API instead of calling YouTube directly
+        const url = `${YOUTUBE_API_URL}/videos?query=${encodeURIComponent(searchTerms)}`;
+        console.log('Fetching from URL:', url);
         
-        console.log('Search URL 1:', searchUrl1);
-        console.log('Search URL 2:', searchUrl2);
+        const response = await fetch(url);
+        console.log('Response status:', response.status);
         
-        const rainbowPlantLifeResponse = await fetch(searchUrl1);        
-        const rainbowPlantLifeData = await rainbowPlantLifeResponse.json();
+        const data = await response.json();
+        console.log('Received data:', data);
         
-        const pickupLimesResponse = await fetch(searchUrl2);        
-        const pickupLimesData = await pickupLimesResponse.json();
-        
-        console.log('Rainbow Plant Life API response:', rainbowPlantLifeData);
-        console.log('Pick Up Limes API response:', pickupLimesData);
-        
-        // Combine results from both channels
-        const data = {
-            items: [...(rainbowPlantLifeData.items || []), ...(pickupLimesData.items || [])]
-        };
-        
-        console.log('Total videos found:', data.items.length);
-        
-        if (data.items && data.items.length > 0) {
-            // Get video IDs to fetch duration information
-            const videoIds = data.items.map(video => video.id.videoId).join(',');
-            console.log('Fetching duration for video IDs:', videoIds);
-            
-            // Fetch video details including duration
-            const videoDetailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?key=${YOUTUBE_API_KEY}&id=${videoIds}&part=contentDetails,snippet`);
-            const videoDetailsData = await videoDetailsResponse.json();
-            
-            console.log('Video details response:', videoDetailsData);
-            
-            if (!videoDetailsData.items) {
-                console.error('No video details found');
-                showError('Failed to load video details.', youtubeResults);
-                return;
-            }
-            
-            // Filter out YouTube Shorts (videos shorter than 60 seconds)
-            const longFormVideos = videoDetailsData.items.filter(video => {
-                const duration = video.contentDetails.duration;
-                const durationInSeconds = parseDuration(duration);
-                console.log(`Video: ${video.snippet.title}, Duration: ${duration}, Seconds: ${durationInSeconds}`);
-                
-                // Multiple criteria to filter out shorts:
-                // 1. Duration less than 60 seconds
-                // 2. Check if video title contains "#shorts" or similar indicators
-                // 3. Video aspect ratio (though this isn't always available in basic API)
-                
-                const title = video.snippet.title.toLowerCase();
-                const description = video.snippet.description.toLowerCase();
-                
-                // Check for shorts indicators in title/description
-                const hasShortsIndicator = title.includes('#shorts') || 
-                                         title.includes('#short') || 
-                                         description.includes('#shorts') || 
-                                         description.includes('#short') ||
-                                         title.includes('shorts') ||
-                                         title.includes('short');
-                
-                const isLongForm = durationInSeconds >= 60 && !hasShortsIndicator;
-                
-                if (!isLongForm) {
-                    console.log(`Filtering out video: ${video.snippet.title} (${durationInSeconds}s, hasShortsIndicator: ${hasShortsIndicator})`);
-                }
-                
-                return isLongForm;
-            });
-            
-            console.log(`Filtered ${data.items.length} videos down to ${longFormVideos.length} long-form videos`);
-            
-            // Additional client-side filtering to ensure we only get food-related videos
-            const foodKeywords = ['healthy', 'vegan', 'vegetarian', 'plant', 'nutrition', 'diet', 'salad', 'smoothie', 'green', 'meal', 'dish'];
-            
-            const filteredVideos = longFormVideos.filter(video => {
-                const title = video.snippet.title.toLowerCase();
-                const description = video.snippet.description.toLowerCase();
-                
-                // Check if any food keyword is found
-                const hasFoodKeyword = foodKeywords.some(keyword => title.includes(keyword) || description.includes(keyword));
-                
-                console.log(`Video: "${video.snippet.title}"`);
-                console.log(`  Title: "${title}"`);
-                console.log(`  Description preview: "${description.substring(0, 100)}..."`);
-                console.log(`  Has food keyword: ${hasFoodKeyword}`);
-                
-                if (!hasFoodKeyword) {
-                    console.log(`  ❌ FILTERED OUT: No food keywords found`);
-                } else {
-                    console.log(`  ✅ PASSED: Contains food keywords`);
-                }
-                
-                return hasFoodKeyword;
-            });
-
-            console.log(`After food keyword filtering: ${filteredVideos.length} videos`);
-
-            // Limit to 40 videos after filtering
-            const limitedVideos = filteredVideos.slice(0, 40);
-            
-            if (limitedVideos.length > 0) {
-                displayYoutubeVideos(limitedVideos);
-            } else {
-                showError('No food-related videos found from our channels.', youtubeResults);
-            }
-        } else {
-            showError('No videos found from our channels.', youtubeResults);
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to fetch videos');
         }
+        
+        if (!data.results || data.results.length === 0) {
+            showError('No videos found matching your criteria.', youtubeResults);
+            return;
+        }
+        
+        // Display the videos
+        displayYoutubeVideos(data.results);
+        
     } catch (error) {
         showError('Failed to load YouTube videos. Please try again later.', youtubeResults);
         console.error('YouTube API error:', error);
     }
-}
-
-// Helper function to parse YouTube duration format (PT4M13S) to seconds
-function parseDuration(duration) {
-    if (!duration) {
-        console.warn('No duration provided');
-        return 0;
-    }
-    
-    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!match) {
-        console.warn('Could not parse duration:', duration);
-        return 0;
-    }
-    
-    const hours = parseInt(match[1]) || 0;
-    const minutes = parseInt(match[2]) || 0;
-    const seconds = parseInt(match[3]) || 0;
-    
-    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-    return totalSeconds;
 }
 
 function displayYoutubeVideos(videos) {
@@ -447,26 +337,26 @@ function displayYoutubeVideos(videos) {
         videoCard.className = 'video-card';
         
         // Format the publish date
-        const publishDate = new Date(video.snippet.publishedAt);
+        const publishDate = new Date(video.published_at);
         const formattedDate = publishDate.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
         
-        // Create a clickable thumbnail instead of an iframe
-        const thumbnailUrl = video.snippet.thumbnails.high?.url || video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default?.url;
-        const videoId = video.id; // Changed from video.id.videoId since we're now using videos API
+        // Create a clickable thumbnail
+        const thumbnailUrl = video.thumbnail_url;
+        const videoId = video.video_id;
         
         videoCard.innerHTML = `
             <div class="video-thumbnail">
                 <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer">
-                    <img src="${thumbnailUrl}" alt="${video.snippet.title}" />
+                    <img src="${thumbnailUrl}" alt="${video.title}" />
                     <div class="play-button"></div>
                 </a>
             </div>
             <div class="video-info">
-                <h3><a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer">${video.snippet.title}</a></h3>
+                <h3><a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer">${video.title}</a></h3>
             </div>
         `;
         
