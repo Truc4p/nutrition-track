@@ -83,7 +83,7 @@ body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f8f8f8;
+    background-color: white;
     color: #333;
     line-height: 1.6;
 }
@@ -1667,12 +1667,6 @@ html {
 .form-group:nth-child(7) { animation-delay: 0.7s; }
 
 /* Chat Page Styles */
-body {
-    background-color: #f8f8f8;
-    min-height: 100vh;
-    margin: 0;
-}
-
 .chat-page {
     max-width: 1600px;
     padding: 20px;
@@ -1688,29 +1682,6 @@ body {
     padding: 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
-}
-
-.chat-sidebar h3 {
-    color: #2c3e50;
-    font-size: 1.8em;
-    margin-bottom: 30px;
-    text-align: center;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    position: relative;
-    padding-bottom: 20px;
-}
-
-.chat-sidebar h3::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, #3498db, #2ecc71);
-    border-radius: 3px;
 }
 
 .quick-prompts {
@@ -1729,6 +1700,8 @@ body {
     text-align: left;
     color: #2c3e50;
     font-size: 0.95em;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .prompt-button:hover {
@@ -1748,8 +1721,8 @@ body {
 }
 
 .chat-header {
-    /* padding: 10px; */
-    background: #f1f8e9;
+    padding-bottom: 10px;
+    background: white;
     font-size: 1.2em;
     display: flex;
     align-items: center;
@@ -1758,8 +1731,8 @@ body {
 }
 
 .chat-header img {
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     padding: 5px 0 5px 25px;
     background: rgba(255, 255, 255, 0.2);
