@@ -306,7 +306,7 @@ button:disabled {
 
 .food-name {
     color: #333;
-    font-size: 1.2em;
+    font-size: 1em;
     font-weight: 500;
     margin-bottom: 4px;
 }
@@ -478,15 +478,14 @@ button:disabled {
 }
 
 .search-result-item {
-    padding: 15px 20px;
+    padding: 5px 20px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .search-result-item:hover {
-    background-color: #f8f9fa;
-    transform: translateX(5px);
+    background-color: #e2eefa;
 }
 
 .food-details-container {
@@ -545,7 +544,6 @@ button:disabled {
 #added-foods-list {
     max-height: 500px;
     overflow-y: auto;
-    margin-bottom: 25px;
     padding-right: 12px;
     flex-grow: 1;
 }
@@ -617,8 +615,6 @@ button:disabled {
     top: 0;
     z-index: 1000;
     width: 100%;
-    margin-bottom: 40px;
-    border-bottom: 1px solid rgba(52, 152, 219, 0.1);
 }
 
 .nav-container {
@@ -1342,7 +1338,7 @@ html {
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
-    margin: 10px 0 20px 0;
+    margin: 10px 0 10px 0;
     width: 115px;
     transition: all 0.3s ease;
     font-size: 0.9em;
@@ -1466,9 +1462,34 @@ html {
     border-radius: 3px;
 }
 
+.left-section h3 {
+    color: #2c3e50;
+    font-size: 1.5em;
+    margin-top: 0px;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.left-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    border-radius: 3px;
+}
+
 .right-section h3 {
     color: #2c3e50;
-    font-size: 1.8em;
+    font-size: 1.5em;
+    margin-top: 0px;
     margin-bottom: 30px;
     text-align: center;
     font-weight: 700;
