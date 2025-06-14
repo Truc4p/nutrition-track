@@ -69,6 +69,46 @@ function loadCurrentPageState() {
     }));
 }
 
+// Toggle mobile menu
+function toggleMobileMenu() {
+    const navLinks = document.getElementById('nav-links');
+    const hamburgerIcon = document.getElementById('hamburger-icon');
+    
+    if (navLinks && hamburgerIcon) {
+        navLinks.classList.toggle('active');
+        hamburgerIcon.classList.toggle('open');
+    }
+}
+
+// Close mobile menu when clicking outside
+function setupOutsideClickHandler() {
+    document.addEventListener('click', function(event) {
+        const navLinks = document.getElementById('nav-links');
+        const hamburgerIcon = document.getElementById('hamburger-icon');
+        
+        if (navLinks && hamburgerIcon && navLinks.classList.contains('active')) {
+            // Check if click is outside the navigation
+            if (!event.target.closest('.nav-links') && !event.target.closest('.hamburger-menu')) {
+                navLinks.classList.remove('active');
+                hamburgerIcon.classList.remove('open');
+            }
+        }
+    });
+}
+
+// Close mobile menu when window is resized to desktop size
+function setupResizeHandler() {
+    window.addEventListener('resize', function() {
+        const navLinks = document.getElementById('nav-links');
+        const hamburgerIcon = document.getElementById('hamburger-icon');
+        
+        if (window.innerWidth > 768 && navLinks && hamburgerIcon) {
+            navLinks.classList.remove('active');
+            hamburgerIcon.classList.remove('open');
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Get the current page filename
     const currentPage = window.location.pathname.split('/').pop() || 'home.html';
@@ -91,6 +131,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 link.addEventListener('click', function(e) {
                     // Don't prevent default navigation, but save state first
                     saveCurrentPageState();
+                    
+                    // Close mobile menu when a link is clicked
+                    const navLinksMenu = document.getElementById('nav-links');
+                    const hamburgerIcon = document.getElementById('hamburger-icon');
+                    if (navLinksMenu && hamburgerIcon) {
+                        navLinksMenu.classList.remove('active');
+                        hamburgerIcon.classList.remove('open');
+                    }
                 });
             });
 
@@ -116,6 +164,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
             }
+            
+            // Setup hamburger menu functionality
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            if (hamburgerIcon) {
+                hamburgerIcon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleMobileMenu();
+                });
+            }
+            
+            // Setup handlers for mobile menu
+            setupOutsideClickHandler();
+            setupResizeHandler();
 
             // Load state for current page after navbar is loaded
             setTimeout(loadCurrentPageState, 100);

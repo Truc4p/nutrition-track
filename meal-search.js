@@ -1,10 +1,6 @@
 // Using local API 
 const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
 const YOUTUBE_API_URL = 'http://127.0.0.1:5002/api/youtube';
-// The YouTube API key is no longer needed here as we're using our own API
-// const YOUTUBE_API_KEY = 'AIzaSyCl2hSa3ZZ2MIXBiyMZaWite5lIn3Snowg';
-// const PICKUP_LIMES_CHANNEL_ID = 'UCq2E1mIwUKMWzCA4liA_XGQ';
-// const RAINBOW_PLANT_LIFE_CHANNEL_ID = 'UCDbZvuDA_tZ6XP5wKKFuemQ';
 
 // DOM Elements
 const searchInput = document.getElementById('meal-search-input');
@@ -18,20 +14,31 @@ const youtubeTab = document.getElementById('youtube-tab');
 const resultsSection = document.getElementById('results-section');
 const youtubeSection = document.getElementById('youtube-section');
 
-// Event Listeners
-searchButton.addEventListener('click', () => {
-    // Determine which tab is active and perform the appropriate search
+// Event Listeners - Add flag to prevent duplicate listeners
+let eventListenersAdded = false;
+
+function addEventListeners() {
+    if (eventListenersAdded) return;
+    
+    searchButton.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keypress', handleKeyPress);
+    resultsTab.addEventListener('click', () => switchTab('results'));
+    youtubeTab.addEventListener('click', () => switchTab('youtube'));
+    
+    eventListenersAdded = true;
+}
+
+function handleSearch() {
     const activeTab = document.querySelector('.tab-button.active').id;
     if (activeTab === 'results-tab') {
         performSearch();
     } else if (activeTab === 'youtube-tab') {
         fetchYoutubeVideos(searchInput.value);
     }
-});
+}
 
-searchInput.addEventListener('keypress', (e) => {
+function handleKeyPress(e) {
     if (e.key === 'Enter') {
-        // Determine which tab is active and perform the appropriate search
         const activeTab = document.querySelector('.tab-button.active').id;
         if (activeTab === 'results-tab') {
             performSearch();
@@ -39,13 +46,21 @@ searchInput.addEventListener('keypress', (e) => {
             fetchYoutubeVideos(searchInput.value);
         }
     }
-});
+}
 
-// Tab switching event listeners
-resultsTab.addEventListener('click', () => switchTab('results'));
-youtubeTab.addEventListener('click', () => switchTab('youtube'));
+// Track initialization state
+let domContentLoaded = false;
 
 window.addEventListener('DOMContentLoaded', () => {
+    // Prevent multiple initializations
+    if (domContentLoaded) {
+        return;
+    }
+    domContentLoaded = true;
+    
+    // Add event listeners only once
+    addEventListeners();
+    
     // State management event listeners
     window.addEventListener('savePageState', (event) => {
         if (event.detail.pageKey === 'meal-search') {
@@ -83,6 +98,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 
                 // Restore YouTube results
                 if (state.youtubeResults && youtubeResults) {
+                    // Clear first to prevent duplicates
+                    youtubeResults.innerHTML = '';
                     youtubeResults.innerHTML = state.youtubeResults;
                 }
                 
@@ -114,17 +131,23 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 100);
 });
 
+// Flag to prevent multiple simultaneous recipe search calls
+let isLoadingRecipes = false;
+
 async function performSearch(defaultQuery) {
-    const query = typeof defaultQuery === 'string' ? defaultQuery : searchInput.value.trim();
+    // Prevent multiple simultaneous calls
+    if (isLoadingRecipes) {
+        return;
+    }
     
-    // Allow empty query to show all recipes
-    // if (!query) return;
+    isLoadingRecipes = true;
+    const query = typeof defaultQuery === 'string' ? defaultQuery : searchInput.value.trim();
     
     clearResults();
     
     try {
         const params = new URLSearchParams({
-            number: 500 // Increased number to show more recipes
+            number: 80 // Increased number to show more recipes
         });
         
         // Only add query param if it's not empty
@@ -143,7 +166,6 @@ async function performSearch(defaultQuery) {
         
         // Filter out recipes without images
         const recipesWithImages = (data.results || []).filter(r => r.image);
-        console.log('Recipes with images:', recipesWithImages.length);
         
         if (recipesWithImages.length === 0) {
             showError('No recipes found matching your criteria. Try a different search term.');
@@ -153,6 +175,9 @@ async function performSearch(defaultQuery) {
     } catch (error) {
         console.error('Search error:', error);
         showError(error.message);
+    } finally {
+        // Reset the loading flag
+        isLoadingRecipes = false;
     }
 }
 
@@ -239,9 +264,10 @@ function reattachRecipeCardEvents() {
     recipeCards.forEach(card => {
         const recipeId = card.getAttribute('data-recipe-id');
         if (recipeId) {
+            // Add click event to open recipe in new tab
             card.addEventListener('click', () => {
-                // Try to get the recipe URL from the card's structure
-                const img = card.querySelector('img');
+                // Use recipe ID to construct URL or open a default page
+                window.open(`${BASE_URL}/${recipeId}` || '#', '_blank');
             });
         }
     });
@@ -271,10 +297,9 @@ function switchTab(tabName) {
         youtubeTab.classList.add('active');
         youtubeSection.classList.add('active');
         
-        // If YouTube tab is selected and no videos are loaded yet, fetch them
-        if (youtubeResults.children.length === 0) {
-            fetchYoutubeVideos(searchInput.value);
-        }
+        // Always fetch new videos when switching to YouTube tab
+        // This ensures we have fresh results and prevents stale/duplicate content
+        fetchYoutubeVideos(searchInput.value);
     }
     
     // Update the search button placeholder based on active tab
@@ -285,7 +310,22 @@ function switchTab(tabName) {
     }
 }
 
+// Flag to prevent multiple simultaneous YouTube API calls
+let isLoadingYoutubeVideos = false;
+
+// Keep track of the last videos displayed to prevent duplicates
+let lastDisplayedVideoIds = [];
+
 async function fetchYoutubeVideos(customQuery = '') {
+    // Prevent multiple simultaneous calls
+    if (isLoadingYoutubeVideos) {
+        return;
+    }
+    
+    console.log('fetchYoutubeVideos called with query:', customQuery);
+    isLoadingYoutubeVideos = true;
+    
+    // Clear the container
     youtubeResults.innerHTML = '';
     
     try {
@@ -299,7 +339,8 @@ async function fetchYoutubeVideos(customQuery = '') {
         console.log('Search terms being used:', searchTerms);
         
         // Use our local YouTube API instead of calling YouTube directly
-        const url = `${YOUTUBE_API_URL}/videos?query=${encodeURIComponent(searchTerms)}`;
+        // Add limit parameter to request more videos (default is 40)
+        const url = `${YOUTUBE_API_URL}/videos?query=${encodeURIComponent(searchTerms)}&limit=80`;
         console.log('Fetching from URL:', url);
         
         const response = await fetch(url);
@@ -323,6 +364,9 @@ async function fetchYoutubeVideos(customQuery = '') {
     } catch (error) {
         showError('Failed to load YouTube videos. Please try again later.', youtubeResults);
         console.error('YouTube API error:', error);
+    } finally {
+        // Reset the loading flag
+        isLoadingYoutubeVideos = false;
     }
 }
 
@@ -332,17 +376,23 @@ function displayYoutubeVideos(videos) {
         return;
     }
     
+    // Reset the list of displayed video IDs
+    lastDisplayedVideoIds = [];
+    
+    // Create a document fragment to improve performance
+    const fragment = document.createDocumentFragment();
+    
     videos.forEach(video => {
+        // Skip if we've already added this video (prevent duplicates)
+        if (lastDisplayedVideoIds.includes(video.video_id)) {
+            return;
+        }
+        
+        // Add to the list of displayed videos
+        lastDisplayedVideoIds.push(video.video_id);
+        
         const videoCard = document.createElement('div');
         videoCard.className = 'video-card';
-        
-        // Format the publish date
-        const publishDate = new Date(video.published_at);
-        const formattedDate = publishDate.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
         
         // Create a clickable thumbnail
         const thumbnailUrl = video.thumbnail_url;
@@ -360,6 +410,12 @@ function displayYoutubeVideos(videos) {
             </div>
         `;
         
-        youtubeResults.appendChild(videoCard);
+        // Add to fragment instead of directly to DOM
+        fragment.appendChild(videoCard);
     });
+    
+    // Add all videos at once for better performance
+    youtubeResults.appendChild(fragment);
+    
+    console.log('Finished adding videos, final count:', youtubeResults.children.length);
 }
