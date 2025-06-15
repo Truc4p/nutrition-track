@@ -6,7 +6,9 @@ class ChatUI {
         this.quickPrompts = document.querySelectorAll('.prompt-button');
 
         this.isProcessing = false;
-        this.GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/";
+        // Use current host IP instead of hardcoded localhost
+        const currentHost = window.location.hostname;
+        this.GEMINI_API_URL = `http://${currentHost}:3000/ai/chat/`;
         this.messages = []; // Store messages for state persistence
 
         // Save the initial welcome message if it exists in the DOM

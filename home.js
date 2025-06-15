@@ -351,7 +351,7 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
 let foods = [];
 let isLoading = false;
 // Note: recommendation variable moved to recommend.js
-const API_URL = "http://127.0.0.1:8000/nlp/process_text_and_get_nutrition/";
+const API_URL = "/api/nlp/process_text_and_get_nutrition/";
 
 // Add these variables at the top with other declarations
 let selectedFood = null;

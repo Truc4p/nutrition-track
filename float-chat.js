@@ -1,5 +1,5 @@
 // Floating Chat Interface Functionality
-const GEMINI_API_URL = "http://127.0.0.1:5000/ai/chat/";
+// API URL will be set dynamically when needed
 
 // State management for floating chat
 let floatChatMessages = [];
@@ -7,6 +7,7 @@ let isChatOpen = false;
 
 // Function to load the chat interface from external HTML file
 async function loadChatInterface() {
+    console.log('Float-chat: Loading chat interface...');
     try {
         const response = await fetch('float-chat.html');
         if (!response.ok) {
@@ -15,9 +16,11 @@ async function loadChatInterface() {
         const html = await response.text();
         const chatPlaceholder = document.getElementById('float-chat-placeholder');
         if (chatPlaceholder) {
+            console.log('Float-chat: Chat placeholder found, initializing...');
             chatPlaceholder.innerHTML = html;
             initializeChatInterface();
             initializeFloatChatStateManagement();
+            console.log('Float-chat: Initialization complete');
         } else {
             console.error('Chat placeholder not found in the document');
         }
@@ -208,6 +211,11 @@ async function handleSendMessage(input, messagesContainer) {
     input.value = '';
 
     try {
+        // Create API URL dynamically
+        const currentHost = window.location.hostname;
+        const GEMINI_API_URL = `http://${currentHost}:3000/ai/chat/`;
+        console.log('Float-chat: Sending message to:', GEMINI_API_URL);
+        
         // Send user message to the chatbot server
         const response = await fetch(GEMINI_API_URL, {
             method: 'POST',

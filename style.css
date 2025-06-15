@@ -714,7 +714,7 @@ button:disabled {
     font-weight: 600;
     font-size: 1.1rem;
     padding: 10px 20px;
-    border-radius: 12px;
+    border-radius: 20px;
     transition: all 0.3s ease;
     position: relative;
     background: 
@@ -987,45 +987,45 @@ button:disabled {
 }
 
 #recommend-button {
-    margin-top: 30px;
-    width: 100%;
-    padding: 16px 32px;
+    margin: 30px auto 0 auto;
+    display: block;
+    width: auto;
+    padding: 1rem 2rem;
     background: linear-gradient(135deg, #3498db, #2ecc71);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 1.1em;
+    border-radius: 50px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
     position: relative;
     overflow: hidden;
 }
 
+#recommend-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+    transition: all 0.6s ease;
+}
+
 #recommend-button:hover {
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+#recommend-button:hover::before {
+    left: 100%;
 }
 
 #recommend-button:active {
     transform: translateY(0);
-}
-
-#recommend-button::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(46, 204, 113, 0.2));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#recommend-button:hover::after {
-    opacity: 1;
 }
 
 #recommendation-text {
@@ -1432,13 +1432,16 @@ button:disabled {
 }
 
 #submit-button, #reset-button {
-    padding: 12px 30px;
-    font-size: 1.1em;
-    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    border-radius: 50px;
     margin: 0 10px;
     transition: all 0.3s ease;
     display: inline-block;
     width: auto; /* Override the default 60% width */
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Create a container for buttons to center them */
@@ -1453,8 +1456,28 @@ button:disabled {
 
 #submit-button:not(:disabled) {
     background: linear-gradient(135deg, #3498db, #2ecc71);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
     min-width: 120px; /* Ensure minimum width */
+}
+
+#submit-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+    transition: all 0.6s ease;
+}
+
+#submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+#submit-button:hover:not(:disabled)::before {
+    left: 100%;
 }
 
 #reset-button {
@@ -2519,9 +2542,35 @@ button:disabled {
 
 .recipe-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
-    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
     padding: 1rem;
+}
+
+/* For tablets */
+@media (max-width: 768px) {
+    .recipe-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+/* For mobile phones */
+@media (max-width: 480px) {
+    .recipe-grid,
+    .video-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+    }
+    
+    .recipe-card,
+    .video-card {
+        margin-bottom: 15px;
+    }
+    
+    .recipe-card img {
+        height: 220px;
+    }
 }
 
 /* Recipe Card Styles - Consolidated */
@@ -2558,7 +2607,6 @@ button:disabled {
     height: 320px;
     object-fit: cover;
     transition: all 0.3s ease;
-    border-bottom: 2px solid rgba(52, 152, 219, 0.2);
 }
 
 .recipe-card:hover img {
@@ -2729,9 +2777,9 @@ button:disabled {
 
 .video-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 0.5rem;
 }
 
 .video-card {
@@ -2839,7 +2887,8 @@ button:disabled {
     }
     
     .video-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.5rem;
     }
     
     .youtube-button {
@@ -3006,5 +3055,168 @@ button:disabled {
 @media (hover: none) {
     .nav-links li a:active {
         background-color: #f5f5f5;
+    }
+}
+
+/* Additional Mobile Enhancements */
+
+/* Prevent text selection on UI elements */
+.nav-links, .tab-button, .food-item, button {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Improve scrolling on mobile */
+.chat-messages, .added-foods-list, .search-results {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Better focus states for accessibility */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
+/* Improve button interactions on mobile */
+button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Prevent zoom on input focus for iOS */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+    font-size: 16px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Mobile-specific improvements for forms */
+@media (max-width: 768px) {
+    /* Larger touch targets */
+    .tab-button {
+        padding: 12px 20px;
+        margin: 5px;
+        min-height: 44px;
+    }
+    
+    /* Better spacing for food items */
+    .food-item {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+    }
+    
+    /* Improve search results */
+    .search-result-item {
+        padding: 15px;
+        margin: 8px 0;
+        min-height: 44px;
+    }
+    
+    /* Better chat interface */
+    .chatbox__support {
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    }
+    
+    .chatbox__footer input {
+        font-size: 16px;
+        padding: 12px;
+    }
+    
+    .chatbox__send--footer {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    /* Improve recipe cards */
+    .recipe-card {
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+    
+    .recipe-card img {
+        border-radius: 12px 12px 0 0;
+    }
+    
+    /* Better video cards */
+    .video-card {
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+    
+    /* Improve nutrition display */
+    .nutrition-category {
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    
+    /* Better form styling */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #3498db;
+    }
+}
+
+/* Landscape orientation optimizations */
+@media (max-height: 500px) and (orientation: landscape) {
+    .chatbox__support {
+        height: 80vh;
+        width: 90%;
+    }
+    
+    .chat-messages {
+        height: calc(80vh - 120px);
+    }
+    
+    .two-sections {
+        padding: 5px;
+    }
+    
+    .left-section,
+    .right-section {
+        padding: 10px;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .hamburger-icon span {
+        height: 2px;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .hamburger-icon,
+    .hamburger-icon span {
+        transition: none;
+    }
+    
+    .nav-links {
+        transition: none;
     }
 }

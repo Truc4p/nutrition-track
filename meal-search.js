@@ -1,6 +1,6 @@
 // Using local API 
-const BASE_URL = 'http://127.0.0.1:5001/api/recipes';
-const YOUTUBE_API_URL = 'http://127.0.0.1:5002/api/youtube';
+const BASE_URL = '/api/recipes';
+const YOUTUBE_API_URL = '/api/youtube';
 
 // DOM Elements
 const searchInput = document.getElementById('meal-search-input');
@@ -254,8 +254,10 @@ function createRecipeCard(recipe) {
     return card;
 }
 
-function clearResults() {
-    resultsContainer.innerHTML = '';
+function clearResults(container = resultsContainer) {
+    if (container) {
+        container.innerHTML = '';
+    }
 }
 
 function reattachRecipeCardEvents() {
@@ -293,6 +295,11 @@ function switchTab(tabName) {
     if (tabName === 'results') {
         resultsTab.classList.add('active');
         resultsSection.classList.add('active');
+        
+        // Check if recipes section is empty, if so, load recipes
+        if (!resultsContainer.children.length) {
+            performSearch(searchInput.value || '');
+        }
     } else if (tabName === 'youtube') {
         youtubeTab.classList.add('active');
         youtubeSection.classList.add('active');
@@ -317,56 +324,35 @@ let isLoadingYoutubeVideos = false;
 let lastDisplayedVideoIds = [];
 
 async function fetchYoutubeVideos(customQuery = '') {
-    // Prevent multiple simultaneous calls
-    if (isLoadingYoutubeVideos) {
-        return;
-    }
+    const query = customQuery || searchInput.value.trim();
     
-    console.log('fetchYoutubeVideos called with query:', customQuery);
-    isLoadingYoutubeVideos = true;
-    
-    // Clear the container
-    youtubeResults.innerHTML = '';
+    clearResults(youtubeResults);
     
     try {
-        // Use custom query if provided, otherwise use default food-related terms
-        let searchTerms = customQuery.trim();
-        if (!searchTerms) {
-            // When no search query is provided, use a more specific food-related search
-            searchTerms = 'recipe cooking meal healthy food';
-        }
+        const params = new URLSearchParams({
+            query: query || 'healthy recipes',
+            limit: 40
+        });
         
-        console.log('Search terms being used:', searchTerms);
-        
-        // Use our local YouTube API instead of calling YouTube directly
-        // Add limit parameter to request more videos (default is 40)
-        const url = `${YOUTUBE_API_URL}/videos?query=${encodeURIComponent(searchTerms)}&limit=80`;
-        console.log('Fetching from URL:', url);
+        const url = `${YOUTUBE_API_URL}/videos?${params}`;
+        console.log('Fetching YouTube videos from:', url);
         
         const response = await fetch(url);
-        console.log('Response status:', response.status);
+        console.log('YouTube response status:', response.status);
         
         const data = await response.json();
-        console.log('Received data:', data);
+        console.log('Received YouTube data:', data);
         
-        if (!response.ok || !data.success) {
-            throw new Error(data.error || 'Failed to fetch videos');
-        }
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch videos');
         
         if (!data.results || data.results.length === 0) {
-            showError('No videos found matching your criteria.', youtubeResults);
-            return;
+            showError('No videos found matching your criteria. Try a different search term.', youtubeResults);
+        } else {
+            displayYoutubeVideos(data.results);
         }
-        
-        // Display the videos
-        displayYoutubeVideos(data.results);
-        
     } catch (error) {
+        console.error('YouTube search error:', error);
         showError('Failed to load YouTube videos. Please try again later.', youtubeResults);
-        console.error('YouTube API error:', error);
-    } finally {
-        // Reset the loading flag
-        isLoadingYoutubeVideos = false;
     }
 }
 
