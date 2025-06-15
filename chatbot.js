@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 5000;
+const PORT = 3000;
 
 // // Replace with your Gemini API key
 const GEMINI_KEY = 'AIzaSyAZbp4SEeaAq8ioyvuWNF7kcwalhNA8h8I';
@@ -12,7 +12,6 @@ const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/
 // Enable CORS with proper configuration
 app.use(cors({
     origin: '*', // Allow all origins
-    // origin: 'http://127.0.0.1:5500', // Allow requests from this origin
     methods: ['GET', 'POST', 'OPTIONS'], // Allow these HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
 }));
@@ -75,6 +74,8 @@ app.post('/ai/chat', async (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, '127.0.0.1', () => {
-    console.log(`Server is running on http://127.0.0.1:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on http://0.0.0.0:${PORT}`);
+    console.log(`Access from local machine: http://127.0.0.1:${PORT}`);
+    console.log(`Access from network: http://192.168.88.55:${PORT}`);
 });
