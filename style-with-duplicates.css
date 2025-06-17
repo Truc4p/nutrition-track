@@ -484,10 +484,6 @@ button:disabled {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 #search-button:hover, #add-food-button:hover {
@@ -746,226 +742,7 @@ button:disabled {
     box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
 }
 
-/* Enhanced Mobile Navigation */
-@media (max-width: 768px) {
-    .nav-container {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 20px;
-        height: 60px;
-        position: relative;
-    }
-    
-    .nav-logo {
-        font-size: 1.8rem;
-        margin: 0;
-        flex-shrink: 0;
-        font-weight: 900;
-    }
-    
-    .nav-links {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 100%;
-        left: 10px;
-        right: 10px;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        border-radius: 15px;
-        padding: 15px 0;
-        gap: 5px;
-        z-index: 999;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        margin-top: 5px;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        transform-origin: top center;
-    }
-    
-    .nav-links.active {
-        display: flex;
-        animation: slideDownFade 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-    }
-    
-    @keyframes slideDownFade {
-        0% {
-            opacity: 0;
-            transform: translateY(-10px) scale(0.95);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-    
-    .nav-links li {
-        width: 100%;
-        text-align: center;
-        margin: 0;
-    }
-    
-    .nav-links li a {
-        padding: 16px 20px;
-        display: block;
-        font-size: 1rem;
-        border-radius: 12px;
-        border: none;
-        margin: 2px 15px;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        text-align: center;
-        font-weight: 500;
-        color: #2c3e50;
-        position: relative;
-        overflow: hidden;
-        box-sizing: border-box;
-    }
-    
-    .nav-links li a::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, 
-            rgba(52, 152, 219, 0.1) 0%, 
-            rgba(46, 204, 113, 0.1) 100%);
-        transition: all 0.3s ease;
-        z-index: -1;
-    }
-    
-    .nav-links li a:hover {
-        background: linear-gradient(135deg, 
-            rgba(52, 152, 219, 0.1) 0%, 
-            rgba(46, 204, 113, 0.1) 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
-        color: #3498db;
-    }
-    
-    .nav-links li a:hover::before {
-        left: 100%;
-    }
-    
-    .nav-links li a:active {
-        transform: translateY(0);
-        transition: transform 0.1s ease;
-    }
-    
-    .clear-state-button {
-        margin: 8px 15px;
-        justify-self: center;
-        border-radius: 12px;
-        background: linear-gradient(135deg, 
-            rgba(231, 76, 60, 0.1) 0%, 
-            rgba(231, 76, 60, 0.05) 100%);
-        border: 1px solid rgba(231, 76, 60, 0.2);
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        box-sizing: border-box;
-    }
-    
-    .clear-state-button:hover {
-        background: linear-gradient(135deg, 
-            rgba(231, 76, 60, 0.15) 0%, 
-            rgba(231, 76, 60, 0.1) 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
-    }
-}
 
-/* Improved Mobile Layout */
-@media (max-width: 768px) {
-    .two-sections {
-        flex-direction: column;
-        padding: 10px;
-        gap: 15px;
-    }
-    
-    .left-section,
-    .right-section {
-        width: 100%;
-        flex: 1 1 100%;
-        min-height: auto;
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-    
-    textarea#food-input {
-        width: 100%;
-        height: 120px;
-        font-size: 16px; /* Prevent zoom on focus in iOS */
-    }
-    
-    
-    select {
-        font-size: 16px; /* Prevent zoom on focus in iOS */
-        padding: 12px;
-        width: 100%;
-    }
-    
-    .results {
-        width: 100%;
-        margin-top: 15px;
-    }
-    
-    #food-list .food-item {
-        padding: 12px;
-        margin: 8px 0;
-    }
-    
-    /* Improve touch targets */
-    .tab-button,
-    .food-item,
-    .search-result-item,
-    .added-food-item {
-        min-height: 44px; /* Apple's recommended minimum touch target size */
-    }
-    
-    /* Better spacing for mobile forms */
-    .form-group {
-        margin-bottom: 20px;
-    }
-    
-    .form-group label {
-        margin-bottom: 8px;
-        display: block;
-    }
-    
-    /* Improve mobile chat experience */
-    .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding-bottom: 20px;
-        margin-bottom: 10px;
-        max-height: calc(100vh - 180px);
-    }
-    
-    .message {
-        max-width: 90%;
-        padding: 12px;
-    }
-    
-    .input-container {
-        padding: 8px;
-        margin-top: auto;
-        position: relative;
-        bottom: auto;
-        width: 100%;
-        background: white;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        box-sizing: border-box;
-        flex-shrink: 0;
-    }
-    
-    /* Fix float chat for mobile */
-    .chatbox__support {
-        width: 85%;
-        height: 65vh;
-        right: 20px;
-    }
-}
 
 /* Small Phone Optimization */
 @media (max-width: 480px) {
@@ -1011,12 +788,6 @@ button:disabled {
     
     button {
         padding: 10px 0;
-    }
-    
-    #search-button, #add-food-button {
-        padding: 10px 20px;
-        font-size: 0.9rem;
-        border-radius: 10px;
     }
     
     .recipe-grid,
@@ -1918,7 +1689,6 @@ button:disabled {
 
 
 
-.form-group input,
 .form-group select,
 .form-group textarea {
     width: 100%;
@@ -1935,7 +1705,6 @@ button:disabled {
 
 
 
-.form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
@@ -1946,7 +1715,6 @@ button:disabled {
 
 
 
-.form-group input:hover,
 .form-group select:hover,
 .form-group textarea:hover {
     border-color: #3498db;
@@ -2056,6 +1824,7 @@ button:disabled {
 .chat-header img {
     width: 40px;
     height: 40px;
+    border-radius: 50%;
     padding: 5px 0 5px 25px;
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(5px);
@@ -2175,20 +1944,11 @@ button:disabled {
         grid-template-columns: 1fr;
         padding: 10px;
         margin: 0;
-        height: calc(100vh - 60px);
-        box-sizing: border-box;
+        height: 100vh;
     }
 
     .chat-sidebar {
         display: none;
-    }
-    
-    .chat-main {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-        box-sizing: border-box;
     }
 
     .message {
@@ -2340,10 +2100,6 @@ button:disabled {
 @media (max-width: 768px) {
     .chat-page {
         grid-template-columns: 1fr;
-        height: calc(100vh - 60px);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
     }
     
     .chat-sidebar {
@@ -2352,17 +2108,10 @@ button:disabled {
     
     .chat-main {
         border-radius: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
     }
     
     .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        height: auto;
-        min-height: 0;
+        height: calc(100vh - 140px);
     }
     
     .message {
@@ -2370,29 +2119,10 @@ button:disabled {
     }
     
     .input-container {
-        padding: 8px;
-        margin: 0;
-        position: sticky;
-        bottom: 0;
-        width: 100%;
-        box-sizing: border-box;
-        gap: 8px;
-        background: white;
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
-        z-index: 10;
+        padding: 10px;
     }
     
     .chat-input {
-        font-size: 14px;
-        box-sizing: border-box;
-        padding: 10px;
-        min-height: 40px;
-        max-height: 100px;
-    }
-    
-    .send-button {
-        padding: 10px 20px;
-        min-width: 80px;
         font-size: 14px;
     }
 }
@@ -3136,32 +2866,7 @@ button:disabled {
     transform: rotate(-135deg);
 }
 
-/* Mobile Navigation */
-@media (max-width: 768px) {
-    .hamburger-menu {
-        display: block;
-        position: relative;
-        z-index: 1001;
-        order: 2;
-        padding: 10px;
-        cursor: pointer;
-    }
-    
-    /* Ensure hamburger menu is clickable */
-    .hamburger-icon {
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-        transition: transform 0.3s ease;
-    }
-    
-    .hamburger-icon:hover {
-        transform: scale(1.1);
-    }
-    
-    .hamburger-icon.open {
-        transform: rotate(180deg);
-    }
-}
+
 
 /* Touch-friendly interactive elements */
 @media (hover: none) {
@@ -3364,6 +3069,13 @@ select {
         box-sizing: border-box;
     }
     
+    #search-button {
+        width: 100%;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        font-size: 16px;
+    }
+    
     /* Meal Search Container Mobile */
     .meal-search-container {
         padding: 0 0.5rem;
@@ -3464,5 +3176,603 @@ select {
     
     .meal-search-container {
         padding: 0 0.25rem;
+    }
+}
+
+/* ============================================
+   CONSOLIDATED RESPONSIVE DESIGN
+   ============================================ */
+
+/* ========== TABLET & MOBILE (768px and below) ========== */
+@media (max-width: 768px) {
+    /* === NAVIGATION === */
+    .nav-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        height: 60px;
+        position: relative;
+    }
+    
+    .nav-logo {
+        font-size: 1.6rem;
+        margin: 0;
+        flex-shrink: 0;
+        font-weight: 900;
+    }
+    
+    .hamburger-menu {
+        display: block;
+        position: relative;
+        z-index: 1001;
+        order: 2;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+    }
+    
+    .hamburger-icon {
+        width: 30px;
+        height: 22px;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 0 0 15px 15px;
+        padding: 10px 0;
+        gap: 0;
+        z-index: 999;
+    }
+    
+    .nav-links.active {
+        display: flex;
+    }
+    
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+        margin: 0;
+    }
+    
+    .nav-links li a {
+        padding: 15px 25px;
+        width: 100%;
+        display: block;
+        font-size: 1rem;
+        border-radius: 0;
+        border-bottom: 1px solid #f0f0f0;
+        margin: 0;
+        transition: all 0.2s ease;
+        text-align: center;
+    }
+    
+    .nav-links li:last-child a {
+        border-bottom: none;
+    }
+    
+    .nav-links li a:hover {
+        background: #f8f9fa;
+        color: #3498db;
+    }
+    
+    .clear-state-button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        margin: 0 10px;
+    }
+
+    /* === LAYOUT === */
+    .two-sections {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .left-section,
+    .right-section {
+        width: 100%;
+        margin: 0;
+        padding: 1rem;
+        min-height: auto;
+    }
+    
+    /* === FORMS & INPUTS === */
+    textarea#food-input {
+        height: 120px;
+        font-size: 16px;
+        padding: 15px;
+    }
+    
+    select {
+        font-size: 16px;
+        padding: 12px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        transition: border-color 0.3s ease;
+        font-size: 16px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #3498db;
+    }
+
+    /* === BUTTONS === */
+    button {
+        padding: 12px 20px;
+        font-size: 16px;
+        min-height: 44px;
+    }
+    
+    .primary-button, .secondary-button {
+        padding: 12px 24px;
+    }
+    
+    .tab-button {
+        padding: 12px 20px;
+        margin: 5px;
+        min-height: 44px;
+        font-size: 1rem;
+    }
+
+    /* === FOOD & NUTRITION === */
+    .results {
+        margin-top: 1.5rem;
+    }
+    
+    #food-list .food-item {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+    }
+    
+    .food-nutrition {
+        padding: 10px;
+        margin-top: 10px;
+    }
+    
+    .food-nutrition span {
+        font-size: 0.9rem;
+    }
+    
+    #totals-section {
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .nutrition-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .nutrition-category {
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    
+    .nutrient-item {
+        padding: 8px 12px;
+        margin: 4px 0;
+    }
+
+    /* === SEARCH & RESULTS === */
+    .search-result-item {
+        padding: 15px;
+        margin: 8px 0;
+        min-height: 44px;
+    }
+
+    /* === CHAT INTERFACE === */
+    .chat-page {
+        flex-direction: column;
+        height: 100vh;
+        padding: 0;
+    }
+    
+    .chat-sidebar {
+        display: none;
+    }
+    
+    .chat-main {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .chat-messages {
+        height: calc(100vh - 200px);
+        padding: 15px;
+    }
+    
+    .message {
+        margin-bottom: 15px;
+        padding: 12px;
+    }
+    
+    .input-container {
+        padding: 15px;
+    }
+    
+    .chat-input {
+        font-size: 16px;
+        padding: 12px;
+    }
+    
+    .chatbox__support {
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        width: 95%;
+        height: 85vh;
+    }
+    
+    .chatbox__footer input {
+        font-size: 16px;
+        padding: 12px;
+    }
+    
+    .chatbox__send--footer {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* === RECIPE & VIDEO CARDS === */
+    .recipe-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .video-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .video-card {
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+    
+    .youtube-button {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+
+    /* === RECIPE HERO === */
+    .recipe-hero {
+        height: 280px;
+        margin-bottom: 2rem;
+        padding: 1rem;
+    }
+    
+    .hero-content {
+        max-width: 90%;
+        padding: 1.5rem 1rem;
+        transform: translateY(-10px);
+    }
+    
+    .hero-content h1 {
+        font-size: 1.8rem;
+        line-height: 1.3;
+    }
+    
+    .hero-content p {
+        font-size: 1rem;
+        margin: 1rem auto;
+    }
+
+    /* === SEARCH BOX === */
+    .search-box {
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 0 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    #meal-search-input {
+        min-width: auto;
+        width: 100%;
+        padding: 0.8rem 1rem;
+        font-size: 16px;
+        border-radius: 25px;
+        box-sizing: border-box;
+    }
+    
+    #search-button {
+        width: 100%;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        font-size: 16px;
+    }
+    
+    .meal-search-container {
+        padding: 0 0.5rem;
+        margin-bottom: 2rem;
+    }
+}
+
+/* ========== SMALL PHONES (480px and below) ========== */
+@media (max-width: 480px) {
+    /* === NAVIGATION === */
+    .nav-container {
+        padding: 10px 15px;
+        height: 55px;
+    }
+    
+    .nav-logo {
+        font-size: 1.4rem;
+        font-weight: 900;
+    }
+    
+    .nav-links li a {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .hamburger-menu {
+        padding: 8px;
+    }
+    
+    .hamburger-icon {
+        width: 25px;
+        height: 18px;
+    }
+    
+    .hamburger-icon span {
+        height: 2px;
+    }
+    
+    .hamburger-icon span:nth-child(2) {
+        top: 7px;
+    }
+    
+    .hamburger-icon span:nth-child(3) {
+        top: 14px;
+    }
+
+    /* === GENERAL === */
+    h1 {
+        font-size: 1.2em;
+    }
+    
+    button {
+        padding: 10px 0;
+    }
+
+    /* === RECIPE & VIDEO CARDS === */
+    .recipe-grid,
+    .video-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+    }
+    
+    .recipe-card,
+    .video-card {
+        margin-bottom: 15px;
+    }
+    
+    .recipe-card img {
+        height: 220px;
+    }
+
+    /* === RECIPE HERO === */
+    .recipe-hero {
+        height: 220px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-content {
+        padding: 1rem 0.8rem;
+    }
+    
+    .hero-content h1 {
+        font-size: 1.5rem;
+    }
+    
+    .hero-content p {
+        font-size: 0.9rem;
+    }
+    
+    .search-box {
+        padding: 0 0.5rem;
+    }
+    
+    .meal-search-container {
+        padding: 0 0.25rem;
+    }
+}
+
+/* ========== LANDSCAPE MODE OPTIMIZATION ========== */
+@media (max-height: 500px) and (orientation: landscape) {
+    .nav-container {
+        padding: 5px 15px;
+        height: auto;
+    }
+    
+    .nav-logo {
+        font-size: 1.2rem;
+    }
+    
+    .nav-links {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-links li {
+        width: auto;
+    }
+    
+    .nav-links li a {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .chat-messages {
+        height: calc(100vh - 100px);
+    }
+    
+    textarea#food-input {
+        height: 80px;
+    }
+    
+    .chatbox__support {
+        height: 80vh;
+        width: 90%;
+    }
+    
+    .chat-messages {
+        height: calc(80vh - 120px);
+    }
+    
+    .two-sections {
+        padding: 5px;
+    }
+    
+    .left-section,
+    .right-section {
+        padding: 10px;
+    }
+}
+
+/* ========== TABLET RANGE (769px - 1024px) ========== */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .two-sections {
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+    
+    .left-section,
+    .right-section {
+        padding: 1.5rem;
+    }
+    
+    textarea#food-input {
+        height: 150px;
+    }
+    
+    button {
+        padding: 12px 24px;
+        font-size: 1rem;
+    }
+}
+
+/* ========== LARGE TABLET RANGE (1025px - 1366px) ========== */
+@media (min-width: 1025px) and (max-width: 1366px) {
+    .two-sections {
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .left-section,
+    .right-section {
+        padding: 2rem;
+    }
+}
+
+/* ========== ACCESSIBILITY & DEVICE-SPECIFIC ========== */
+
+/* Touch devices */
+@media (hover: none) {
+    button:hover,
+    .nav-links li a:hover,
+    .food-item:hover,
+    .tab-button:hover {
+        transform: none;
+        opacity: 1;
+    }
+    
+    .nav-links li a,
+    .tab-button,
+    .search-result-item,
+    .added-food-item,
+    .prompt-button {
+        padding: 12px;
+    }
+    
+    .nav-links li a:active {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .hamburger-icon span {
+        height: 2px;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .hamburger-icon,
+    .hamburger-icon span {
+        transition: none;
+    }
+    
+    .nav-links {
+        transition: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    button {
+        border: 2px solid black;
+        background: white;
+        color: black;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .container {
+        box-shadow: none !important;
+        border: 1px solid #ccc;
     }
 }
