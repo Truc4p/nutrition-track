@@ -262,6 +262,22 @@ button:disabled {
     font-weight: bold;
 }
 
+.food-details .nutrient-category {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 6px;
+}
+
+.food-details .nutrient-category h4 {
+    color: #2c3e50;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #4CAF50;
+}
+
 .food-details .nutrient-item {
     display: flex;
     justify-content: space-between;
@@ -299,6 +315,16 @@ button:disabled {
 
 #food-details {
     margin-top: 20px;
+}
+
+.nutrient-category {
+    margin: 10px 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.nutrient-category:last-child {
+    border-bottom: none;
 }
 
 .nutrient-item {
@@ -796,7 +822,10 @@ button:disabled {
         font-size: 16px; /* Prevent zoom on focus in iOS */
     }
     
-    
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
     select {
         font-size: 16px; /* Prevent zoom on focus in iOS */
         padding: 12px;
@@ -1775,7 +1804,7 @@ button:disabled {
 }
 
 
-
+.form-group input[type="number"],
 .form-group select,
 .form-group textarea {
     width: 100%;
@@ -1791,7 +1820,7 @@ button:disabled {
 }
 
 
-
+.form-group input[type="number"]:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
@@ -1801,7 +1830,7 @@ button:disabled {
 }
 
 
-
+.form-group input[type="number"]:hover,
 .form-group select:hover,
 .form-group textarea:hover {
     border-color: #3498db;
@@ -2632,6 +2661,11 @@ button:disabled {
     color: #3498db;
 }
 
+.recipe-card:hover .badge {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
 .view-recipe-button {
     display: inline-block;
     width: 100%;
@@ -3066,7 +3100,10 @@ button {
 }
 
 /* Prevent zoom on input focus for iOS */
-
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
 textarea,
 select {
     font-size: 16px;
