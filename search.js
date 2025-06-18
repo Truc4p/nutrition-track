@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 foodNutrients: food.foodNutrients
             }).replace(/'/g, "&apos;")})'> 
                     <div class="food-name">${food.description}</div>
-                    <div class="food-calories">${calories.toFixed(1)} kcal/100g</div>
+                    <div class="food-calories">${Math.round(calories)} kcal/100g</div>
                 </div>
             `;
         }).join('');
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nutrientInfo = `
                 <div class="nutrition-total-item">
                     <span class="nutrient-name">Calories:</span>
-                    <span class="nutrient-value">${energyNutrient.value.toFixed(2)} kcal</span>
+                    <span class="nutrient-value">${Math.round(energyNutrient.value)} kcal</span>
                 </div>`;
             categories['Proximates'].push(nutrientInfo);
         }
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nutrientInfo = `
                 <div class="nutrition-total-item">
                     <span class="nutrient-name">${name}:</span>
-                    <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
+                    <span class="nutrient-value">${Math.round(value)} ${unit}</span>
                 </div>`;
 
             if (name.includes('Vitamin')) {
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Find calories for this food item
             const calories = food.foodNutrients.find(n =>
                 n.nutrientName.toLowerCase().includes('energy'))?.value || 0;
-            const totalCalories = (calories * food.quantity / 100).toFixed(1);
+            const totalCalories = Math.round(calories * food.quantity / 100);
 
             return `
                 <div class="added-food-item" data-id="${food.id}">
@@ -360,6 +360,110 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayTotalNutrition(totals) {
+        // Get recommendation data from global state (if available)
+        let recommendationData = null;
+        if (typeof window !== 'undefined' && window.localStorage) {
+            try {
+                const savedState = localStorage.getItem('app_state_recommend');
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    if (state.recommendation) {
+                        recommendationData = state.recommendation;
+                    }
+                }
+            } catch (e) {
+                console.log('Error accessing recommendation data:', e);
+            }
+        }
+
+        // Helper function to get recommended value for a nutrient
+        function getRecommendedValue(nutrientName, unit) {
+            if (!recommendationData) return null;
+            
+            const name = nutrientName.toLowerCase();
+            const unitLower = unit.toLowerCase();
+            
+            // Map nutrient names to recommendation object properties
+            const mappings = {
+                'energy': 'calories',
+                'calories': 'calories',
+                'protein': 'protein',
+                'total lipid (fat)': 'fats',
+                'fat': 'fats',
+                'fats': 'fats',
+                'carbohydrate, by difference': 'carbs',
+                'carbohydrates': 'carbs',
+                'carbs': 'carbs',
+                'fiber, total dietary': 'fiber',
+                'fiber': 'fiber',
+                'cholesterol': 'cholesterol',
+                'fatty acids, total saturated': 'saturatedFat',
+                'saturated fat': 'saturatedFat',
+                'fatty acids, total trans': 'transFat',
+                'trans fat': 'transFat',
+                'iron, fe': 'iron',
+                'iron': 'iron',
+                'sodium, na': 'sodium',
+                'sodium': 'sodium',
+                'potassium, k': 'potassium',
+                'potassium': 'potassium',
+                'calcium, ca': 'calcium',
+                'calcium': 'calcium',
+                'magnesium, mg': 'magnesium',
+                'magnesium': 'magnesium',
+                'zinc, zn': 'zinc',
+                'zinc': 'zinc',
+                'copper, cu': 'copper',
+                'copper': 'copper',
+                'manganese, mn': 'manganese',
+                'manganese': 'manganese',
+                'phosphorus, p': 'phosphorus',
+                'phosphorus': 'phosphorus',
+                'selenium, se': 'selenium',
+                'selenium': 'selenium',
+                'vitamin a, rae': 'vitaminA',
+                'vitamin a': 'vitaminA',
+                'vitamin b-6': 'vitaminB6',
+                'vitamin b6': 'vitaminB6',
+                'vitamin b-12': 'vitaminB12',
+                'vitamin b12': 'vitaminB12',
+                'vitamin c, total ascorbic acid': 'vitaminC',
+                'vitamin c': 'vitaminC',
+                'vitamin d (d2 + d3)': 'vitaminD',
+                'vitamin d': 'vitaminD',
+                'vitamin e (alpha-tocopherol)': 'vitaminE',
+                'vitamin e': 'vitaminE',
+                'vitamin k (phylloquinone)': 'vitaminK',
+                'vitamin k': 'vitaminK',
+                'folate, dfe': 'folate',
+                'folate': 'folate',
+                'thiamin': 'thiamin',
+                'riboflavin': 'riboflavin',
+                'niacin': 'niacin',
+                'choline, total': 'choline',
+                'choline': 'choline'
+            };
+            
+            const mappedKey = mappings[name];
+            if (mappedKey && recommendationData[mappedKey] !== undefined) {
+                // Only show calorie recommendations for kcal, not kJ
+                if (name === 'energy' && unitLower !== 'kcal') {
+                    return null;
+                }
+                
+                const value = recommendationData[mappedKey];
+                
+                // Handle range values (min-max)
+                if (typeof value === 'object' && value.min !== undefined && value.max !== undefined) {
+                    return `${Math.round(value.min)}-${Math.round(value.max)}`;
+                }
+                
+                return Math.round(value);
+            }
+            
+            return null;
+        }
+
         // Group nutrients by category
         const categories = {
             'Proximates': [],
@@ -376,12 +480,22 @@ document.addEventListener('DOMContentLoaded', () => {
             .sort((a, b) => a.name.localeCompare(b.name))
             .forEach(nutrient => {
                 const name = nutrient.name;
-                const value = nutrient.value;
+                const actualValue = nutrient.value;
                 const unit = nutrient.unit;
+                const recommendedValue = getRecommendedValue(name, unit);
+                
+                // Format the value display
+                let valueDisplay;
+                if (recommendedValue) {
+                    valueDisplay = `${Math.round(actualValue)} / <span class="recommended-value">${recommendedValue}</span> ${unit}`;
+                } else {
+                    valueDisplay = `${Math.round(actualValue)} ${unit}`;
+                }
+                
                 const nutrientInfo = `
                     <div class="nutrition-total-item">
                         <span class="nutrient-name">${name}:</span>
-                        <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
+                        <span class="nutrient-value">${valueDisplay}</span>
                     </div>`;
 
                 if (name.includes('Vitamin')) {

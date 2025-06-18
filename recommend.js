@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (weightField) weightField.value = '';
         if (heightField) heightField.value = '';
         if (ageField) ageField.value = '';
-        if (genderField) genderField.value = 'male';  // Default option
+        if (genderField) genderField.value = 'female';  // Default option to match HTML
         if (activityField) activityField.value = 'sedentary';  // Default option
         if (goalField) goalField.value = 'maintain';  // Default option
         if (healthConditionField) healthConditionField.value = '';
@@ -159,9 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add all nutrients to appropriate categories
                 const nutrients = [
                     { name: 'Calories', value: recommendation.calories, unit: 'kcal' },
-                    { name: 'Fats', value: `${formatValue(recommendation.fats.min)} - ${formatValue(recommendation.fats.max)}`, unit: 'g' },
-                    { name: 'Carbohydrates', value: `${formatValue(recommendation.carbs.min)} - ${formatValue(recommendation.carbs.max)}`, unit: 'g' },
-                    { name: 'Protein', value: `${formatValue(recommendation.protein.min)} - ${formatValue(recommendation.protein.max)}`, unit: 'g' },
+                    { name: 'Fats', value: `${Math.round(recommendation.fats.min)} - ${Math.round(recommendation.fats.max)}`, unit: 'g' },
+                    { name: 'Carbohydrates', value: `${Math.round(recommendation.carbs.min)} - ${Math.round(recommendation.carbs.max)}`, unit: 'g' },
+                    { name: 'Protein', value: `${Math.round(recommendation.protein.min)} - ${Math.round(recommendation.protein.max)}`, unit: 'g' },
                     { name: 'Fiber', value: recommendation.fiber, unit: 'g' },
                     { name: 'Cholesterol', value: recommendation.cholesterol, unit: 'mg' },
                     { name: 'Omega-3', value: recommendation.omega3, unit: 'g' },
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ];
 
                 nutrients.forEach(nutrient => {
-                    const displayValue = typeof nutrient.value === 'string' ? nutrient.value : formatValue(nutrient.value);
+                    const displayValue = typeof nutrient.value === 'string' ? nutrient.value : Math.round(nutrient.value);
                     const nutrientInfo = `
                         <div class="nutrition-total-item">
                             <span class="nutrient-name">${nutrient.name}:</span>
@@ -314,8 +314,9 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
 
     // Cholesterol recommendation
     let cholesterol = 300; // General recommendation
-    if (healthCondition && healthCondition.toLowerCase().includes("heart")) {
-        cholesterol = 200; // Reduced for heart conditions
+    const conditions = ["heart disease", "diabetes"];
+    if (conditions.some(condition => healthCondition.toLowerCase().includes(condition))) {
+        cholesterol = 200; // Limit for individuals with heart disease or diabetes
     }
 
     // Calculate recommendations for additional nutrients
@@ -491,5 +492,5 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
 }
 
 function formatValue(value) {
-    return typeof value === 'number' ? value.toFixed(1) : value;
+    return typeof value === 'number' ? Math.round(value) : value;
 } 

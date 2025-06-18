@@ -79,273 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners for home page only
 });
 
-function calculateNutrition(weight, height, age, gender, activityLevel, healthCondition) {
-    // Mifflin-St Jeor Equation for BMR
-    const bmr =
-        gender === "male"
-            ? 10 * weight + 6.25 * height - 5 * age + 5
-            : 10 * weight + 6.25 * height - 5 * age - 161;
-
-    // Activity level multipliers
-    const activityMultipliers = {
-        sedentary: 1.2,
-        "lightly-active": 1.375,
-        "moderately-active": 1.55,
-        "very-active": 1.725,
-        athlete: 1.9,
-    };
-
-    const calories = bmr * activityMultipliers[activityLevel];
-
-    // Adjust calories based on goal
-    if (goal === "lose") {
-        calories -= 500; // Subtract 500 calories for weight loss
-    } else if (goal === "gain") {
-        calories += 500; // Add 500 calories for weight gain
-    }
-
-    // AMDR (Acceptable Macronutrient Distribution Ranges) for macronutrients
-    const fats = {
-        min: (calories * 0.2) / 9, // 20% of calories
-        max: (calories * 0.35) / 9, // 35% of calories
-    };
-    const carbs = {
-        min: (calories * 0.45) / 4, // 45% of calories
-        max: (calories * 0.65) / 4, // 65% of calories
-    };
-    const protein = {
-        min: (calories * 0.1) / 4, // 10% of calories
-        max: (calories * 0.35) / 4, // 35% of calories
-    };
-
-    // RDA/AI for fiber and cholesterol
-    let fiber;
-    if (age >= 1 && age <= 3) {
-        fiber = 14; // Children 1-3 years
-    } else if (age >= 4 && age <= 8) {
-        fiber = 18; // Children 4-8 years
-    } else if (age >= 9 && age <= 13) {
-        fiber = gender === "male" ? 24 : 20; // Boys 9-13: 24g, Girls 9-13: 20g
-    } else if (age >= 14 && age <= 18) {
-        fiber = gender === "male" ? 28 : 22; // Boys 14-18: 28g, Girls 14-18: 22g
-    } else if (age >= 19 && age <= 50) {
-        if (gender === "male") {
-            fiber = 30; // Men 19-50: 30-38g
-        } else if (gender === "female") {
-            fiber = 25; // Women 19-50: 25-28g
-        } else {
-            fiber = 28; // Pregnancy: 25-28g, Lactation: 27-30g
-        }
-    } else if (age >= 51) {
-        fiber = gender === "male" ? 30 : 21; // Men 51+: 30g, Women 51+: 21-25g
-    } else {
-        fiber = 0; // Default if age is not valid
-    }
-
-    // Cholesterol recommendation
-    let cholesterol = 300; // General recommendation
-    const conditions = ["heart disease", "diabetes"];
-    if (conditions.some(condition => healthCondition.toLowerCase().includes(condition))) {
-        cholesterol = 200; // Limit for individuals with heart disease or diabetes
-    }
-    
-    // Calculate recommendations for additional nutrients
-    
-    // Fat breakdown recommendations
-    const omega3 = gender === "male" ? 1.6 : 1.1; // g/day (ALA)
-    const omega6 = gender === "male" ? 17 : 12; // g/day (Linoleic acid)
-    const saturatedFat = (calories * 0.07) / 9; // Max 7% of calories for saturated fat
-    const transFat = (calories * 0.01) / 9; // Max 1% of calories for trans fat
-    
-    // Mineral recommendations based on age and gender
-    let iron, calcium, magnesium, zinc, copper, manganese, phosphorus, selenium;
-    let sodium, potassium;
-    
-    // Sodium and Potassium
-    sodium = 1500; // mg, general recommendation
-    potassium = 4700; // mg, general recommendation
-    
-    // Iron recommendations (mg/day)
-    if (age >= 19 && age <= 50) {
-        iron = gender === "male" ? 8 : 18;
-    } else if (age > 50) {
-        iron = 8; // Both men and women over 50
-    } else if (age >= 14 && age <= 18) {
-        iron = gender === "male" ? 11 : 15;
-    } else if (age >= 9 && age <= 13) {
-        iron = 8;
-    } else {
-        iron = 10; // Default
-    }
-    
-    // Calcium recommendations (mg/day)
-    if (age >= 19 && age <= 50) {
-        calcium = 1000;
-    } else if (age > 50 && age <= 70) {
-        calcium = gender === "male" ? 1000 : 1200;
-    } else if (age > 70) {
-        calcium = 1200;
-    } else if (age >= 14 && age <= 18) {
-        calcium = 1300;
-    } else if (age >= 9 && age <= 13) {
-        calcium = 1300;
-    } else {
-        calcium = 1000; // Default
-    }
-    
-    // Magnesium recommendations (mg/day)
-    if (age >= 19 && age <= 30) {
-        magnesium = gender === "male" ? 400 : 310;
-    } else if (age > 30) {
-        magnesium = gender === "male" ? 420 : 320;
-    } else if (age >= 14 && age <= 18) {
-        magnesium = gender === "male" ? 410 : 360;
-    } else {
-        magnesium = 350; // Default
-    }
-    
-    // Zinc recommendations (mg/day)
-    if (age >= 19) {
-        zinc = gender === "male" ? 11 : 8;
-    } else if (age >= 14 && age <= 18) {
-        zinc = gender === "male" ? 11 : 9;
-    } else {
-        zinc = 10; // Default
-    }
-    
-    // Copper recommendations (mcg/day)
-    copper = 900; // General adult recommendation
-    
-    // Manganese recommendations (mg/day)
-    manganese = gender === "male" ? 2.3 : 1.8;
-    
-    // Phosphorus recommendations (mg/day)
-    phosphorus = 700; // General adult recommendation
-    
-    // Selenium recommendations (mcg/day)
-    selenium = 55; // General adult recommendation
-    
-    // Vitamin recommendations
-    let vitaminA, vitaminB6, vitaminB12, vitaminC, vitaminD, vitaminE, vitaminK;
-    let folate, thiamin, riboflavin, niacin, choline;
-    
-    // Vitamin A (mcg RAE/day)
-    vitaminA = gender === "male" ? 900 : 700;
-    
-    // Vitamin B6 (mg/day)
-    if (age >= 19 && age <= 50) {
-        vitaminB6 = 1.3;
-    } else if (age > 50) {
-        vitaminB6 = gender === "male" ? 1.7 : 1.5;
-    } else {
-        vitaminB6 = 1.3; // Default
-    }
-    
-    // Vitamin B12 (mcg/day)
-    vitaminB12 = 2.4; // General adult recommendation
-    
-    // Vitamin C (mg/day)
-    if (age >= 19) {
-        vitaminC = gender === "male" ? 90 : 75;
-        // Adjust for smokers
-        if (healthCondition.toLowerCase().includes("smoke")) {
-            vitaminC += 35; // Additional 35mg for smokers
-        }
-    } else if (age >= 14 && age <= 18) {
-        vitaminC = gender === "male" ? 75 : 65;
-    } else {
-        vitaminC = 75; // Default
-    }
-    
-    // Vitamin D (IU/day)
-    if (age <= 70) {
-        vitaminD = 600;
-    } else {
-        vitaminD = 800; // For adults over 70
-    }
-    
-    // Vitamin E (mg/day)
-    vitaminE = 15; // General adult recommendation
-    
-    // Vitamin K (mcg/day)
-    vitaminK = gender === "male" ? 120 : 90;
-    
-    // Folate (mcg DFE/day)
-    folate = 400; // General adult recommendation
-    
-    // Thiamin (mg/day)
-    thiamin = gender === "male" ? 1.2 : 1.1;
-    
-    // Riboflavin (mg/day)
-    riboflavin = gender === "male" ? 1.3 : 1.1;
-    
-    // Niacin (mg/day)
-    niacin = gender === "male" ? 16 : 14;
-    
-    // Choline (mg/day)
-    choline = gender === "male" ? 550 : 425;
-    
-    // Adjust recommendations based on activity level
-    if (activityLevel === "moderately-active" || activityLevel === "very-active" || activityLevel === "athlete") {
-        // Increase certain nutrients for active individuals
-        vitaminC *= 1.2; // 20% increase
-        iron *= 1.1; // 10% increase
-        magnesium *= 1.1; // 10% increase
-        zinc *= 1.1; // 10% increase
-        potassium *= 1.1; // 10% increase
-    }
-    
-    // Adjust recommendations based on health conditions
-    if (healthCondition.toLowerCase().includes("diabetes")) {
-        // For diabetes, reduce sodium and increase certain nutrients
-        sodium = 1500; // Stricter sodium restriction
-        magnesium *= 1.2; // 20% increase
-        chromium = 200; // mcg/day, important for glucose metabolism
-    }
-    
-    if (healthCondition.toLowerCase().includes("hypertension") || 
-        healthCondition.toLowerCase().includes("high blood pressure")) {
-        // For hypertension, reduce sodium and increase potassium
-        sodium = 1500; // Stricter sodium restriction
-        potassium *= 1.1; // 10% increase
-    }
-    
-    return { 
-        calories, 
-        fats, 
-        carbs, 
-        protein, 
-        fiber, 
-        cholesterol,
-        // Additional nutrients
-        omega3,
-        omega6,
-        saturatedFat,
-        transFat,
-        iron,
-        sodium,
-        potassium,
-        calcium,
-        magnesium,
-        zinc,
-        copper,
-        manganese,
-        phosphorus,
-        selenium,
-        vitaminA,
-        vitaminB6,
-        vitaminB12,
-        vitaminC,
-        vitaminD,
-        vitaminE,
-        vitaminK,
-        folate,
-        thiamin,
-        riboflavin,
-        niacin,
-        choline
-    };
-}
+// Note: calculateNutrition function removed - we now use recommendations from recommend.js
+// This eliminates code duplication and ensures consistency
 
 // --- State ---
 let foods = [];
@@ -542,7 +277,7 @@ function updateUI() {
             const nutrientInfo = `
                 <div class="nutrition-total-item">
                     <span class="nutrient-name">Calories:</span>
-                    <span class="nutrient-value">${food.totalCalories.toFixed(2)} kcal</span>
+                    <span class="nutrient-value">${Math.round(food.totalCalories)} kcal</span>
                 </div>`;
             categories['Proximates'].push(nutrientInfo);
         }
@@ -559,7 +294,7 @@ function updateUI() {
                 const nutrientInfo = `
                     <div class="nutrition-total-item">
                         <span class="nutrient-name">${name}:</span>
-                        <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
+                        <span class="nutrient-value">${Math.round(value)} ${unit}</span>
                     </div>`;
 
                 if (name.includes('Vitamin')) {
@@ -645,6 +380,25 @@ function calculateAndDisplayTotals() {
         }
     });
 
+    // Get recommendation data from global state (if available)
+    let recommendationData = null;
+    if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+            const savedState = localStorage.getItem('app_state_recommend');
+            console.log('Saved state from localStorage:', savedState);
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                console.log('Parsed state:', state);
+                if (state.recommendation) {
+                    recommendationData = state.recommendation;
+                    console.log('Recommendation data found:', recommendationData);
+                }
+            }
+        } catch (e) {
+            console.log('Error accessing recommendation data:', e);
+        }
+    }
+
     // Clear and rebuild totals section
     totalsSection.innerHTML = '';
 
@@ -683,18 +437,116 @@ function calculateAndDisplayTotals() {
         'Other': []
     };
 
+    // Helper function to get recommended value for a nutrient
+    function getRecommendedValue(nutrientName, unit) {
+        if (!recommendationData) return null;
+        
+        const name = nutrientName.toLowerCase();
+        const unitLower = unit ? unit.toLowerCase() : '';
+        
+        // Map nutrient names to recommendation object properties
+        const mappings = {
+            'energy': 'calories',
+            'calories': 'calories',
+            'protein': 'protein',
+            'total lipid (fat)': 'fats',
+            'fat': 'fats',
+            'fats': 'fats',
+            'carbohydrate, by difference': 'carbs',
+            'carbohydrates': 'carbs',
+            'carbs': 'carbs',
+            'fiber, total dietary': 'fiber',
+            'fiber': 'fiber',
+            'cholesterol': 'cholesterol',
+            'fatty acids, total saturated': 'saturatedFat',
+            'saturated fat': 'saturatedFat',
+            'fatty acids, total trans': 'transFat',
+            'trans fat': 'transFat',
+            'iron, fe': 'iron',
+            'iron': 'iron',
+            'sodium, na': 'sodium',
+            'sodium': 'sodium',
+            'potassium, k': 'potassium',
+            'potassium': 'potassium',
+            'calcium, ca': 'calcium',
+            'calcium': 'calcium',
+            'magnesium, mg': 'magnesium',
+            'magnesium': 'magnesium',
+            'zinc, zn': 'zinc',
+            'zinc': 'zinc',
+            'copper, cu': 'copper',
+            'copper': 'copper',
+            'manganese, mn': 'manganese',
+            'manganese': 'manganese',
+            'phosphorus, p': 'phosphorus',
+            'phosphorus': 'phosphorus',
+            'selenium, se': 'selenium',
+            'selenium': 'selenium',
+            'vitamin a, rae': 'vitaminA',
+            'vitamin a': 'vitaminA',
+            'vitamin b-6': 'vitaminB6',
+            'vitamin b6': 'vitaminB6',
+            'vitamin b-12': 'vitaminB12',
+            'vitamin b12': 'vitaminB12',
+            'vitamin c, total ascorbic acid': 'vitaminC',
+            'vitamin c': 'vitaminC',
+            'vitamin d (d2 + d3)': 'vitaminD',
+            'vitamin d': 'vitaminD',
+            'vitamin e (alpha-tocopherol)': 'vitaminE',
+            'vitamin e': 'vitaminE',
+            'vitamin k (phylloquinone)': 'vitaminK',
+            'vitamin k': 'vitaminK',
+            'folate, dfe': 'folate',
+            'folate': 'folate',
+            'thiamin': 'thiamin',
+            'riboflavin': 'riboflavin',
+            'niacin': 'niacin',
+            'choline, total': 'choline',
+            'choline': 'choline'
+        };
+        
+        const mappedKey = mappings[name];
+        if (mappedKey && recommendationData[mappedKey] !== undefined) {
+            // Only show calorie recommendations for kcal, not kJ
+            if (name === 'energy' && unitLower !== 'kcal') {
+                return null;
+            }
+            
+            const value = recommendationData[mappedKey];
+            
+            // Handle range values (min-max)
+            if (typeof value === 'object' && value.min !== undefined && value.max !== undefined) {
+                return `${Math.round(value.min)}-${Math.round(value.max)}`;
+            }
+            
+            return Math.round(value);
+        }
+        
+        return null;
+    }
+
     Object.values(nutritionTotals)
         .sort((a, b) => a.name.localeCompare(b.name))
         .forEach(nutrient => {
             if (nutrient.value <= 0) return;
             
             const name = nutrient.name;
-            const value = nutrient.value;
+            const actualValue = nutrient.value;
             const unit = nutrient.unit.toLowerCase();
+            const recommendedValue = getRecommendedValue(name, unit);
+            
+            // Format the value display
+            let valueDisplay;
+            if (recommendedValue) {
+                valueDisplay = `${Math.round(actualValue)} / <span class="recommended-value">${recommendedValue}</span> ${unit}`;
+            } else {
+                valueDisplay = `${Math.round(actualValue)} ${unit}`;
+            }
+            
             const nutrientInfo = `
                 <div class="nutrition-total-item">
                     <span class="nutrient-name">${name}:</span>
-                    <span class="nutrient-value">${value.toFixed(2)} ${unit}</span>
+                    <span class="nutrient-value">${valueDisplay}</span>
                 </div>`;
 
             if (name.includes('Vitamin')) {
@@ -745,8 +597,7 @@ function calculateAndDisplayTotals() {
 
 // Utility function to format values
 function formatValue(value) {
-    const roundedValue = parseFloat(value.toFixed(2));
-    return roundedValue % 1 === 0 ? roundedValue.toFixed(0) : roundedValue.toFixed(2);
+    return Math.round(value);
 }
 
 function addSelectedFood() {
@@ -842,7 +693,7 @@ function displayTotalNutrition(totals) {
         totalItem.className = 'nutrition-total-item';
         totalItem.innerHTML = `
             <span>${nutrient.name}:</span>
-            <span>${nutrient.value.toFixed(2)} ${nutrient.unit.toLowerCase()}</span>
+            <span>${Math.round(nutrient.value)} ${nutrient.unit.toLowerCase()}</span>
         `;
         nutritionTotalsDiv.appendChild(totalItem);
     });
