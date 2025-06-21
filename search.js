@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const unit = nutrient.unitName.toLowerCase();
             const nutrientInfo = `
                 <div class="nutrition-total-item">
-                    <span class="nutrient-name">${name}:</span>
+                    <span class="nutrient-name">${name}</span>
                     <span class="nutrient-value">${Math.round(value)} ${unit}</span>
                 </div>`;
 
@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const nutrientInfo = `
                     <div class="nutrition-total-item">
-                        <span class="nutrient-name">${name}:</span>
+                        <span class="nutrient-name">${name}</span>
                         <span class="nutrient-value">${valueDisplay}</span>
                     </div>`;
 

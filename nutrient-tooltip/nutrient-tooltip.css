@@ -1,0 +1,108 @@
+/* Nutrient Tooltip Styles */
+.nutrient-tooltip {
+    position: absolute;
+    background: linear-gradient(135deg, #e1ecff 0%, #f0f5ff 100%);
+    color: #5a6aa0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 300px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    border: 1px solid rgba(134, 158, 216, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.nutrient-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Triangle removed as requested */
+
+.nutrient-tooltip .tooltip-header {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #5a6aa0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nutrient-tooltip .tooltip-explanation {
+    color: #5a6aa0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Enhanced nutrient name styling with hover effect */
+.nutrient-name {
+    position: relative;
+    cursor: help;
+    transition: all 0.2s ease;
+    border-bottom: 1px dotted rgba(102, 126, 234, 0.5);
+}
+
+.nutrient-name:hover {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+/* Animation for tooltip appearance */
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.nutrient-tooltip.animate {
+    animation: tooltipFadeIn 0.3s ease;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+    .nutrient-tooltip {
+        max-width: 250px;
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+    
+    .nutrient-tooltip .tooltip-header {
+        font-size: 13px;
+    }
+    
+    .nutrient-tooltip .tooltip-explanation {
+        font-size: 12px;
+    }
+}
+
+/* Unified Sky Blue Pastel theme for all tooltips */
+
+/* Loading state for tooltips */
+.nutrient-tooltip.loading {
+    background: linear-gradient(135deg, #f8f9ff 0%, #fefeff 100%);
+    color: #8a8aa0;
+    border-color: rgba(170, 170, 200, 0.3);
+}
+
+.nutrient-tooltip.loading .tooltip-explanation::after {
+    content: '...';
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+} 
