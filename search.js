@@ -219,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Categorize nutrients (same logic as home.js)
         sortedNutrients.forEach(nutrient => {
             if (!nutrient.value || nutrient.value === 0) return;
+            if (Math.round(nutrient.value) === 0) return; // Skip values that round to 0
             if (nutrient.nutrientName.toLowerCase().includes('energy')) return; // Skip energy as we already added it
 
             const name = nutrient.nutrientName;
@@ -475,8 +476,35 @@ document.addEventListener('DOMContentLoaded', () => {
             'Other': []
         };
 
-        // Sort and categorize nutrients
-        Object.values(totals)
+        // Add basic nutrients first if available (same as food details)
+        const allNutrients = Object.values(totals)
+            .filter(nutrient => nutrient.value > 0) // Filter out zero or negative values
+            .filter(nutrient => Math.round(nutrient.value) > 0); // Filter out values that round to 0
+
+        // Find and add energy (calories) first, only kcal version
+        const energyNutrient = allNutrients.find(n => 
+            n.name.toLowerCase().includes('energy') && n.unit.toLowerCase() === 'kcal'
+        );
+        if (energyNutrient) {
+            const recommendedValue = getRecommendedValue(energyNutrient.name, energyNutrient.unit);
+            let valueDisplay;
+            if (recommendedValue) {
+                valueDisplay = `${Math.round(energyNutrient.value)} / <span class="recommended-value">${recommendedValue}</span> kcal`;
+            } else {
+                valueDisplay = `${Math.round(energyNutrient.value)} kcal`;
+            }
+            
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">Calories:</span>
+                    <span class="nutrient-value">${valueDisplay}</span>
+                </div>`;
+            categories['Proximates'].push(nutrientInfo);
+        }
+
+        // Sort and categorize other nutrients (excluding energy)
+        allNutrients
+            .filter(nutrient => !nutrient.name.toLowerCase().includes('energy')) // Skip energy as we already added it
             .sort((a, b) => a.name.localeCompare(b.name))
             .forEach(nutrient => {
                 const name = nutrient.name;
@@ -510,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     categories['Carbohydrates'].push(nutrientInfo);
                 } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
                     categories['Lipids'].push(nutrientInfo);
-                } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash')) {
+                } else if (name.includes('Water') || name.includes('Ash')) {
                     categories['Proximates'].push(nutrientInfo);
                 } else {
                     categories['Other'].push(nutrientInfo);

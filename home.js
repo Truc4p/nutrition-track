@@ -286,7 +286,7 @@ function updateUI() {
         Object.values(food.allNutrients)
             .sort((a, b) => a.name.localeCompare(b.name))
             .forEach(nutrient => {
-                if (nutrient.value <= 0) return;
+                if (nutrient.value === 0) return;
                 
                 const name = nutrient.name;
                 const value = nutrient.value;
@@ -528,7 +528,7 @@ function calculateAndDisplayTotals() {
     Object.values(nutritionTotals)
         .sort((a, b) => a.name.localeCompare(b.name))
         .forEach(nutrient => {
-            if (nutrient.value <= 0) return;
+            if (nutrient.value === 0) return;
             
             const name = nutrient.name;
             const actualValue = nutrient.value;
