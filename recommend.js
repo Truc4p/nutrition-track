@@ -79,7 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (activityField && form.activityLevel) activityField.value = form.activityLevel;
                     if (goalField && form.goalValue) goalField.value = form.goalValue;
                     if (healthConditionField && form.healthConditionValue) healthConditionField.value = form.healthConditionValue;
-                    if (recommendationField && form.recommendationText) recommendationField.innerHTML = form.recommendationText;
+                    if (recommendationField && form.recommendationText) {
+                        recommendationField.innerHTML = form.recommendationText;
+                        // Refresh nutrient tooltips after restoring recommendation content
+                        if (window.nutrientTooltip) {
+                            setTimeout(() => window.nutrientTooltip.refresh(), 100);
+                        }
+                    }
                 }
             }
         }
@@ -244,6 +250,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 recommendationListItem.appendChild(nutritionDiv);
                 recommendationText.appendChild(recommendationListItem);
+
+                // Refresh nutrient tooltips after adding recommendations
+                if (window.nutrientTooltip) {
+                    window.nutrientTooltip.refresh();
+                }
             } catch (error) {
                 console.error("Error calculating recommendation:", error);
                 recommendationText.textContent = "Failed to calculate recommendation. Please try again.";
