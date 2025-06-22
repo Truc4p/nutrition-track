@@ -12,7 +12,8 @@ This folder contains tools for analyzing and optimizing CSS files using PurgeCSS
 
 ### Configuration & Scripts
 - `purgecss.config.js` - PurgeCSS configuration file
-- `purge-css.js` - Main PurgeCSS script
+- `purge-css.js` - Main PurgeCSS script for style.css
+- `purge-nutrient-tooltip.js` - PurgeCSS script for nutrient-tooltip.css
 - `css-compare.js` - Comparison script for original vs purged CSS
 - `css-cleanup-analyzer.js` - Custom CSS analyzer script
 - `test-purged-css.html` - Test page to verify purged CSS works correctly
@@ -21,6 +22,7 @@ This folder contains tools for analyzing and optimizing CSS files using PurgeCSS
 
 ### Run from Project Root
 
+#### Main CSS (style.css)
 ```bash
 # Clean CSS with PurgeCSS (removes unused styles)
 npm run purge-css
@@ -45,6 +47,18 @@ npm run build-css
 
 # Open test page to verify CSS works
 npm run css-test
+```
+
+#### Nutrient Tooltip CSS
+```bash
+# Clean nutrient-tooltip CSS with PurgeCSS
+npm run purge-tooltip-css
+
+# Apply purged tooltip CSS
+npm run apply-purged-tooltip
+
+# Restore original tooltip CSS from backup
+npm run restore-tooltip-css
 ```
 
 ## 📊 Results Summary

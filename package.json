@@ -12,7 +12,10 @@
     "restore-css": "cp css-tools/style-original-backup.css style.css",
     "apply-purged": "cp css-tools/style-purged.css style.css",
     "build-css": "npm run backup-css && npm run purge-css && npm run compare-css",
-    "css-test": "open css-tools/test-purged-css.html"
+    "css-test": "open css-tools/test-purged-css.html",
+    "purge-tooltip-css": "node css-tools/purge-nutrient-tooltip.js",
+    "apply-purged-tooltip": "cp css-tools/nutrient-tooltip-purged.css nutrient-tooltip/nutrient-tooltip.css",
+    "restore-tooltip-css": "cp css-tools/nutrient-tooltip-original-backup.css nutrient-tooltip/nutrient-tooltip.css"
   },
   "repository": {
     "type": "git",

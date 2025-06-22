@@ -59,7 +59,6 @@ The system organizes nutrients into the following categories:
 - `nutrient-database.js` - Complete database of 218 nutrients with categories and explanations
 - `nutrient-tooltip.js` - Main tooltip functionality with category display
 - `nutrient-tooltip.css` - Styling for tooltips including category formatting
-- `nutrient-demo.html` - Demo page showcasing the tooltip system
 - `README.md` - This documentation file
 
 ## Installation
