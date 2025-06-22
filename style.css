@@ -967,8 +967,8 @@ button:disabled {
     
     /* Fix float chat for mobile */
     .chatbox__support {
-        width: 85%;
-        height: 65vh;
+        width: 90%;
+        height: 75vh;
         right: 20px;
     }
 }
@@ -1229,8 +1229,8 @@ button:disabled {
     display: flex;
     flex-direction: column;
     background: #f9f9f9;
-    width: 350px;
-    height: 450px;
+    width: 450px;
+    height: 600px;
     z-index: -1;
     opacity: 0;
     transition: all .5s ease-in-out;
@@ -1311,7 +1311,8 @@ button:disabled {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    margin-left: 10px;
+    margin-left: auto;
+    margin-right: 5px;
 }
 
 .chatbox__clear--header:hover {
@@ -1394,16 +1395,16 @@ button:disabled {
 }
 
 .messages__item--visitor {
-    background-color: #f1f8e9;  /* Same as chatbot-message */
-    margin-right: auto;
-    text-align: left;
-}
-
-.messages__item--operator {
     background-color: #e0f7fa;  /* Same as user-message */
     margin-left: auto;
     text-align: right;
     color: #333;  /* Dark text color instead of white */
+}
+
+.messages__item--operator {
+    background-color: #f1f8e9;  /* Same as chatbot-message */
+    margin-right: auto;
+    text-align: left;
 }
 
 /* Remove default padding from ul elements in chat messages */
@@ -3282,8 +3283,8 @@ select {
 /* Landscape orientation optimizations */
 @media (max-height: 500px) and (orientation: landscape) {
     .chatbox__support {
-        height: 80vh;
-        width: 90%;
+        height: 85vh;
+        width: 95%;
     }
     
     .chat-messages {

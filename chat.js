@@ -6,87 +6,57 @@ class ChatUI {
         this.quickPrompts = document.querySelectorAll('.prompt-button');
 
         this.isProcessing = false;
-        // Use current host IP instead of hardcoded localhost
-        const currentHost = window.location.hostname;
-        this.GEMINI_API_URL = `http://${currentHost}:3000/ai/chat/`;
-        this.messages = []; // Store messages for state persistence
-
-        // Save the initial welcome message if it exists in the DOM
-        const initialMessage = this.chatMessages.querySelector('.assistant-message');
-        if (initialMessage && this.messages.length === 0) {
-            this.messages.push({ 
-                text: initialMessage.innerHTML, 
-                isUser: false 
-            });
-        }
 
         this.initializeEventListeners();
         this.initializeStateManagement();
+        this.registerWithChatbotService();
+    }
+
+    registerWithChatbotService() {
+        // Register this chat instance with the ChatbotService for shared history
+        if (window.ChatbotService) {
+            const chatInstance = {
+                chatMessages: this.chatMessages,
+                chatInput: this.chatInput,
+                
+                // Method to update message history when messages are added from other instances
+                updateMessageHistory: (messageObj) => {
+                    this.addMessageToUI(messageObj.message, messageObj.isUser, false); // false = no animation for history restore
+                },
+                
+                // Method to restore all messages
+                restoreMessages: (messages) => {
+                    this.chatMessages.innerHTML = '';
+                    messages.forEach(msg => {
+                        this.addMessageToUI(msg.message, msg.isUser, false); // false = no animation for history restore
+                    });
+                },
+                
+                // Method to clear messages
+                clearMessages: () => {
+                    this.chatMessages.innerHTML = '';
+                }
+            };
+            
+            window.ChatbotService.registerChatInstance(chatInstance);
+        }
     }
 
     initializeStateManagement() {
-        // State management event listeners
-        window.addEventListener('savePageState', (event) => {
-            if (event.detail.pageKey === 'chat') {
-                const state = {
-                    messages: this.messages,
-                    chatInput: this.chatInput ? this.chatInput.value : ''
-                };
-                event.detail.saveState('chat', state);
-            }
-        });
-
-        window.addEventListener('loadPageState', (event) => {
-            if (event.detail.pageKey === 'chat') {
-                const state = event.detail.loadState('chat');
-                if (state) {
-                    // Restore messages
-                    if (state.messages) {
-                        this.messages = state.messages;
-                        this.restoreMessages();
-                    }
-                    
-                    // Restore input
-                    if (this.chatInput && state.chatInput) {
-                        this.chatInput.value = state.chatInput;
-                        this.autoResizeTextarea();
-                    }
-                }
-            }
-        });
-        
         // Listen for the clearPageInputs event to clear input fields when state is cleared
         window.addEventListener('clearPageInputs', () => {
             if (this.chatInput) {
                 this.chatInput.value = '';
                 this.autoResizeTextarea();
             }
-            this.messages = [];
-            if (this.chatMessages) {
-                this.chatMessages.innerHTML = '';
-                // Add back the initial welcome message
-                const welcomeMessage = `Hello! I'm your Nutrition Assistant. I can help you with:
-                    <ul>
-                        <li>Nutritional information about foods</li>
-                        <li>Dietary recommendations</li>
-                        <li>Meal planning advice</li>
-                        <li>Health and wellness tips</li>
-                    </ul>
-                    How can I assist you today?`;
-                this.addMessage(welcomeMessage, false);
+            // Clear messages using ChatbotService
+            if (window.ChatbotService) {
+                window.ChatbotService.clearMessages();
             }
         });
     }
 
-    restoreMessages() {
-        // Clear current messages and restore from state
-        if (this.messages && this.messages.length > 0) {
-            this.chatMessages.innerHTML = '';
-            this.messages.forEach(message => {
-                this.addMessageToUI(message.text, message.isUser, false); // false = don't store again
-            });
-        }
-    }
+
 
     initializeEventListeners() {
         this.sendButton.addEventListener('click', () => this.handleSend());
@@ -97,6 +67,20 @@ class ChatUI {
         this.quickPrompts.forEach(button => {
             button.addEventListener('click', () => this.handleQuickPrompt(button.textContent));
         });
+
+        // Add clear chat button functionality
+        const clearChatButton = document.getElementById('clear-chat-button-main');
+        if (clearChatButton) {
+            clearChatButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to clear this chat history?')) {
+                    // Use the shared ChatbotService to clear all messages
+                    if (window.ChatbotService) {
+                        window.ChatbotService.clearMessages();
+                    }
+                }
+            });
+        }
     }
 
     handleKeyPress(e) {
@@ -119,10 +103,7 @@ class ChatUI {
     }
 
     addMessage(message, isUser) {
-        // Store message in state
-        this.messages.push({ text: message, isUser: isUser });
-        
-        // Add to UI
+        // Add to UI only (history is now managed by ChatbotService)
         this.addMessageToUI(message, isUser, true);
     }
 
@@ -152,36 +133,8 @@ class ChatUI {
     }
 
     formatMessage(message) {
-        if (!message) return '';
-        
-        // Convert URLs to clickable links
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        let formattedMessage = message.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
-        
-        // Format markdown-style text
-        formattedMessage = formattedMessage
-            // Headers
-            .replace(/#{3}(.*?)(?:\n|$)/g, '<h3>$1</h3>') // h3
-            .replace(/#{2}(.*?)(?:\n|$)/g, '<h2>$1</h2>') // h2
-            .replace(/#{1}(.*?)(?:\n|$)/g, '<h1>$1</h1>') // h1
-            
-            // Text formatting
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-            .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-            .replace(/`(.*?)`/g, '<code>$1</code>') // Inline code
-            .replace(/~~(.*?)~~/g, '<del>$1</del>') // Strikethrough
-            
-            // Lists
-            .replace(/^\s*[-*+]\s+(.*?)(?:\n|$)/gm, '<li>$1</li>') // Unordered list items
-            .replace(/^\s*\d+\.\s+(.*?)(?:\n|$)/gm, '<li>$1</li>') // Ordered list items
-            .replace(/(<li>.*?<\/li>)\n?/gs, '<ul>$1</ul>'); // Wrap list items in ul
-            
-        // Only convert line breaks to <br> if the message doesn't contain HTML elements
-        if (!formattedMessage.includes('<') || (!formattedMessage.includes('<ul>') && !formattedMessage.includes('<ol>') && !formattedMessage.includes('<div>') && !formattedMessage.includes('<p>'))) {
-            formattedMessage = formattedMessage.replace(/\n/g, '<br>');
-        }
-        
-        return formattedMessage;
+        // Use the shared ChatbotService for consistent formatting
+        return window.ChatbotService.formatResponse(message);
     }
 
     scrollToBottom() {
@@ -211,43 +164,26 @@ class ChatUI {
         if (!message || this.isProcessing) return;
 
         try {
-            this.addMessage(message, true);
             this.chatInput.value = '';
             this.autoResizeTextarea();
             this.setLoading(true);
 
-            const response = await this.sendMessageToBackend(message);
-            this.addMessage(response, false);
+            // Use the shared ChatbotService with history management
+            // This will automatically add both user message and response to shared history
+            // and update all chat instances
+            await window.ChatbotService.sendMessageWithHistory(message, 'You');
 
         } catch (error) {
             console.error('Error sending message:', error);
-            this.addMessage('Sorry, there was an error processing your message. Please try again.', false);
+            // Error message is already added to history by sendMessageWithHistory
         } finally {
             this.setLoading(false);
         }
     }
 
     async sendMessageToBackend(userMessage) {
-        try {
-            const response = await fetch(this.GEMINI_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userMessage }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.recommendation || 'No response received.';
-
-        } catch (error) {
-            console.error('Error communicating with chatbot server:', error);
-            throw new Error('Failed to get response from the server. Please try again later.');
-        }
+        // Use the shared ChatbotService
+        return await window.ChatbotService.sendMessage(userMessage);
     }
 }
 

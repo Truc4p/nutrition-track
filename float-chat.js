@@ -1,9 +1,7 @@
 // Floating Chat Interface Functionality
-// API URL will be set dynamically when needed
-
 // State management for floating chat
-let floatChatMessages = [];
 let isChatOpen = false;
+let floatChatInstance = null;
 
 // Function to load the chat interface from external HTML file
 async function loadChatInterface() {
@@ -31,69 +29,10 @@ async function loadChatInterface() {
 
 // Initialize state management for floating chat
 function initializeFloatChatStateManagement() {
-    // State management event listeners for floating chat
-    window.addEventListener('savePageState', (event) => {
-        // Save floating chat state for all pages
-        const floatChatState = {
-            messages: floatChatMessages,
-            isOpen: isChatOpen,
-            currentInput: getChatInputValue()
-        };
-        
-        // Save float chat state with a global key
-        if (window.StateManager) {
-            window.StateManager.savePageState('float-chat-global', floatChatState);
-        }
-    });
-
-    window.addEventListener('loadPageState', (event) => {
-        // Load floating chat state
-        if (window.StateManager) {
-            const state = window.StateManager.loadPageState('float-chat-global');
-            if (state) {
-                // Restore messages
-                if (state.messages) {
-                    floatChatMessages = state.messages;
-                    restoreFloatChatMessages();
-                }
-                
-                // Restore chat open/closed state
-                if (state.isOpen) {
-                    isChatOpen = state.isOpen;
-                    restoreChatOpenState();
-                }
-                
-                // Restore current input
-                if (state.currentInput) {
-                    restoreChatInput(state.currentInput);
-                }
-            }
-        }
-    });
-    
     // Listen for the clearPageInputs event
     window.addEventListener('clearPageInputs', () => {
         clearFloatChatState();
     });
-
-    // Save state when chat is toggled
-    const chatButton = document.querySelector('.chatbox__button button');
-    if (chatButton) {
-        chatButton.addEventListener('click', () => {
-            setTimeout(() => {
-                isChatOpen = document.querySelector('.chatbox__support').classList.contains('chatbox--active');
-                saveFloatChatState();
-            }, 100);
-        });
-    }
-
-    // Auto-save input as user types
-    const chatInput = document.getElementById('chat-input');
-    if (chatInput) {
-        chatInput.addEventListener('input', () => {
-            saveFloatChatState();
-        });
-    }
 
     // Add clear chat button functionality
     const clearChatButton = document.getElementById('clear-chat-button');
@@ -101,7 +40,10 @@ function initializeFloatChatStateManagement() {
         clearChatButton.addEventListener('click', (e) => {
             e.preventDefault();
             if (confirm('Are you sure you want to clear this chat history?')) {
-                window.clearFloatChatState();
+                // Use the shared ChatbotService to clear all messages
+                if (window.ChatbotService) {
+                    window.ChatbotService.clearMessages();
+                }
             }
         });
     }
@@ -113,45 +55,6 @@ function getChatInputValue() {
     return chatInput ? chatInput.value : '';
 }
 
-// Function to restore chat input
-function restoreChatInput(inputValue) {
-    const chatInput = document.getElementById('chat-input');
-    if (chatInput && inputValue) {
-        chatInput.value = inputValue;
-    }
-}
-
-// Function to restore chat open state
-function restoreChatOpenState() {
-    const chatSupport = document.querySelector('.chatbox__support');
-    if (chatSupport && isChatOpen) {
-        chatSupport.classList.add('chatbox--active');
-    }
-}
-
-// Function to restore float chat messages
-function restoreFloatChatMessages() {
-    const chatMessages = document.getElementById('chat-messages');
-    if (chatMessages) {
-        chatMessages.innerHTML = '';
-        floatChatMessages.forEach(msg => {
-            appendMessageToContainer(msg.sender, msg.message, chatMessages, false);
-        });
-    }
-}
-
-// Function to save float chat state
-function saveFloatChatState() {
-    if (window.StateManager) {
-        const floatChatState = {
-            messages: floatChatMessages,
-            isOpen: isChatOpen,
-            currentInput: getChatInputValue()
-        };
-        window.StateManager.savePageState('float-chat-global', floatChatState);
-    }
-}
-
 // Function to initialize the chat interface after it's loaded
 function initializeChatInterface() {
     // Chat elements for floating chat
@@ -161,10 +64,50 @@ function initializeChatInterface() {
     const sendButton = document.querySelector('.chatbox__send--footer');
     const chatMessages = document.getElementById('chat-messages');
 
-    // Chat elements for fixed chat
-    const chatInputFixed = document.getElementById('chat-input-fixed');
-    const sendButtonFixed = document.getElementById('send-button-fixed');
-    const chatMessagesFixed = document.getElementById('chat-messages-fixed');
+    // Create float chat instance and register with ChatbotService
+    floatChatInstance = {
+        chatMessages: chatMessages,
+        chatInput: chatInput,
+        
+        // Method to update message history when messages are added from other instances
+        updateMessageHistory: function(messageObj) {
+            if (this.chatMessages) {
+                this.addMessageToUI(messageObj.sender, messageObj.message, messageObj.isUser);
+            }
+        },
+        
+        // Method to restore all messages
+        restoreMessages: function(messages) {
+            if (this.chatMessages) {
+                this.chatMessages.innerHTML = '';
+                messages.forEach(msg => {
+                    this.addMessageToUI(msg.sender, msg.message, msg.isUser);
+                });
+            }
+        },
+        
+        // Method to clear messages
+        clearMessages: function() {
+            if (this.chatMessages) {
+                this.chatMessages.innerHTML = '';
+            }
+        },
+        
+        // Method to add message to UI
+        addMessageToUI: function(sender, message, isUser) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('messages__item');
+            messageElement.classList.add(isUser ? 'messages__item--visitor' : 'messages__item--operator');
+            messageElement.innerHTML = window.ChatbotService.formatResponse(message);
+            this.chatMessages.appendChild(messageElement);
+            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+        }
+    };
+
+    // Register this instance with the ChatbotService
+    if (window.ChatbotService) {
+        window.ChatbotService.registerChatInstance(floatChatInstance);
+    }
 
     // Toggle chat functionality
     if (chatButton) {
@@ -183,17 +126,6 @@ function initializeChatInterface() {
             }
         });
     }
-
-    // Chat message handling for fixed chat
-    if (sendButtonFixed && chatInputFixed) {
-        sendButtonFixed.addEventListener('click', () => handleSendMessage(chatInputFixed, chatMessagesFixed));
-        chatInputFixed.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                handleSendMessage(chatInputFixed, chatMessagesFixed);
-            }
-        });
-    }
 }
 
 // Load the chat interface when the document is ready
@@ -204,102 +136,34 @@ async function handleSendMessage(input, messagesContainer) {
     const userMessage = input.value.trim();
     if (!userMessage) return;
 
-    // Display user message
-    appendMessage('You', userMessage, messagesContainer);
-
     // Clear input field
     input.value = '';
 
     try {
-        // Create API URL dynamically
-        const currentHost = window.location.hostname;
-        const GEMINI_API_URL = `http://${currentHost}:3000/ai/chat/`;
-        console.log('Float-chat: Sending message to:', GEMINI_API_URL);
-        
-        // Send user message to the chatbot server
-        const response = await fetch(GEMINI_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userMessage }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // Display chatbot response
-        appendMessage('Nutrition Assistant', data.recommendation || 'No response received.', messagesContainer);
+        // Use the shared ChatbotService with history management
+        // This will automatically add both user message and response to shared history
+        // and update all chat instances
+        await window.ChatbotService.sendMessageWithHistory(userMessage, 'You');
     } catch (error) {
-        console.error('Error communicating with chatbot server:', error);
-        appendMessage('Nutrition Assistant', 'Sorry, I could not process your request. Please try again later.', messagesContainer);
+        console.error('Float-chat: Error communicating with chatbot server:', error);
+        // Error message is already added to history by sendMessageWithHistory
     }
 }
 
-// Function to append a message to the chat container
+// Function to append a message to the chat container (legacy support)
 function appendMessage(sender, message, container) {
-    appendMessageToContainer(sender, message, container, true);
-}
-
-// Function to append a message to the chat container with optional state saving
-function appendMessageToContainer(sender, message, container, saveToState = true) {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('messages__item');
-    messageElement.classList.add(sender === 'You' ? 'messages__item--operator' : 'messages__item--visitor');
-    messageElement.innerHTML = formatResponse(message);
-    container.appendChild(messageElement);
-    container.scrollTop = container.scrollHeight;
-    
-    // Save to state if this is a floating chat message and saveToState is true
-    if (saveToState && container.id === 'chat-messages') {
-        floatChatMessages.push({
-            sender: sender,
-            message: message,
-            timestamp: new Date().toISOString()
-        });
-        saveFloatChatState();
-    }
+    // This is now handled by the ChatbotService and chat instances
+    // Keep for backward compatibility but functionality is moved to chat instances
 }
 
 // Function to format the response with markdown-like syntax
 function formatResponse(response) {
-    // Replace ** with bold
-    let formattedResponse = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Replace * with italic
-    formattedResponse = formattedResponse.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
-    // Replace newlines with <br>
-    formattedResponse = formattedResponse.replace(/\n/g, '<br>');
-    
-    // Replace bullet points
-    formattedResponse = formattedResponse.replace(/- (.*?)(?:<br>|$)/g, '<li>$1</li>');
-    
-    // Wrap lists in <ul> tags if there are list items
-    if (formattedResponse.includes('<li>')) {
-        formattedResponse = '<ul>' + formattedResponse + '</ul>';
-        // Clean up any breaks inside lists
-        formattedResponse = formattedResponse.replace(/<br><li>/g, '<li>');
-        formattedResponse = formattedResponse.replace(/<\/li><br>/g, '</li>');
-    }
-    
-    return formattedResponse;
+    // Use the shared ChatbotService for consistent formatting
+    return window.ChatbotService.formatResponse(response);
 }
 
 // Global function to clear float chat state
-window.clearFloatChatState = function() {
-    floatChatMessages = [];
-    isChatOpen = false;
-    
-    // Clear the chat messages from UI
-    const chatMessages = document.getElementById('chat-messages');
-    if (chatMessages) {
-        chatMessages.innerHTML = '';
-    }
-    
+function clearFloatChatState() {
     // Clear input
     const chatInput = document.getElementById('chat-input');
     if (chatInput) {
@@ -311,12 +175,13 @@ window.clearFloatChatState = function() {
     if (chatSupport) {
         chatSupport.classList.remove('chatbox--active');
     }
-    
-    // Clear stored state if StateManager is available
-    if (window.StateManager) {
-        window.StateManager.clearPageState('float-chat-global');
+}
+
+// Global function for backward compatibility
+window.clearFloatChatState = function() {
+    clearFloatChatState();
+    // Use shared ChatbotService to clear messages
+    if (window.ChatbotService) {
+        window.ChatbotService.clearMessages();
     }
-    
-    // Save cleared state
-    saveFloatChatState();
 };
