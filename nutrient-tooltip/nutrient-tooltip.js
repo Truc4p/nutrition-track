@@ -25,6 +25,7 @@ class NutrientTooltip {
         this.tooltip.innerHTML = `
             <div class="tooltip-header">
                 <span class="tooltip-name"></span>
+                <span class="tooltip-category"></span>
             </div>
             <div class="tooltip-explanation"></div>
         `;
@@ -92,6 +93,7 @@ class NutrientTooltip {
         
         this.tooltip.className = 'nutrient-tooltip loading show';
         this.tooltip.querySelector('.tooltip-name').textContent = 'Loading...';
+        this.tooltip.querySelector('.tooltip-category').textContent = '';
         this.tooltip.querySelector('.tooltip-explanation').textContent = 'Fetching nutrient information';
         
         this.positionTooltip(event);
@@ -109,6 +111,7 @@ class NutrientTooltip {
 
         // Update tooltip content
         this.tooltip.querySelector('.tooltip-name').textContent = nutrientName;
+        this.tooltip.querySelector('.tooltip-category').textContent = nutrientInfo.category;
         this.tooltip.querySelector('.tooltip-explanation').textContent = nutrientInfo.explanation;
 
         // Use unified styling (no category-specific classes)
@@ -121,6 +124,7 @@ class NutrientTooltip {
         if (!this.tooltip) return;
         
         this.tooltip.querySelector('.tooltip-name').textContent = nutrientName;
+        this.tooltip.querySelector('.tooltip-category').textContent = 'Unknown';
         this.tooltip.querySelector('.tooltip-explanation').textContent = 'Information not available for this nutrient. This might be a specialized or less common nutrient.';
 
         this.tooltip.className = 'nutrient-tooltip show';
