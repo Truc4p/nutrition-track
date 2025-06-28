@@ -91,6 +91,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 
                 // Restore recipe results
                 if (state.recipeResults && resultsContainer) {
+                    // Clear first to prevent duplicates
+                    resultsContainer.innerHTML = '';
                     resultsContainer.innerHTML = state.recipeResults;
                     // Re-attach click events to recipe cards
                     reattachRecipeCardEvents();
@@ -108,7 +110,8 @@ window.addEventListener('DOMContentLoaded', () => {
         }
         
         // Only show default content if no state was restored
-        if (!event.detail.loadState || !event.detail.loadState('meal-search')) {
+        const loadedState = event.detail.loadState && event.detail.loadState('meal-search');
+        if (!loadedState) {
             performSearch('');
             switchTab('results');
         }
@@ -124,7 +127,9 @@ window.addEventListener('DOMContentLoaded', () => {
     // Show healthy meal recipes by default if no state loaded
     // This will be overridden by state loading if available
     setTimeout(() => {
-        if (!window.StateManager || !window.StateManager.loadPageState('meal-search')) {
+        const stateLoaded = window.StateManager && window.StateManager.loadPageState('meal-search');
+        if (!stateLoaded) {
+            // Only perform default search if no state was loaded
             performSearch('');
             switchTab('results');
         }
@@ -143,7 +148,8 @@ async function performSearch(defaultQuery) {
     isLoadingRecipes = true;
     const query = typeof defaultQuery === 'string' ? defaultQuery : searchInput.value.trim();
     
-    clearResults();
+    // Clear results at the beginning to prevent duplicates
+    clearResults(resultsContainer);
     
     try {
         const params = new URLSearchParams({
@@ -182,6 +188,9 @@ async function performSearch(defaultQuery) {
 }
 
 function displayResults(recipes) {
+    // Clear existing results first to prevent duplicates
+    clearResults(resultsContainer);
+    
     recipes.forEach(recipe => {
         const recipeCard = createRecipeCard(recipe);
         resultsContainer.appendChild(recipeCard);
@@ -324,8 +333,15 @@ let isLoadingYoutubeVideos = false;
 let lastDisplayedVideoIds = [];
 
 async function fetchYoutubeVideos(customQuery = '') {
+    // Prevent multiple simultaneous calls
+    if (isLoadingYoutubeVideos) {
+        return;
+    }
+    
+    isLoadingYoutubeVideos = true;
     const query = customQuery || searchInput.value.trim();
     
+    // Clear results at the beginning to prevent duplicates
     clearResults(youtubeResults);
     
     try {
@@ -353,6 +369,9 @@ async function fetchYoutubeVideos(customQuery = '') {
     } catch (error) {
         console.error('YouTube search error:', error);
         showError('Failed to load YouTube videos. Please try again later.', youtubeResults);
+    } finally {
+        // Reset the loading flag
+        isLoadingYoutubeVideos = false;
     }
 }
 
@@ -361,6 +380,9 @@ function displayYoutubeVideos(videos) {
         showError('No videos found from our channels.', youtubeResults);
         return;
     }
+    
+    // Clear existing videos first to prevent duplicates
+    clearResults(youtubeResults);
     
     // Reset the list of displayed video IDs
     lastDisplayedVideoIds = [];
