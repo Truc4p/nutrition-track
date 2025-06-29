@@ -2,6 +2,35 @@ import csv
 import requests
 import statistics
 
+def get_total_food_count(api_key):
+    """Get the total number of foods available in the USDA database"""
+    base_url = "https://api.nal.usda.gov/fdc/v1/foods/search"
+    params = {
+        'query': '',  # Empty query to get all foods
+        'api_key': api_key,
+        'pageSize': 1,  # We only need 1 result to get the total count
+        'pageNumber': 1
+    }
+    try:
+        response = requests.get(base_url, params=params)
+        data = response.json()
+        
+        total_hits = data.get('totalHits', 0)
+        total_pages = data.get('totalPages', 0)
+        current_page = data.get('currentPage', 0)
+        page_size = data.get('pageSize', 0)
+        
+        print(f"Total foods in USDA database: {total_hits:,}")
+        print(f"Total pages: {total_pages:,}")
+        print(f"Current page: {current_page}")
+        print(f"Page size: {page_size}")
+        
+        return total_hits
+        
+    except Exception as e:
+        print(f"An error occurred while getting total count: {e}")
+        return None
+
 def get_usda_nutrition(api_key, food_name):
     base_url = "https://api.nal.usda.gov/fdc/v1/foods/search"
     params = {
@@ -87,6 +116,11 @@ def fetch_nutrition_data(api_key, food_list):
 
 def main():
     api_key = "7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx"
+    
+    # Get total count of foods in USDA database
+    print("=== USDA Database Statistics ===")
+    total_count = get_total_food_count(api_key)
+    print()
     
     food_names = [
         'Chicken Breast',
