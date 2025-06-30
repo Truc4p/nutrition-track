@@ -127,6 +127,8 @@ def main():
         'Wheat Bread',
         'Egg',
         'Spinach',
+        'Abalone',
+        'Abiyuch, raw',
     ]
 
     nutrition_data_list = fetch_nutrition_data(api_key=api_key, food_list=food_names)
