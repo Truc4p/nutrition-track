@@ -142,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displaySearchResults(foods) {
-        // Only include foods from Foundation, SR Legacy, or FNDDS
-        const allowedTypes = ['Foundation', 'SR Legacy', 'FNDDS'];
+        // Only include foods from Foundation, SR Legacy, or Survey (FNDDS)
+        const allowedTypes = ['Foundation', 'SR Legacy', 'Survey (FNDDS)'];
         const filteredFoods = foods.filter(food => allowedTypes.includes(food.dataType));
         searchResults.style.display = 'block';
         if (filteredFoods.length === 0) {

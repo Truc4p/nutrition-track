@@ -265,6 +265,33 @@ class NutrientTooltip {
             return NUTRIENT_DATABASE[mappedName];
         }
 
+        // Try pattern matching for fatty acids (PUFA, MUFA, SFA, TFA)
+        const fattyAcidPattern = /^(PUFA|MUFA|SFA|TFA)\s+[\d:]+/i;
+        if (fattyAcidPattern.test(nutrientName)) {
+            // Try exact match for fatty acid patterns
+            for (const [key, value] of Object.entries(NUTRIENT_DATABASE)) {
+                if (key === nutrientName) {
+                    return value;
+                }
+            }
+            
+            // Try case-insensitive match for fatty acids
+            for (const [key, value] of Object.entries(NUTRIENT_DATABASE)) {
+                if (key.toLowerCase() === lowerNutrientName) {
+                    return value;
+                }
+            }
+        }
+
+        // Try fuzzy matching for similar nutrient names
+        for (const [key, value] of Object.entries(NUTRIENT_DATABASE)) {
+            const keyLower = key.toLowerCase();
+            // Check if the nutrient name is contained within the database key
+            if (keyLower.includes(lowerNutrientName) || lowerNutrientName.includes(keyLower)) {
+                return value;
+            }
+        }
+
         return null;
     }
 
