@@ -147,34 +147,37 @@ async function processText(inputText) {
 
         // Process the result into the 'foods' array with all nutrients
         foods = data.result.map(ingredient => {
-            const fatsValue = parseFloat(ingredient.total_fat) || 0.0;
-            const carbsValue = parseFloat(ingredient.carbohydrates) || 0.0;
-            const proteinValue = parseFloat(ingredient.protein) || 0.0;
-            const fiberValue = parseFloat(ingredient.fiber) || 0.0;
-            const cholesterolValue = parseFloat(ingredient.cholesterol) || 0.0;
+            // New Gemini API response format
+            const nutritionData = ingredient.nutrition || {};
+            
+            const fatsValue = parseFloat(ingredient.fat) || parseFloat(nutritionData['total lipid (fat) (G)']) || 0.0;
+            const carbsValue = parseFloat(ingredient.carbs) || parseFloat(nutritionData['carbohydrate, by difference (G)']) || 0.0;
+            const proteinValue = parseFloat(ingredient.protein) || parseFloat(nutritionData['protein (G)']) || 0.0;
+            const fiberValue = parseFloat(ingredient.fiber) || parseFloat(nutritionData['fiber, total dietary (G)']) || 0.0;
             const quantityValue = parseFloat(ingredient.quantity) || 0.0;
-            const conversion = parseFloat(ingredient.conversion_factor) || 1.0;
+            const totalCalories = parseFloat(ingredient.calories) || parseFloat(nutritionData['energy (KCAL)']) || 0.0;
 
-            // Get calories from all_nutrients if available, otherwise calculate
-            let totalCalories = 0;
-            if (ingredient.all_nutrients && ingredient.all_nutrients['energy']) {
-                totalCalories = parseFloat(ingredient.all_nutrients['energy'].value) * conversion;
-            } else {
-                totalCalories = (fatsValue * 9 + carbsValue * 4 + proteinValue * 4) * conversion;
-            }
-
-            // Process all nutrients from all_nutrients field
+            // Process all nutrients from nutrition field
             const allNutrients = {};
-            if (ingredient.all_nutrients) {
-                Object.entries(ingredient.all_nutrients).forEach(([key, nutrient]) => {
-                    const value = parseFloat(nutrient.value) || 0;
-                    if (value > 0) {
+            if (nutritionData) {
+                Object.entries(nutritionData).forEach(([key, value]) => {
+                    const numValue = parseFloat(value) || 0;
+                    if (numValue > 0) {
                         // Better formatting for nutrient names
                         let formattedName = key
                             .replace(/,\s*/g, ', ')
                             .replace(/\b\w/g, l => l.toUpperCase())
                             .replace(/\s+/g, ' ')
                             .trim();
+                        
+                        // Extract unit from key (e.g., "(MG)" from "calcium, ca (MG)")
+                        const unitMatch = key.match(/\(([^)]+)\)$/);
+                        const unit = unitMatch ? unitMatch[1].toUpperCase() : '';
+                        
+                        // Clean the name by removing the unit part
+                        if (unitMatch) {
+                            formattedName = formattedName.replace(/\s*\([^)]+\)$/, '');
+                        }
                         
                         // Handle special cases
                         if (formattedName.toLowerCase().includes('vitamin')) {
@@ -186,9 +189,9 @@ async function processText(inputText) {
                         
                         allNutrients[key] = {
                             name: formattedName,
-                            value: value * conversion,
-                            unit: nutrient.unit.toUpperCase(),
-                            category: nutrient.category || 'other'
+                            value: numValue,
+                            unit: unit,
+                            category: 'other' // Default category
                         };
                     }
                 });
@@ -197,15 +200,15 @@ async function processText(inputText) {
             return {
                 id: ingredient.id,
                 name: ingredient.name,
-                fats: fatsValue * conversion,
-                saturatedFats: (parseFloat(ingredient.saturated_fat) || 0.0) * conversion,
-                carbohydrates: carbsValue * conversion,
-                protein: proteinValue * conversion,
-                fiber: fiberValue * conversion,
-                cholesterol: cholesterolValue * conversion,
+                fats: fatsValue,
+                saturatedFats: 0, // Not provided in new format, could be calculated if needed
+                carbohydrates: carbsValue,
+                protein: proteinValue,
+                fiber: fiberValue,
+                cholesterol: 0, // Not provided in new format
                 totalCalories: totalCalories,
                 quantity: quantityValue,
-                measurementType: ingredient.measurement_type || '',
+                measurementType: ingredient.original_unit || 'g',
                 allNutrients: allNutrients // Add all nutrients
             };
         });
