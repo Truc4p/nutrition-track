@@ -114,6 +114,31 @@ def fetch_nutrition_data(api_key, food_list):
             print(f"No nutrition data found for {food_name}")
     return nutrition_data_list
 
+def read_food_names_from_csv(csv_file_path, limit=None):
+    """Read food names from the filtered_food_names.csv file"""
+    food_names = []
+    try:
+        with open(csv_file_path, mode='r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for i, row in enumerate(reader):
+                if limit and i >= limit:
+                    break
+                food_name = row.get('food_name', '').strip()
+                if food_name:
+                    food_names.append(food_name)
+        
+        print(f"Successfully read {len(food_names)} food names from {csv_file_path}")
+        if limit:
+            print(f"Limited to first {limit} items")
+        return food_names
+    
+    except FileNotFoundError:
+        print(f"Error: Could not find the file {csv_file_path}")
+        return []
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        return []
+
 def main():
     api_key = "7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx"
     
@@ -122,14 +147,19 @@ def main():
     total_count = get_total_food_count(api_key)
     print()
     
-    food_names = [
-        'Chicken Breast',
-        'Wheat Bread',
-        'Egg',
-        'Spinach',
-        'Abalone',
-        'Abiyuch, raw',
-    ]
+    # Read food names from CSV file instead of hardcoding
+    csv_file_path = 'filtered_food_names.csv'
+    # Limit to first 10 foods for testing (remove limit=10 to process all foods)
+    food_names = read_food_names_from_csv(csv_file_path, limit=10)
+    
+    if not food_names:
+        print("No food names found. Exiting.")
+        return
+    
+    print(f"\nProcessing {len(food_names)} foods:")
+    for i, name in enumerate(food_names, 1):
+        print(f"{i}. {name}")
+    print()
 
     nutrition_data_list = fetch_nutrition_data(api_key=api_key, food_list=food_names)
 

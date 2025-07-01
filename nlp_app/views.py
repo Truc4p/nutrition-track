@@ -17,23 +17,27 @@ def process_text_and_get_nutrition(request):
         try:
             data = json.loads(request.body.decode('utf-8'))
             print("Received data:", data)  # Debugging line
+            print("____________________________________________________")
             nlp_response = requests.post(
                 'http://localhost:8000/nlp/process_text/', data=request.body)
             nlp_data = nlp_response.json()
             print("NLP response data:", nlp_data)  # Debugging line
+            print("____________________________________________________")
             ingredients = nlp_data.get('ingredients', [])
             print("Extracted ingredients:", ingredients)  # Debugging line
+            print("____________________________________________________")
             ingredient_names = []
             for ingredient in ingredients:
                 ingredient_names.append(ingredient.get('food_name', ''))
             ingredient_names_query_param = ','.join(ingredient_names)
             print("Ingredient names query param:",
                   ingredient_names_query_param)  # Debugging line
-            
+            print("____________________________________________________")
             ingredients_response = requests.get(
                 f'http://localhost:8000/api/get_ingredients_by_names/?names={ingredient_names_query_param}'
             )
             print("Ingredients API response:", ingredients_response.json())  # Debugging line
+            print("____________________________________________________")
 
             ureg = pint.UnitRegistry()
             conversion_factor_formatter = "{conversion_factor:.3f}"
@@ -87,8 +91,10 @@ def process_text(request):
             if text_value:
                 tokenized_text = tokenize_by_quantity(text_value)
                 print("Tokenized text:", tokenized_text)  # Debugging line
+                print("____________________________________________________")
                 ingredients = process_tokens_to_foods(tokenized_text)
                 print("Processed ingredients:", ingredients)  # Debugging line
+                print("____________________________________________________")
                 return JsonResponse({'ingredients': ingredients})
             else:
                 return JsonResponse({"error": "No 'text' found in the JSON data"}, status=400)

@@ -21,9 +21,11 @@ def get_ingredients_by_names(request):
         format_type = request.GET.get('format', 'compact')  # 'compact' or 'full'
         
         print("Received names query param:", names)  # Debugging line
+        print("____________________________________________________")
         names_list = names.split(',')
         print("Names list:", names_list)  # Debugging line
-        
+        print("____________________________________________________")
+
         # Use case-insensitive matching
         query = Q()
         for name in names_list:
@@ -42,7 +44,9 @@ def get_ingredients_by_names(request):
             print("Using compact serializer with all nutrients")
         
         ingredients_data = serializer.data
+        print("____________________________________________________")
         print("Ingredients API response:", ingredients_data)  # Debugging line
+        print("____________________________________________________")
         
         return JsonResponse(ingredients_data, safe=False)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
