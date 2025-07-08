@@ -178,17 +178,46 @@ def find_food_matches(food_names: List[str]) -> List[Dict[str, Any]]:
             matches.append(exact_match)
             continue
         
-        # Then try partial matches
+        # Then try partial matches with improved logic
         best_match = None
         best_score = 0
         
+        # Split search term into words for better matching
+        search_words = set(re.findall(r'\b\w+\b', food_name_lower))
+        
         for food in food_database:
             db_name = food['name'].lower()
+            db_words = set(re.findall(r'\b\w+\b', db_name))
             
-            # Check if the food name contains the search term or vice versa
-            if food_name_lower in db_name or db_name in food_name_lower:
-                # Calculate a simple score based on length similarity
-                score = min(len(food_name_lower), len(db_name)) / max(len(food_name_lower), len(db_name))
+            # Calculate word overlap score
+            common_words = search_words.intersection(db_words)
+            if common_words:
+                # Score based on word overlap ratio
+                word_score = len(common_words) / max(len(search_words), len(db_words))
+                
+                # Also check substring matching as fallback
+                substring_match = food_name_lower in db_name or db_name in food_name_lower
+                
+                # Bonus for exact core food name matches (ignore descriptors like "juice")
+                core_food_bonus = 0
+                # Extract core food name (first significant word)
+                search_core = search_words - {'raw', 'cooked', 'fresh', 'dried', 'juice'}
+                db_core = db_words - {'raw', 'cooked', 'fresh', 'dried', 'juice', 'with', 'and'}
+                if search_core and db_core and search_core.intersection(db_core):
+                    # Only penalize obvious derivatives like "juice", not natural variations like "with rice"
+                    has_derivative_terms = any(word in db_words for word in ['juice'] if word not in search_words)
+                    if not has_derivative_terms:
+                        core_food_bonus = 0.5  # Increased bonus to prefer whole foods over derivatives
+                
+                # Combine scores (prioritize word matching)
+                if word_score > 0.5:  # High word overlap
+                    score = word_score * 0.8 + (0.2 if substring_match else 0) + core_food_bonus
+                elif substring_match:
+                    # Fallback to substring matching with length similarity
+                    score = min(len(food_name_lower), len(db_name)) / max(len(food_name_lower), len(db_name)) * 0.6 + core_food_bonus
+                else:
+                    score = word_score * 0.5 + core_food_bonus
+                
                 if score > best_score:
                     best_score = score
                     best_match = food
@@ -344,21 +373,22 @@ def calculate_nutrition(food_data: dict, quantity_grams: float) -> Dict[str, Any
     
     nutrition = {}
     
-    # List of numeric nutrition fields to calculate
-    nutrition_fields = [
-        'energy (KCAL)', 'protein (G)', 'total lipid (fat) (G)', 
-        'carbohydrate, by difference (G)', 'fiber, total dietary (G)',
-        'calcium, ca (MG)', 'iron, fe (MG)', 'sodium, na (MG)',
-        'vitamin c, total ascorbic acid (MG)', 'vitamin a, rae (UG)'
-    ]
+    # Get ALL available nutrition fields from the food data
+    # Skip non-numeric fields like 'name', 'serving_size', etc.
+    skip_fields = {'name', 'serving_size', 'id', 'description', 'food_group', 'category'}
     
-    for field in nutrition_fields:
-        value = food_data.get(field, 'N/A')
-        if value != 'N/A' and value != '':
+    for field, value in food_data.items():
+        if field.lower() in skip_fields:
+            continue
+            
+        # Try to convert to float - if successful, it's a nutrition field
+        if value != 'N/A' and value != '' and value is not None:
             try:
-                nutrition[field] = float(value) * multiplier
-            except ValueError:
-                nutrition[field] = 0
+                numeric_value = float(value)
+                nutrition[field] = numeric_value * multiplier
+            except (ValueError, TypeError):
+                # Skip non-numeric fields
+                continue
         else:
             nutrition[field] = 0
     
@@ -377,8 +407,19 @@ def process_food_with_gemini():
         # Parse text with Gemini
         parsed_foods = parse_quantities_and_foods(text)
         
-        results = []
+        # Deduplicate parsed foods based on food name (case insensitive)
+        seen_foods = {}
+        unique_parsed_foods = []
         for parsed_food in parsed_foods:
+            food_key = parsed_food['food_name'].lower().strip()
+            if food_key not in seen_foods:
+                seen_foods[food_key] = True
+                unique_parsed_foods.append(parsed_food)
+        
+        results = []
+        processed_food_names = set()  # Track processed foods to avoid duplicates in results
+        
+        for parsed_food in unique_parsed_foods:
             food_name = parsed_food['food_name']
             quantity = parsed_food['quantity']
             unit = parsed_food['unit']
@@ -391,6 +432,23 @@ def process_food_with_gemini():
             
             if matches:
                 food_data = matches[0]
+                matched_food_name = food_data['name']
+                
+                # Skip if we've already processed this exact food (avoid duplicates)
+                if matched_food_name.lower() in processed_food_names:
+                    continue
+                
+                # Only skip similar foods if the input terms are very similar (exact duplicates)
+                # Allow different variations like "Adobo" and "Adobo noodle" to map to different foods
+                input_terms = [pf['food_name'].lower().strip() for pf in unique_parsed_foods[:unique_parsed_foods.index(parsed_food)]]
+                current_input = food_name.lower().strip()
+                
+                # Check if this is a true input duplicate (same parsing result from different parts of text)
+                is_input_duplicate = current_input in input_terms
+                if is_input_duplicate:
+                    continue
+                
+                processed_food_names.add(matched_food_name.lower())
                 nutrition = calculate_nutrition(food_data, quantity_grams)
                 
                 result = {
@@ -400,11 +458,12 @@ def process_food_with_gemini():
                     'original_quantity': quantity,
                     'original_unit': unit,
                     'nutrition': nutrition,
-                    'calories': nutrition.get('energy (KCAL)', 0),
-                    'protein': nutrition.get('protein (G)', 0),
-                    'fat': nutrition.get('total lipid (fat) (G)', 0),
-                    'carbs': nutrition.get('carbohydrate, by difference (G)', 0),
-                    'fiber': nutrition.get('fiber, total dietary (G)', 0)
+                    'total_nutrition_fields': len(nutrition),
+                    'calories': nutrition.get('energy (KCAL)', 0) or nutrition.get('Energy', 0),
+                    'protein': nutrition.get('protein (G)', 0) or nutrition.get('Protein', 0),
+                    'fat': nutrition.get('total lipid (fat) (G)', 0) or nutrition.get('Total lipid (fat)', 0),
+                    'carbs': nutrition.get('carbohydrate, by difference (G)', 0) or nutrition.get('Carbohydrate, by difference', 0),
+                    'fiber': nutrition.get('fiber, total dietary (G)', 0) or nutrition.get('Fiber, total dietary', 0)
                 }
                 results.append(result)
         
@@ -437,6 +496,110 @@ def proxy_nlp_api(endpoint):
             'success': False,
             'error': str(e)
         }), 500
+
+# New endpoint to get all available nutrition fields
+@app.route('/api/nutrition/all_fields', methods=['GET'])
+def get_all_nutrition_fields():
+    """Get all available nutrition fields from the database"""
+    try:
+        if not food_database:
+            return jsonify({'error': 'Food database not loaded'}), 500
+        
+        # Get all unique field names from the database
+        all_fields = set()
+        skip_fields = {'name', 'serving_size', 'id', 'description', 'food_group', 'category'}
+        
+        for food in food_database[:10]:  # Sample first 10 foods to get field names
+            for field in food.keys():
+                if field.lower() not in skip_fields:
+                    all_fields.add(field)
+        
+        # Sort fields alphabetically
+        sorted_fields = sorted(list(all_fields))
+        
+        return jsonify({
+            'total_fields': len(sorted_fields),
+            'fields': sorted_fields
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# New endpoint to get sample food names for testing
+@app.route('/api/nutrition/sample_foods', methods=['GET'])
+def get_sample_foods():
+    """Get sample food names from the database for testing"""
+    try:
+        if not food_database:
+            return jsonify({'error': 'Food database not loaded'}), 500
+        
+        # Get first 20 food names as samples
+        sample_foods = [food.get('name', 'Unknown') for food in food_database[:20]]
+        
+        return jsonify({
+            'sample_foods': sample_foods,
+            'total_foods_in_db': len(food_database)
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# New endpoint to get detailed nutrition for a specific food with ALL fields
+@app.route('/api/nutrition/detailed/<food_name>', methods=['GET'])
+def get_detailed_nutrition(food_name):
+    """Get detailed nutrition information for a specific food with all available fields"""
+    try:
+        quantity = float(request.args.get('quantity', 100))
+        
+        # Find the food in database
+        matches = find_food_matches([food_name])
+        
+        if not matches:
+            return jsonify({'error': f'Food "{food_name}" not found in database'}), 404
+        
+        food_data = matches[0]
+        nutrition = calculate_nutrition(food_data, quantity)
+        
+        # Organize nutrition data by categories for better display
+        categorized_nutrition = {
+            'Basic Info': {
+                'name': food_data.get('name', ''),
+                'quantity': f"{quantity}g"
+            },
+            'Energy & Macronutrients': {},
+            'Minerals': {},
+            'Vitamins': {},
+            'Fatty Acids': {},
+            'Amino Acids': {},
+            'Other Compounds': {}
+        }
+        
+        # Categorize nutrition fields
+        for field, value in nutrition.items():
+            field_lower = field.lower()
+            
+            if any(keyword in field_lower for keyword in ['energy', 'protein', 'lipid', 'fat', 'carbohydrate', 'fiber', 'sugar', 'starch']):
+                categorized_nutrition['Energy & Macronutrients'][field] = value
+            elif any(keyword in field_lower for keyword in ['vitamin', 'folate', 'thiamin', 'riboflavin', 'niacin', 'choline', 'betaine']):
+                categorized_nutrition['Vitamins'][field] = value
+            elif any(keyword in field_lower for keyword in ['calcium', 'iron', 'magnesium', 'phosphorus', 'potassium', 'sodium', 'zinc', 'copper', 'manganese', 'selenium']):
+                categorized_nutrition['Minerals'][field] = value
+            elif any(keyword in field_lower for keyword in ['fatty', 'cholesterol', 'mufa', 'pufa', 'sfa', 'tfa']):
+                categorized_nutrition['Fatty Acids'][field] = value
+            elif any(keyword in field_lower for keyword in ['amino', 'alanine', 'arginine', 'aspartic', 'cystine', 'glutamic', 'glycine', 'histidine', 'isoleucine', 'leucine', 'lysine', 'methionine', 'phenylalanine', 'proline', 'serine', 'threonine', 'tryptophan', 'tyrosine', 'valine']):
+                categorized_nutrition['Amino Acids'][field] = value
+            else:
+                categorized_nutrition['Other Compounds'][field] = value
+        
+        return jsonify({
+            'food_name': food_data.get('name', ''),
+            'quantity_grams': quantity,
+            'nutrition_data': categorized_nutrition,
+            'total_fields': len(nutrition)
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
