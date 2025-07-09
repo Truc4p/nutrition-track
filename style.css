@@ -1423,7 +1423,7 @@ button:disabled {
     min-width: 0;
     width: 50%;
     box-sizing: border-box;
-    background: linear-gradient(165deg, #ffffff, #f0f4f8);
+    background: #ffffff;
     border-radius: 25px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -1436,7 +1436,7 @@ button:disabled {
     min-width: 0;
     width: 50%;
     box-sizing: border-box;
-    background: linear-gradient(165deg, #ffffff, #f0f4f8);
+    background: #ffffff;
     border-radius: 25px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     position: relative;

@@ -438,14 +438,14 @@ def process_food_with_gemini():
                 if matched_food_name.lower() in processed_food_names:
                     continue
                 
-                # Only skip similar foods if the input terms are very similar (exact duplicates)
-                # Allow different variations like "Adobo" and "Adobo noodle" to map to different foods
-                input_terms = [pf['food_name'].lower().strip() for pf in unique_parsed_foods[:unique_parsed_foods.index(parsed_food)]]
-                current_input = food_name.lower().strip()
-                
-                # Check if this is a true input duplicate (same parsing result from different parts of text)
-                is_input_duplicate = current_input in input_terms
-                if is_input_duplicate:
+                # Also skip if we've processed a very similar food (e.g., both "Adobo, with rice" and "Adobo, with noodles")
+                # by checking for similar base names
+                base_name = re.split(r'[,\(]', matched_food_name)[0].strip().lower()
+                similar_processed = any(
+                    re.split(r'[,\(]', existing)[0].strip().lower() == base_name 
+                    for existing in processed_food_names
+                )
+                if similar_processed:
                     continue
                 
                 processed_food_names.add(matched_food_name.lower())

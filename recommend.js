@@ -10,6 +10,62 @@ let goal = '';
 let healthCondition = '';
 let recommendation = null;
 
+// Helper function to get proper nutrient category for recommendations
+function getRecommendationNutrientCategory(nutrientName) {
+    const categoryMap = {
+        // Energy & Macronutrients
+        'Calories': 'Energy & Macronutrients',
+        'Fats': 'Energy & Macronutrients',
+        'Carbohydrates': 'Energy & Macronutrients',
+        'Protein': 'Energy & Macronutrients',
+        
+        // Fiber & Water
+        'Fiber': 'Fiber & Hydration',
+        'Water': 'Fiber & Hydration',
+        
+        // Lipids & Fatty Acids
+        'Cholesterol': 'Lipids & Fatty Acids',
+        'Saturated Fat': 'Lipids & Fatty Acids',
+        'Trans Fat': 'Lipids & Fatty Acids',
+        'Omega-3': 'Lipids & Fatty Acids',
+        'Omega-6': 'Lipids & Fatty Acids',
+        
+        // Fat-Soluble Vitamins
+        'Vitamin A': 'Fat-Soluble Vitamins',
+        'Vitamin D': 'Fat-Soluble Vitamins',
+        'Vitamin E': 'Fat-Soluble Vitamins',
+        'Vitamin K': 'Fat-Soluble Vitamins',
+        
+        // Water-Soluble Vitamins
+        'Vitamin C': 'Water-Soluble Vitamins',
+        
+        // B Vitamins
+        'Vitamin B6': 'B Vitamins',
+        'Vitamin B12': 'B Vitamins',
+        'Thiamin': 'B Vitamins',
+        'Riboflavin': 'B Vitamins',
+        'Niacin': 'B Vitamins',
+        'Folate': 'B Vitamins',
+        'Choline': 'B Vitamins',
+        
+        // Major Minerals
+        'Calcium': 'Major Minerals',
+        'Magnesium': 'Major Minerals',
+        'Phosphorus': 'Major Minerals',
+        'Potassium': 'Major Minerals',
+        'Sodium': 'Major Minerals',
+        
+        // Trace Minerals
+        'Iron': 'Trace Minerals',
+        'Zinc': 'Trace Minerals',
+        'Copper': 'Trace Minerals',
+        'Manganese': 'Trace Minerals',
+        'Selenium': 'Trace Minerals'
+    };
+    
+    return categoryMap[nutrientName] || 'Other Nutrients';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // State management event listeners
     window.addEventListener('savePageState', (event) => {
@@ -151,16 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // No header for recommendations - start directly with nutrition categories
 
-                // Organize recommendations by category
-                const categories = {
-                    'Proximates': [],
-                    'Minerals': [],
-                    'Vitamins': [],
-                    'Lipids': [],
-                    'Protein': [],
-                    'Carbohydrates': [],
-                    'Other': []
-                };
+                // Organize recommendations by USDA categories from nutrient database
+                const categories = {};
 
                 // Add all nutrients to appropriate categories
                 const nutrients = [
@@ -169,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { name: 'Carbohydrates', value: `${Math.round(recommendation.carbs.min)} - ${Math.round(recommendation.carbs.max)}`, unit: 'g' },
                     { name: 'Protein', value: `${Math.round(recommendation.protein.min)} - ${Math.round(recommendation.protein.max)}`, unit: 'g' },
                     { name: 'Fiber', value: recommendation.fiber, unit: 'g' },
+                    { name: 'Water', value: recommendation.water, unit: 'g' },
                     { name: 'Cholesterol', value: recommendation.cholesterol, unit: 'mg' },
                     { name: 'Omega-3', value: recommendation.omega3, unit: 'g' },
                     { name: 'Omega-6', value: recommendation.omega6, unit: 'g' },
@@ -207,34 +256,38 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>`;
 
                     const name = nutrient.name;
-                    if (name.includes('Vitamin')) {
-                        categories['Vitamins'].push(nutrientInfo);
-                    } else if (name.includes('Iron') || name.includes('Calcium') || name.includes('Zinc') || 
-                              name.includes('Magnesium') || name.includes('Potassium') || name.includes('Sodium') || 
-                              name.includes('Phosphorus') || name.includes('Selenium') || name.includes('Copper') || 
-                              name.includes('Manganese')) {
-                        categories['Minerals'].push(nutrientInfo);
-                    } else if (name.includes('Protein') || name.includes('Amino')) {
-                        categories['Protein'].push(nutrientInfo);
-                    } else if (name.includes('Carbohydrate') || name.includes('Fiber')) {
-                        categories['Carbohydrates'].push(nutrientInfo);
-                    } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol') || 
-                              name.includes('Omega')) {
-                        categories['Lipids'].push(nutrientInfo);
-                    } else if (name.includes('Calories')) {
-                        categories['Proximates'].push(nutrientInfo);
-                    } else {
-                        categories['Other'].push(nutrientInfo);
+                    
+                    // Get USDA category for this nutrient
+                    const usdaCategory = getRecommendationNutrientCategory(name) || 'Other Nutrients';
+                    
+                    // Initialize category array if it doesn't exist
+                    if (!categories[usdaCategory]) {
+                        categories[usdaCategory] = [];
                     }
+                    
+                    categories[usdaCategory].push(nutrientInfo);
                 });
 
                 // Create nutrition div with same structure as food items
                 const nutritionDiv = document.createElement('div');
                 nutritionDiv.className = 'food-nutrition';
 
-                // Display nutrients by category using same structure as food items
-                Object.entries(categories).forEach(([categoryName, nutrients]) => {
-                    if (nutrients.length > 0) {
+                // Define the desired order of categories
+                const categoryOrder = [
+                    'Energy & Macronutrients',
+                    'Fiber & Hydration',
+                    'Lipids & Fatty Acids',
+                    'Fat-Soluble Vitamins',
+                    'Water-Soluble Vitamins',
+                    'B Vitamins',
+                    'Major Minerals',
+                    'Trace Minerals',
+                    'Other Nutrients'
+                ];
+
+                // Display nutrients by category in the specified order
+                categoryOrder.forEach(categoryName => {
+                    if (categories[categoryName] && categories[categoryName].length > 0) {
                         const categoryDiv = document.createElement('div');
                         categoryDiv.className = 'nutrition-category';
                         
@@ -243,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         categoryTitle.textContent = categoryName;
                         categoryDiv.appendChild(categoryTitle);
 
-                        categoryDiv.innerHTML += nutrients.join('');
+                        categoryDiv.innerHTML += categories[categoryName].join('');
                         nutritionDiv.appendChild(categoryDiv);
                     }
                 });
@@ -322,6 +375,10 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
         // Over 50
         fiber = gender === "male" ? 30 : 21; // Men >50: 30g, Women >50: 21g
     }
+
+    // Water recommendation (total fluid intake from all sources)
+    // Based on U.S. National Academies DRI guidelines
+    let water = gender === "male" ? 3700 : 2700; // Milliliters/Grams per day
 
     // Cholesterol recommendation
     let cholesterol = 300; // General recommendation
@@ -466,12 +523,18 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
         carbs.max *= 0.9;
     }
 
+    // Adjust for water intake
+    if (activityLevel === "very-active" || activityLevel === "athlete") {
+        water *= 1.2;
+    }
+
     return {
         calories,
         fats,
         carbs,
         protein,
         fiber,
+        water,
         cholesterol,
         saturatedFat,
         transFat,

@@ -92,6 +92,78 @@ const API_URL = "/api/nlp/process_text_and_get_nutrition/";
 let selectedFood = null;
 let addedFoods = [];
 
+// Helper function to get USDA nutrient category
+function getUSDANutrientCategory(nutrientName) {
+    // Try to get nutrient info from the database
+    if (typeof window !== 'undefined' && window.NutrientDatabase) {
+        const nutrientInfo = window.NutrientDatabase.getNutrientInfo(nutrientName);
+        if (nutrientInfo && nutrientInfo.category) {
+            return nutrientInfo.category;
+        }
+    }
+    
+    // Fallback to NUTRIENT_DATABASE if available
+    if (typeof NUTRIENT_DATABASE !== 'undefined') {
+        if (NUTRIENT_DATABASE[nutrientName]) {
+            return NUTRIENT_DATABASE[nutrientName].category;
+        }
+        
+        // Try case-insensitive match
+        const lowerNutrientName = nutrientName.toLowerCase();
+        for (const [key, value] of Object.entries(NUTRIENT_DATABASE)) {
+            if (key.toLowerCase() === lowerNutrientName) {
+                return value.category;
+            }
+        }
+        
+        // Try common mappings
+        const commonMappings = {
+            'calories': 'Energy',
+            'energy': 'Energy',
+            'fat': 'Total lipid (fat)',
+            'fats': 'Total lipid (fat)',
+            'carbs': 'Carbohydrate, by difference',
+            'carbohydrates': 'Carbohydrate, by difference',
+            'fiber': 'Fiber, total dietary',
+            'sugar': 'Sugars, Total',
+            'protein': 'Protein',
+            'cholesterol': 'Cholesterol',
+            'saturated fat': 'Fatty acids, total saturated',
+            'trans fat': 'Fatty acids, total trans',
+            'vitamin a': 'Vitamin A, RAE',
+            'vitamin b6': 'Vitamin B-6',
+            'vitamin b12': 'Vitamin B-12',
+            'vitamin c': 'Vitamin C, total ascorbic acid',
+            'vitamin d': 'Vitamin D (D2 + D3)',
+            'vitamin e': 'Vitamin E (alpha-tocopherol)',
+            'vitamin k': 'Vitamin K (phylloquinone)',
+            'folate': 'Folate, DFE',
+            'thiamin': 'Thiamin',
+            'riboflavin': 'Riboflavin',
+            'niacin': 'Niacin',
+            'choline': 'Choline, total',
+            'calcium': 'Calcium, Ca',
+            'iron': 'Iron, Fe',
+            'magnesium': 'Magnesium, Mg',
+            'phosphorus': 'Phosphorus, P',
+            'potassium': 'Potassium, K',
+            'sodium': 'Sodium, Na',
+            'zinc': 'Zinc, Zn',
+            'copper': 'Copper, Cu',
+            'manganese': 'Manganese, Mn',
+            'selenium': 'Selenium, Se'
+        };
+        
+        const mappedName = commonMappings[lowerNutrientName];
+        if (mappedName && NUTRIENT_DATABASE[mappedName]) {
+            return NUTRIENT_DATABASE[mappedName].category;
+        }
+    }
+    
+    // Return null if no category found - will be placed in "Other" category
+    return null;
+}
+
 // --- Event Listeners ---
 if (foodInput) {
     foodInput.addEventListener('input', handleInputChange);
@@ -264,60 +336,74 @@ function updateUI() {
         const nutritionDiv = document.createElement('div');
         nutritionDiv.className = 'food-nutrition';
 
-        // Organize nutrients by category (using same categories as search.js)
-        const categories = {
-            'Proximates': [],
-            'Minerals': [],
-            'Vitamins': [],
-            'Lipids': [],
-            'Protein': [],
-            'Carbohydrates': [],
-            'Other': []
-        };
+        // Organize nutrients by USDA categories from nutrient database
+        const categories = {};
+        
+        // Track energy/calorie values to avoid duplicates
+        let energyValue = 0;
+        let hasEnergyNutrient = false;
 
-        // Add basic nutrients first if not in allNutrients
-        if (!food.allNutrients['energy']) {
-            const nutrientInfo = `
-                <div class="nutrition-total-item">
-                    <span class="nutrient-name">Calories:</span>
-                    <span class="nutrient-value">${Math.round(food.totalCalories)} kcal</span>
-                </div>`;
-            categories['Proximates'].push(nutrientInfo);
+        // First pass: check if we have energy nutrients and get the kcal value
+        Object.values(food.allNutrients).forEach(nutrient => {
+            const name = nutrient.name.toLowerCase();
+            const unit = nutrient.unit.toLowerCase();
+            
+            if ((name.includes('energy') || name.includes('calorie')) && unit === 'kcal') {
+                energyValue = nutrient.value;
+                hasEnergyNutrient = true;
+            }
+        });
+
+        // If no kcal energy nutrient found, use totalCalories
+        if (!hasEnergyNutrient && food.totalCalories > 0) {
+            energyValue = food.totalCalories;
         }
 
-        // Organize all nutrients by category using same logic as search.js
+        // Add consolidated energy entry if we have a value
+        if (energyValue > 0) {
+            const energyCategory = getUSDANutrientCategory('Energy');
+            if (!categories[energyCategory]) categories[energyCategory] = [];
+            
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">Energy:</span>
+                    <span class="nutrient-value">${Math.round(energyValue)} kcal</span>
+                </div>`;
+            categories[energyCategory].push(nutrientInfo);
+        }
+
+        // Organize all other nutrients by USDA category (excluding energy/calorie nutrients)
         Object.values(food.allNutrients)
             .sort((a, b) => a.name.localeCompare(b.name))
             .forEach(nutrient => {
                 if (!nutrient.value || nutrient.value === 0) return;
                 if (Math.round(nutrient.value) === 0) return; // Skip values that round to 0
                 
-                const name = nutrient.name;
-                const value = nutrient.value;
+                const name = nutrient.name.toLowerCase();
                 const unit = nutrient.unit.toLowerCase();
+                
+                // Skip all energy/calorie related nutrients as we've already handled them
+                if (name.includes('energy') || name.includes('calorie')) {
+                    return;
+                }
+                
+                const displayName = nutrient.name;
+                const value = nutrient.value;
                 const nutrientInfo = `
                     <div class="nutrition-total-item">
-                        <span class="nutrient-name">${name}:</span>
+                        <span class="nutrient-name">${displayName}:</span>
                         <span class="nutrient-value">${Math.round(value)} ${unit}</span>
                     </div>`;
 
-                if (name.includes('Vitamin')) {
-                    categories['Vitamins'].push(nutrientInfo);
-                } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
-                          name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
-                          name.includes('Sodium') || name.includes('Phosphorus')) {
-                    categories['Minerals'].push(nutrientInfo);
-                } else if (name.includes('Protein') || name.includes('Amino')) {
-                    categories['Protein'].push(nutrientInfo);
-                } else if (name.includes('Carbohydrate') || name.includes('Fiber') || name.includes('Sugar')) {
-                    categories['Carbohydrates'].push(nutrientInfo);
-                } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
-                    categories['Lipids'].push(nutrientInfo);
-                } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash')) {
-                    categories['Proximates'].push(nutrientInfo);
-                } else {
-                    categories['Other'].push(nutrientInfo);
+                // Get USDA category for this nutrient
+                const usdaCategory = getUSDANutrientCategory(displayName) || 'Other';
+                
+                // Initialize category array if it doesn't exist
+                if (!categories[usdaCategory]) {
+                    categories[usdaCategory] = [];
                 }
+                
+                categories[usdaCategory].push(nutrientInfo);
             });
 
         // Display nutrients by category using same structure as search.js
@@ -355,9 +441,42 @@ function calculateAndDisplayTotals() {
     // Calculate totals for all nutrients
     const nutritionTotals = {};
 
+    // First, consolidate energy values
+    let totalEnergyKcal = 0;
+    
     foods.forEach(food => {
-        // Add all nutrients from allNutrients
+        // Track energy for this food
+        let foodEnergyKcal = 0;
+        let hasEnergyNutrient = false;
+        
+        // Check for energy nutrients in kcal
         Object.values(food.allNutrients).forEach(nutrient => {
+            const name = nutrient.name.toLowerCase();
+            const unit = nutrient.unit.toLowerCase();
+            
+            if ((name.includes('energy') || name.includes('calorie')) && unit === 'kcal') {
+                foodEnergyKcal = nutrient.value;
+                hasEnergyNutrient = true;
+            }
+        });
+        
+        // If no kcal energy nutrient found, use totalCalories
+        if (!hasEnergyNutrient && food.totalCalories > 0) {
+            foodEnergyKcal = food.totalCalories;
+        }
+        
+        totalEnergyKcal += foodEnergyKcal;
+        
+        // Add all other nutrients (excluding energy/calorie nutrients)
+        Object.values(food.allNutrients).forEach(nutrient => {
+            const name = nutrient.name.toLowerCase();
+            const unit = nutrient.unit.toLowerCase();
+            
+            // Skip energy/calorie nutrients as we handle them separately
+            if (name.includes('energy') || name.includes('calorie')) {
+                return;
+            }
+            
             const key = nutrient.name.toLowerCase();
             if (!nutritionTotals[key]) {
                 nutritionTotals[key] = {
@@ -369,20 +488,17 @@ function calculateAndDisplayTotals() {
             }
             nutritionTotals[key].value += nutrient.value;
         });
-
-        // Add calories if not in allNutrients
-        if (!nutritionTotals['energy'] && !nutritionTotals['calories']) {
-            if (!nutritionTotals['calories']) {
-                nutritionTotals['calories'] = {
-                    name: 'Calories',
-                    value: 0,
-                    unit: 'KCAL',
-                    category: 'macronutrient'
-                };
-            }
-            nutritionTotals['calories'].value += food.totalCalories;
-        }
     });
+    
+    // Add consolidated energy entry
+    if (totalEnergyKcal > 0) {
+        nutritionTotals['energy'] = {
+            name: 'Energy',
+            value: totalEnergyKcal,
+            unit: 'KCAL',
+            category: 'energy'
+        };
+    }
 
     // Get recommendation data from global state (if available)
     let recommendationData = null;
@@ -430,16 +546,8 @@ function calculateAndDisplayTotals() {
     summarySpan.textContent = `${foods.length} item${foods.length !== 1 ? 's' : ''}`;
     headerDiv.appendChild(summarySpan);
 
-    // Organize totals by category (using same categories as food items)
-    const categories = {
-        'Proximates': [],
-        'Minerals': [],
-        'Vitamins': [],
-        'Lipids': [],
-        'Protein': [],
-        'Carbohydrates': [],
-        'Other': []
-    };
+    // Organize totals by USDA categories from nutrient database
+    const categories = {};
 
     // Helper function to get recommended value for a nutrient
     function getRecommendedValue(nutrientName, unit) {
@@ -461,6 +569,7 @@ function calculateAndDisplayTotals() {
             'carbs': 'carbs',
             'fiber, total dietary': 'fiber',
             'fiber': 'fiber',
+            'water': 'water',
             'cholesterol': 'cholesterol',
             'fatty acids, total saturated': 'saturatedFat',
             'saturated fat': 'saturatedFat',
@@ -529,7 +638,7 @@ function calculateAndDisplayTotals() {
         return null;
     }
 
-    Object.values(nutritionTotals)
+            Object.values(nutritionTotals)
         .sort((a, b) => a.name.localeCompare(b.name))
         .forEach(nutrient => {
             if (!nutrient.value || nutrient.value === 0) return;
@@ -554,23 +663,15 @@ function calculateAndDisplayTotals() {
                     <span class="nutrient-value">${valueDisplay}</span>
                 </div>`;
 
-            if (name.includes('Vitamin')) {
-                categories['Vitamins'].push(nutrientInfo);
-            } else if (name.includes('Mineral') || name.includes('Iron') || name.includes('Calcium') || 
-                      name.includes('Zinc') || name.includes('Magnesium') || name.includes('Potassium') ||
-                      name.includes('Sodium') || name.includes('Phosphorus')) {
-                categories['Minerals'].push(nutrientInfo);
-            } else if (name.includes('Protein') || name.includes('Amino')) {
-                categories['Protein'].push(nutrientInfo);
-            } else if (name.includes('Carbohydrate') || name.includes('Fiber') || name.includes('Sugar')) {
-                categories['Carbohydrates'].push(nutrientInfo);
-            } else if (name.includes('Fat') || name.includes('Fatty') || name.includes('Cholesterol')) {
-                categories['Lipids'].push(nutrientInfo);
-            } else if (name.includes('Energy') || name.includes('Water') || name.includes('Ash') || name.includes('Calories')) {
-                categories['Proximates'].push(nutrientInfo);
-            } else {
-                categories['Other'].push(nutrientInfo);
+            // Get USDA category for this nutrient
+            const usdaCategory = getUSDANutrientCategory(name) || 'Other';
+            
+            // Initialize category array if it doesn't exist
+            if (!categories[usdaCategory]) {
+                categories[usdaCategory] = [];
             }
+            
+            categories[usdaCategory].push(nutrientInfo);
         });
 
     // Create nutrition div with same structure as food items
@@ -603,105 +704,6 @@ function calculateAndDisplayTotals() {
 // Utility function to format values
 function formatValue(value) {
     return Math.round(value);
-}
-
-function addSelectedFood() {
-    if (!selectedFood) {
-        alert('Please select a food first');
-        return;
-    }
-
-    const quantity = parseFloat(document.getElementById('food-quantity').value);
-    if (!quantity || quantity <= 0) {
-        alert('Please enter a valid quantity');
-        return;
-    }
-
-    // Add food with its nutrients and quantity
-    const foodWithQuantity = {
-        ...selectedFood,
-        quantity: quantity,
-        id: Date.now() // Unique ID for removal
-    };
-
-    addedFoods.push(foodWithQuantity);
-    updateAddedFoodsList();
-    calculateTotalNutrition();
-}
-
-function updateAddedFoodsList() {
-    const addedFoodsList = document.getElementById('added-foods-list');
-    addedFoodsList.innerHTML = '';
-
-    addedFoods.forEach(food => {
-        const foodItem = document.createElement('div');
-        foodItem.className = 'added-food-item';
-        
-        foodItem.innerHTML = `
-            <div class="food-item-details">
-                <div class="food-item-name">${food.description}</div>
-                <div class="food-item-quantity">${food.quantity}g</div>
-            </div>
-            <button class="remove-food" onclick="removeFood(${food.id})">Remove</button>
-        `;
-        
-        addedFoodsList.appendChild(foodItem);
-    });
-}
-
-function removeFood(foodId) {
-    addedFoods = addedFoods.filter(food => food.id !== foodId);
-    updateAddedFoodsList();
-    calculateTotalNutrition();
-}
-
-function clearAddedFoods() {
-    addedFoods = [];
-    updateAddedFoodsList();
-    calculateTotalNutrition();
-}
-
-function calculateTotalNutrition() {
-    const nutritionTotals = {};
-
-    addedFoods.forEach(food => {
-        const multiplier = food.quantity / 100; // Convert to proportion of 100g
-        food.foodNutrients.forEach(nutrient => {
-            if (nutrient.value && nutrient.value !== 0) {
-                const key = `${nutrient.nutrientName}_${nutrient.unitName}`;
-                if (!nutritionTotals[key]) {
-                    nutritionTotals[key] = {
-                        name: nutrient.nutrientName,
-                        value: 0,
-                        unit: nutrient.unitName
-                    };
-                }
-                nutritionTotals[key].value += nutrient.value * multiplier;
-            }
-        });
-    });
-
-    displayTotalNutrition(nutritionTotals);
-}
-
-function displayTotalNutrition(totals) {
-    const nutritionTotalsDiv = document.getElementById('nutrition-totals');
-    nutritionTotalsDiv.innerHTML = '';
-
-    // Sort nutrients by name
-    const sortedTotals = Object.values(totals).sort((a, b) => 
-        a.name.localeCompare(b.name)
-    );
-
-    sortedTotals.forEach(nutrient => {
-        const totalItem = document.createElement('div');
-        totalItem.className = 'nutrition-total-item';
-        totalItem.innerHTML = `
-            <span>${nutrient.name}:</span>
-            <span>${Math.round(nutrient.value)} ${nutrient.unit.toLowerCase()}</span>
-        `;
-        nutritionTotalsDiv.appendChild(totalItem);
-    });
 }
 // --- Initial Setup ---
 handleInputChange(); // Set initial button states
