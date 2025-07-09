@@ -1,7 +1,0 @@
-{
-  "timestamp": "2025-07-09T13:18:21.078+0000",
-  "status": 400,
-  "error": "Bad Request",
-  "message": "Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; nested exception is java.lang.NumberFormatException: For input string: \"nutrients\"",
-  "path": "/portal-data/api/v1/nutrients"
-}
