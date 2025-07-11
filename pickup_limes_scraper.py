@@ -325,7 +325,7 @@ def create_database_directory(base_dir="pickup_limes_database"):
         print(f"Created database directory: {base_dir}")
     
     # Create subdirectories for different data types
-    subdirs = ["images", "json", "csv"]
+    subdirs = ["json", "csv"]
     for subdir in subdirs:
         subdir_path = os.path.join(base_dir, subdir)
         if not os.path.exists(subdir_path):
@@ -334,46 +334,7 @@ def create_database_directory(base_dir="pickup_limes_database"):
     
     return base_dir
 
-def download_recipe_image(image_url, recipe_id, base_dir="pickup_limes_database"):
-    """
-    Download recipe image and save it to the database
-    
-    Args:
-        image_url (str): URL of the image to download
-        recipe_id (int): Recipe ID to use in the filename
-        base_dir (str): Base directory of the database
-        
-    Returns:
-        str: Path to the downloaded image or None if download failed
-    """
-    if not image_url:
-        return None
-    
-    try:
-        # Create a filename based on recipe ID
-        image_dir = os.path.join(base_dir, "images")
-        file_extension = os.path.splitext(urlparse(image_url).path)[1] or ".jpg"
-        image_filename = f"recipe_{recipe_id}{file_extension}"
-        image_path = os.path.join(image_dir, image_filename)
-        
-        # Download the image
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        }
-        
-        response = requests.get(image_url, headers=headers, stream=True)
-        response.raise_for_status()
-        
-        with open(image_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        
-        print(f"Downloaded image: {image_filename}")
-        return image_path
-    
-    except Exception as e:
-        print(f"Error downloading image: {e}")
-        return None
+
 
 def export_to_csv(recipes, filename="pickup_limes_recipes.csv"):
     """
