@@ -2664,7 +2664,6 @@ button:disabled {
     left: 0;
     width: 100%;
     height: 50px;
-    background: linear-gradient(to bottom, rgba(248, 248, 248, 0), rgba(248, 248, 248, 1));
     pointer-events: none;
 }
 

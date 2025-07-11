@@ -23,7 +23,7 @@ FOOD_DB_PATH = '../food_dietary_project/food_nutrition_data.csv'
 YOUTUBE_API_PORT = 5002
 YOUTUBE_API_HOST = 'localhost'
 
-# Configure Gemini API (you'll need to set your API key)
+# Configure Gemini API 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
@@ -75,6 +75,7 @@ def serve_css(filename):
 def serve_local_image(filename):
     return send_from_directory('images', filename)
 
+# Search recipes
 @app.route('/api/recipes/search')
 def search_recipes():
     query = request.args.get('query', '').lower()
@@ -138,7 +139,7 @@ def search_recipes():
         results.append(result)
     
     # Limit results
-    limit = int(request.args.get('number', 12))
+    limit = int(request.args.get('number', 40))
     results = results[:limit]
     
     return jsonify({'results': results})
@@ -397,17 +398,29 @@ def calculate_nutrition(food_data: dict, quantity_grams: float) -> Dict[str, Any
 # New Gemini-based food processing endpoint
 @app.route('/api/gemini/process_food_text', methods=['POST'])
 def process_food_with_gemini():
+    print("\n" + "="*60)
+    print("🚀 STARTING process_food_with_gemini function")
+    print("="*60)
+    
     try:
         data = request.get_json()
         text = data.get('text', '')
         
+        print(f"📝 Input text received: '{text}'")
+        
         if not text:
+            print("❌ Error: No text provided")
             return jsonify({'error': 'No text provided'}), 400
         
         # Parse text with Gemini
+        print("\n🧠 STEP 1: Parsing text with Gemini AI...")
         parsed_foods = parse_quantities_and_foods(text)
+        print(f"✅ Gemini parsed {len(parsed_foods)} food items:")
+        for i, food in enumerate(parsed_foods, 1):
+            print(f"   {i}. {food['quantity']} {food['unit']} of '{food['food_name']}'")
         
         # Deduplicate parsed foods based on food name (case insensitive)
+        print("\n🔄 STEP 2: Deduplicating parsed foods...")
         seen_foods = {}
         unique_parsed_foods = []
         for parsed_food in parsed_foods:
@@ -415,27 +428,41 @@ def process_food_with_gemini():
             if food_key not in seen_foods:
                 seen_foods[food_key] = True
                 unique_parsed_foods.append(parsed_food)
+                print(f"   ✅ Keeping: '{parsed_food['food_name']}'")
+            else:
+                print(f"   ❌ Skipping duplicate: '{parsed_food['food_name']}'")
+        
+        print(f"📊 After deduplication: {len(unique_parsed_foods)} unique foods")
         
         results = []
         processed_food_names = set()  # Track processed foods to avoid duplicates in results
         
-        for parsed_food in unique_parsed_foods:
+        print("\n🔍 STEP 3: Processing each unique food...")
+        
+        for i, parsed_food in enumerate(unique_parsed_foods, 1):
             food_name = parsed_food['food_name']
             quantity = parsed_food['quantity']
             unit = parsed_food['unit']
             
+            print(f"\n   📋 Processing food #{i}: '{food_name}'")
+            print(f"      Original: {quantity} {unit}")
+            
             # Convert to grams
             quantity_grams = convert_to_grams(quantity, unit)
+            print(f"      Converted: {quantity_grams}g")
             
             # Find matching food in database
+            print(f"      🔎 Searching database for matches...")
             matches = find_food_matches([food_name])
             
             if matches:
                 food_data = matches[0]
                 matched_food_name = food_data['name']
+                print(f"      ✅ Found match: '{matched_food_name}'")
                 
                 # Skip if we've already processed this exact food (avoid duplicates)
                 if matched_food_name.lower() in processed_food_names:
+                    print(f"      ⏭️ Skipping: Already processed exact match")
                     continue
                 
                 # Also skip if we've processed a very similar food (e.g., both "Adobo, with rice" and "Adobo, with noodles")
@@ -446,10 +473,21 @@ def process_food_with_gemini():
                     for existing in processed_food_names
                 )
                 if similar_processed:
+                    print(f"      ⏭️ Skipping: Similar food already processed (base: '{base_name}')")
                     continue
                 
                 processed_food_names.add(matched_food_name.lower())
+                print(f"      ➕ Added to processed list: '{matched_food_name.lower()}'")
+                
+                print(f"      🧮 Calculating nutrition for {quantity_grams}g...")
                 nutrition = calculate_nutrition(food_data, quantity_grams)
+                
+                calories = nutrition.get('energy (KCAL)', 0) or nutrition.get('Energy', 0)
+                protein = nutrition.get('protein (G)', 0) or nutrition.get('Protein', 0)
+                fat = nutrition.get('total lipid (fat) (G)', 0) or nutrition.get('Total lipid (fat)', 0)
+                carbs = nutrition.get('carbohydrate, by difference (G)', 0) or nutrition.get('Carbohydrate, by difference', 0)
+                
+                print(f"      📈 Nutrition summary: {calories:.1f} cal, {protein:.1f}g protein, {fat:.1f}g fat, {carbs:.1f}g carbs")
                 
                 result = {
                     'id': len(results) + 1,
@@ -459,18 +497,30 @@ def process_food_with_gemini():
                     'original_unit': unit,
                     'nutrition': nutrition,
                     'total_nutrition_fields': len(nutrition),
-                    'calories': nutrition.get('energy (KCAL)', 0) or nutrition.get('Energy', 0),
-                    'protein': nutrition.get('protein (G)', 0) or nutrition.get('Protein', 0),
-                    'fat': nutrition.get('total lipid (fat) (G)', 0) or nutrition.get('Total lipid (fat)', 0),
-                    'carbs': nutrition.get('carbohydrate, by difference (G)', 0) or nutrition.get('Carbohydrate, by difference', 0),
+                    'calories': calories,
+                    'protein': protein,
+                    'fat': fat,
+                    'carbs': carbs,
                     'fiber': nutrition.get('fiber, total dietary (G)', 0) or nutrition.get('Fiber, total dietary', 0)
                 }
                 results.append(result)
+                print(f"      ✅ Added to results (Result #{len(results)})")
+            else:
+                print(f"      ❌ No match found in database for '{food_name}'")
+        
+        print(f"\n🎯 FINAL RESULTS: {len(results)} foods processed successfully")
+        for i, result in enumerate(results, 1):
+            print(f"   {i}. {result['name']} ({result['quantity']}g) - {result['calories']:.1f} cal")
+        
+        print("="*60)
+        print("✅ process_food_with_gemini completed successfully")
+        print("="*60 + "\n")
         
         return jsonify({'result': results})
         
     except Exception as e:
-        print(f"Error in process_food_with_gemini: {e}")
+        print(f"\n💥 ERROR in process_food_with_gemini: {e}")
+        print("="*60 + "\n")
         return jsonify({'error': str(e)}), 500
 
 # Keep the proxy for backwards compatibility, but modify it
