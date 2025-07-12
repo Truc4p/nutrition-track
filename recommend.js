@@ -10,60 +10,82 @@ let goal = '';
 let healthCondition = '';
 let recommendation = null;
 
-// Helper function to get proper nutrient category for recommendations
-function getRecommendationNutrientCategory(nutrientName) {
-    const categoryMap = {
-        // Energy & Macronutrients
-        'Calories': 'Energy & Macronutrients',
-        'Fats': 'Energy & Macronutrients',
-        'Carbohydrates': 'Energy & Macronutrients',
-        'Protein': 'Energy & Macronutrients',
+// Helper function to get nutrient group from the 9-group structure
+function getNutrientGroup(nutrientName) {
+    // Try to get nutrient info from the database first
+    let category = null;
+    
+    if (typeof window !== 'undefined' && window.NutrientDatabase) {
+        const nutrientInfo = window.NutrientDatabase.getNutrientInfo(nutrientName);
+        if (nutrientInfo && nutrientInfo.category) {
+            category = nutrientInfo.category;
+        }
+    }
+    
+    // Fallback to NUTRIENT_DATABASE if available
+    if (!category && typeof NUTRIENT_DATABASE !== 'undefined') {
+        if (NUTRIENT_DATABASE[nutrientName]) {
+            category = NUTRIENT_DATABASE[nutrientName].category;
+        } else {
+            // Try case-insensitive match
+            const lowerNutrientName = nutrientName.toLowerCase();
+            for (const [key, value] of Object.entries(NUTRIENT_DATABASE)) {
+                if (key.toLowerCase() === lowerNutrientName) {
+                    category = value.category;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Map categories to the 9 major groups
+    const categoryToGroup = {
+        // GROUP 1: ENERGY & FOUNDATION
+        'Energy': 'GROUP 1: ENERGY & FOUNDATION',
+        'Basic Components': 'GROUP 1: ENERGY & FOUNDATION',
         
-        // Fiber & Water
-        'Fiber': 'Fiber & Hydration',
-        'Water': 'Fiber & Hydration',
+        // GROUP 2: MACRONUTRIENTS
+        'Macronutrients': 'GROUP 2: MACRONUTRIENTS',
         
-        // Lipids & Fatty Acids
-        'Cholesterol': 'Lipids & Fatty Acids',
-        'Saturated Fat': 'Lipids & Fatty Acids',
-        'Trans Fat': 'Lipids & Fatty Acids',
-        'Omega-3': 'Lipids & Fatty Acids',
-        'Omega-6': 'Lipids & Fatty Acids',
+        // GROUP 3: VITAMINS
+        'Fat-Soluble Vitamins': 'GROUP 3: VITAMINS',
+        'Water-Soluble Vitamins': 'GROUP 3: VITAMINS',
+        'B Vitamins': 'GROUP 3: VITAMINS',
+        'Vitamin E': 'GROUP 3: VITAMINS',
+        'Folate': 'GROUP 3: VITAMINS',
         
-        // Fat-Soluble Vitamins
-        'Vitamin A': 'Fat-Soluble Vitamins',
-        'Vitamin D': 'Fat-Soluble Vitamins',
-        'Vitamin E': 'Fat-Soluble Vitamins',
-        'Vitamin K': 'Fat-Soluble Vitamins',
+        // GROUP 4: MINERALS
+        'Major Minerals': 'GROUP 4: MINERALS',
+        'Trace Minerals': 'GROUP 4: MINERALS',
         
-        // Water-Soluble Vitamins
-        'Vitamin C': 'Water-Soluble Vitamins',
+        // GROUP 5: CARBOHYDRATES
+        'Fiber': 'GROUP 5: CARBOHYDRATES',
+        'Sugars': 'GROUP 5: CARBOHYDRATES',
+        'Complex Carbohydrates': 'GROUP 5: CARBOHYDRATES',
         
-        // B Vitamins
-        'Vitamin B6': 'B Vitamins',
-        'Vitamin B12': 'B Vitamins',
-        'Thiamin': 'B Vitamins',
-        'Riboflavin': 'B Vitamins',
-        'Niacin': 'B Vitamins',
-        'Folate': 'B Vitamins',
-        'Choline': 'B Vitamins',
+        // GROUP 6: LIPIDS & FATS
+        'Lipids': 'GROUP 6: LIPIDS & FATS',
+        'Fatty Acid Totals': 'GROUP 6: LIPIDS & FATS',
+        'Saturated Fatty Acids': 'GROUP 6: LIPIDS & FATS',
+        'Monounsaturated Fatty Acids': 'GROUP 6: LIPIDS & FATS',
+        'Polyunsaturated Fatty Acids': 'GROUP 6: LIPIDS & FATS',
+        'Trans Fatty Acids': 'GROUP 6: LIPIDS & FATS',
+        'Phytosterols': 'GROUP 6: LIPIDS & FATS',
         
-        // Major Minerals
-        'Calcium': 'Major Minerals',
-        'Magnesium': 'Major Minerals',
-        'Phosphorus': 'Major Minerals',
-        'Potassium': 'Major Minerals',
-        'Sodium': 'Major Minerals',
+        // GROUP 7: PROTEINS
+        'Amino Acids': 'GROUP 7: PROTEINS',
         
-        // Trace Minerals
-        'Iron': 'Trace Minerals',
-        'Zinc': 'Trace Minerals',
-        'Copper': 'Trace Minerals',
-        'Manganese': 'Trace Minerals',
-        'Selenium': 'Trace Minerals'
+        // GROUP 8: BIOACTIVE COMPOUNDS
+        'Carotenoids': 'GROUP 8: BIOACTIVE COMPOUNDS',
+        'Choline': 'GROUP 8: BIOACTIVE COMPOUNDS',
+        'Isoflavones': 'GROUP 8: BIOACTIVE COMPOUNDS',
+        
+        // GROUP 9: MISCELLANEOUS
+        'Other Compounds': 'GROUP 9: MISCELLANEOUS',
+        'Organic Acids': 'GROUP 9: MISCELLANEOUS'
     };
     
-    return categoryMap[nutrientName] || 'Other Nutrients';
+    return categoryToGroup[category] || 'GROUP 9: MISCELLANEOUS';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -212,39 +234,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Add all nutrients to appropriate categories
                 const nutrients = [
-                    { name: 'Calories', value: recommendation.calories, unit: 'kcal' },
-                    { name: 'Fats', value: `${Math.round(recommendation.fats.min)} - ${Math.round(recommendation.fats.max)}`, unit: 'g' },
-                    { name: 'Carbohydrates', value: `${Math.round(recommendation.carbs.min)} - ${Math.round(recommendation.carbs.max)}`, unit: 'g' },
+                    { name: 'Energy', value: recommendation.calories, unit: 'kcal' },
+                    { name: 'Fatty acids, total saturated', value: recommendation.saturatedFat, unit: 'g' },
+                    { name: 'Fatty acids, total trans', value: recommendation.transFat, unit: 'g' },
+                    { name: 'PUFA 18:3 n-3 c,c,c (ALA)', value: recommendation.omega3, unit: 'g' },
+                    { name: 'PUFA 18:2 n-6 c,c', value: recommendation.omega6, unit: 'g' },
+                    { name: 'Carbohydrate, by difference', value: `${Math.round(recommendation.carbs.min)} - ${Math.round(recommendation.carbs.max)}`, unit: 'g' },
                     { name: 'Protein', value: `${Math.round(recommendation.protein.min)} - ${Math.round(recommendation.protein.max)}`, unit: 'g' },
-                    { name: 'Fiber', value: recommendation.fiber, unit: 'g' },
+                    { name: 'Fiber, total dietary', value: recommendation.fiber, unit: 'g' },
                     { name: 'Water', value: recommendation.water, unit: 'g' },
                     { name: 'Cholesterol', value: recommendation.cholesterol, unit: 'mg' },
-                    { name: 'Omega-3', value: recommendation.omega3, unit: 'g' },
-                    { name: 'Omega-6', value: recommendation.omega6, unit: 'g' },
-                    { name: 'Saturated Fat', value: recommendation.saturatedFat, unit: 'g' },
-                    { name: 'Trans Fat', value: recommendation.transFat, unit: 'g' },
-                    { name: 'Iron', value: recommendation.iron, unit: 'mg' },
-                    { name: 'Sodium', value: recommendation.sodium, unit: 'mg' },
-                    { name: 'Potassium', value: recommendation.potassium, unit: 'mg' },
-                    { name: 'Calcium', value: recommendation.calcium, unit: 'mg' },
-                    { name: 'Magnesium', value: recommendation.magnesium, unit: 'mg' },
-                    { name: 'Zinc', value: recommendation.zinc, unit: 'mg' },
-                    { name: 'Copper', value: recommendation.copper, unit: 'mcg' },
-                    { name: 'Manganese', value: recommendation.manganese, unit: 'mg' },
-                    { name: 'Phosphorus', value: recommendation.phosphorus, unit: 'mg' },
-                    { name: 'Selenium', value: recommendation.selenium, unit: 'mcg' },
-                    { name: 'Vitamin A', value: recommendation.vitaminA, unit: 'mcg RAE' },
-                    { name: 'Vitamin B6', value: recommendation.vitaminB6, unit: 'mg' },
-                    { name: 'Vitamin B12', value: recommendation.vitaminB12, unit: 'mcg' },
-                    { name: 'Vitamin C', value: recommendation.vitaminC, unit: 'mg' },
-                    { name: 'Vitamin D', value: recommendation.vitaminD, unit: 'IU' },
-                    { name: 'Vitamin E', value: recommendation.vitaminE, unit: 'mg' },
-                    { name: 'Vitamin K', value: recommendation.vitaminK, unit: 'mcg' },
-                    { name: 'Folate', value: recommendation.folate, unit: 'mcg DFE' },
+                    { name: 'Iron, Fe', value: recommendation.iron, unit: 'mg' },
+                    { name: 'Sodium, Na', value: recommendation.sodium, unit: 'mg' },
+                    { name: 'Potassium, K', value: recommendation.potassium, unit: 'mg' },
+                    { name: 'Calcium, Ca', value: recommendation.calcium, unit: 'mg' },
+                    { name: 'Magnesium, Mg', value: recommendation.magnesium, unit: 'mg' },
+                    { name: 'Zinc, Zn', value: recommendation.zinc, unit: 'mg' },
+                    { name: 'Copper, Cu', value: recommendation.copper, unit: 'mcg' },
+                    { name: 'Manganese, Mn', value: recommendation.manganese, unit: 'mg' },
+                    { name: 'Phosphorus, P', value: recommendation.phosphorus, unit: 'mg' },
+                    { name: 'Selenium, Se', value: recommendation.selenium, unit: 'mcg' },
+                    { name: 'Vitamin A, RAE', value: recommendation.vitaminA, unit: 'mcg RAE' },
+                    { name: 'Vitamin B-6', value: recommendation.vitaminB6, unit: 'mg' },
+                    { name: 'Vitamin B-12', value: recommendation.vitaminB12, unit: 'mcg' },
+                    { name: 'Vitamin C, total ascorbic acid', value: recommendation.vitaminC, unit: 'mg' },
+                    { name: 'Vitamin D (D2 + D3)', value: recommendation.vitaminD, unit: 'IU' },
+                    { name: 'Vitamin E (alpha-tocopherol)', value: recommendation.vitaminE, unit: 'mg' },
+                    { name: 'Vitamin K (phylloquinone)', value: recommendation.vitaminK, unit: 'mcg' },
+                    { name: 'Folate, DFE', value: recommendation.folate, unit: 'mcg DFE' },
                     { name: 'Thiamin', value: recommendation.thiamin, unit: 'mg' },
                     { name: 'Riboflavin', value: recommendation.riboflavin, unit: 'mg' },
                     { name: 'Niacin', value: recommendation.niacin, unit: 'mg' },
-                    { name: 'Choline', value: recommendation.choline, unit: 'mg' }
+                    { name: 'Choline, total', value: recommendation.choline, unit: 'mg' }
                 ];
 
                 nutrients.forEach(nutrient => {
@@ -258,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const name = nutrient.name;
                     
                     // Get USDA category for this nutrient
-                    const nutrientGroup = getRecommendationNutrientCategory(name) || 'Other Nutrients';
+                    const nutrientGroup = getNutrientGroup(name) || 'GROUP 9: MISCELLANEOUS';
                     
                     // Initialize category array if it doesn't exist
                     if (!categories[nutrientGroup]) {
@@ -274,15 +295,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Define the desired order of categories
                 const categoryOrder = [
-                    'Energy & Macronutrients',
-                    'Fiber & Hydration',
-                    'Lipids & Fatty Acids',
-                    'Fat-Soluble Vitamins',
-                    'Water-Soluble Vitamins',
-                    'B Vitamins',
-                    'Major Minerals',
-                    'Trace Minerals',
-                    'Other Nutrients'
+                    'GROUP 1: ENERGY & FOUNDATION',
+                    'GROUP 2: MACRONUTRIENTS',
+                    'GROUP 3: VITAMINS',
+                    'GROUP 4: MINERALS',
+                    'GROUP 5: CARBOHYDRATES',
+                    'GROUP 6: LIPIDS & FATS',
+                    'GROUP 7: PROTEINS',
+                    'GROUP 8: BIOACTIVE COMPOUNDS',
+                    'GROUP 9: MISCELLANEOUS'
                 ];
 
                 // Display nutrients by category in the specified order
