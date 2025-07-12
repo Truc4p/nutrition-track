@@ -336,6 +336,16 @@ button:disabled {
     font-size: 1.4em;
 }
 
+/* Override for category titles in food details */
+#food-details .category-title {
+    color: #2c3e50;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #4CAF50;
+}
+
 .food-name {
     background: linear-gradient(135deg, #3498db, #2ecc71);
     background-clip: text;
@@ -600,7 +610,7 @@ button:disabled {
 
 #nutrition-totals .category-title {
     color: #2c3e50;
-    font-size: 1.3em;
+    font-size: 1.1em;
     font-weight: 600;
     margin: 0 0 10px 0;
     padding-bottom: 8px;

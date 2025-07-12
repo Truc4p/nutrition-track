@@ -86,75 +86,81 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchTimeout;
 
     // Helper function to get USDA nutrient category
-    function getUSDANutrientCategory(nutrientName) {
-        // Try to get nutrient info from the database
+    function getNutrientGroup(nutrientName) {
+        // Try to get nutrient info from the database first
+        let category = null;
+        
         if (typeof window !== 'undefined' && window.NutrientDatabase) {
             const nutrientInfo = window.NutrientDatabase.getNutrientInfo(nutrientName);
             if (nutrientInfo && nutrientInfo.category) {
-                return nutrientInfo.category;
+                category = nutrientInfo.category;
             }
         }
         
         // Fallback to NUTRIENT_DATABASE if available
-        if (typeof NUTRIENT_DATABASE !== 'undefined') {
+        if (!category && typeof NUTRIENT_DATABASE !== 'undefined') {
             if (NUTRIENT_DATABASE[nutrientName]) {
-                return NUTRIENT_DATABASE[nutrientName].category;
-            }
-            
-            // Try case-insensitive match
-            const lowerNutrientName = nutrientName.toLowerCase();
-            for (const [key, value] of Object.entries(NUTRIENT_DATABASE)) {
-                if (key.toLowerCase() === lowerNutrientName) {
-                    return value.category;
+                category = NUTRIENT_DATABASE[nutrientName].category;
+            } else {
+                // Try case-insensitive match
+                const lowerNutrientName = nutrientName.toLowerCase();
+                for (const [key, value] of Object.entries(NUTRIENT_DATABASE)) {
+                    if (key.toLowerCase() === lowerNutrientName) {
+                        category = value.category;
+                        break;
+                    }
                 }
-            }
-            
-            // Try common mappings
-            const commonMappings = {
-                'calories': 'Energy',
-                'energy': 'Energy',
-                'fat': 'Total lipid (fat)',
-                'fats': 'Total lipid (fat)',
-                'carbs': 'Carbohydrate, by difference',
-                'carbohydrates': 'Carbohydrate, by difference',
-                'fiber': 'Fiber, total dietary',
-                'sugar': 'Sugars, Total',
-                'protein': 'Protein',
-                'cholesterol': 'Cholesterol',
-                'saturated fat': 'Fatty acids, total saturated',
-                'trans fat': 'Fatty acids, total trans',
-                'vitamin a': 'Vitamin A, RAE',
-                'vitamin b6': 'Vitamin B-6',
-                'vitamin b12': 'Vitamin B-12',
-                'vitamin c': 'Vitamin C, total ascorbic acid',
-                'vitamin d': 'Vitamin D (D2 + D3)',
-                'vitamin e': 'Vitamin E (alpha-tocopherol)',
-                'vitamin k': 'Vitamin K (phylloquinone)',
-                'folate': 'Folate, DFE',
-                'thiamin': 'Thiamin',
-                'riboflavin': 'Riboflavin',
-                'niacin': 'Niacin',
-                'choline': 'Choline, total',
-                'calcium': 'Calcium, Ca',
-                'iron': 'Iron, Fe',
-                'magnesium': 'Magnesium, Mg',
-                'phosphorus': 'Phosphorus, P',
-                'potassium': 'Potassium, K',
-                'sodium': 'Sodium, Na',
-                'zinc': 'Zinc, Zn',
-                'copper': 'Copper, Cu',
-                'manganese': 'Manganese, Mn',
-                'selenium': 'Selenium, Se'
-            };
-            
-            const mappedName = commonMappings[lowerNutrientName];
-            if (mappedName && NUTRIENT_DATABASE[mappedName]) {
-                return NUTRIENT_DATABASE[mappedName].category;
             }
         }
         
-        // Return null if no category found - will be placed in "Other" category
-        return null;
+        // Map categories to the 9 major groups
+        const categoryToGroup = {
+            // GROUP 1: ENERGY & FOUNDATION
+            'Energy': 'GROUP 1: ENERGY & FOUNDATION',
+            'Basic Components': 'GROUP 1: ENERGY & FOUNDATION',
+            
+            // GROUP 2: MACRONUTRIENTS
+            'Macronutrients': 'GROUP 2: MACRONUTRIENTS',
+            
+            // GROUP 3: VITAMINS
+            'Fat-Soluble Vitamins': 'GROUP 3: VITAMINS',
+            'Water-Soluble Vitamins': 'GROUP 3: VITAMINS',
+            'B Vitamins': 'GROUP 3: VITAMINS',
+            'Vitamin E': 'GROUP 3: VITAMINS',
+            'Folate': 'GROUP 3: VITAMINS',
+            
+            // GROUP 4: MINERALS
+            'Major Minerals': 'GROUP 4: MINERALS',
+            'Trace Minerals': 'GROUP 4: MINERALS',
+            
+            // GROUP 5: CARBOHYDRATES
+            'Fiber': 'GROUP 5: CARBOHYDRATES',
+            'Sugars': 'GROUP 5: CARBOHYDRATES',
+            'Complex Carbohydrates': 'GROUP 5: CARBOHYDRATES',
+            
+            // GROUP 6: LIPIDS & FATS
+            'Lipids': 'GROUP 6: LIPIDS & FATS',
+            'Fatty Acid Totals': 'GROUP 6: LIPIDS & FATS',
+            'Saturated Fatty Acids': 'GROUP 6: LIPIDS & FATS',
+            'Monounsaturated Fatty Acids': 'GROUP 6: LIPIDS & FATS',
+            'Polyunsaturated Fatty Acids': 'GROUP 6: LIPIDS & FATS',
+            'Trans Fatty Acids': 'GROUP 6: LIPIDS & FATS',
+            'Phytosterols': 'GROUP 6: LIPIDS & FATS',
+            
+            // GROUP 7: PROTEINS
+            'Amino Acids': 'GROUP 7: PROTEINS',
+            
+            // GROUP 8: BIOACTIVE COMPOUNDS
+            'Carotenoids': 'GROUP 8: BIOACTIVE COMPOUNDS',
+            'Choline': 'GROUP 8: BIOACTIVE COMPOUNDS',
+            'Isoflavones': 'GROUP 8: BIOACTIVE COMPOUNDS',
+            
+            // GROUP 9: MISCELLANEOUS
+            'Other Compounds': 'GROUP 9: MISCELLANEOUS',
+            'Organic Acids': 'GROUP 9: MISCELLANEOUS'
+        };
+        
+        return categoryToGroup[category] || 'GROUP 9: MISCELLANEOUS';
     }
 
     // Event listeners
@@ -286,15 +292,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add consolidated energy entry if we have a value
         if (energyValue > 0) {
-            const energyCategory = getUSDANutrientCategory('Energy') || 'Energy';
-            if (!categories[energyCategory]) categories[energyCategory] = [];
+            const energyGroup = getNutrientGroup('Energy') || 'Energy';
+            if (!categories[energyGroup]) categories[energyGroup] = [];
             
             const nutrientInfo = `
                 <div class="nutrition-total-item">
                     <span class="nutrient-name">Energy:</span>
                     <span class="nutrient-value">${Math.round(energyValue)} kcal</span>
                 </div>`;
-            categories[energyCategory].push(nutrientInfo);
+            categories[energyGroup].push(nutrientInfo);
         }
 
         // Categorize all other nutrients using USDA categories (excluding energy/calorie nutrients)
@@ -319,23 +325,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
 
             // Get USDA category for this nutrient
-            const usdaCategory = getUSDANutrientCategory(displayName) || 'Other';
+            const nutrientGroup = getNutrientGroup(displayName) || 'Other';
             
             // Initialize category array if it doesn't exist
-            if (!categories[usdaCategory]) {
-                categories[usdaCategory] = [];
+            if (!categories[nutrientGroup]) {
+                categories[nutrientGroup] = [];
             }
             
-            categories[usdaCategory].push(nutrientInfo);
+            categories[nutrientGroup].push(nutrientInfo);
         });
 
-        // Display nutrients by category using same structure as home.js
-        Object.entries(categories).forEach(([categoryName, nutrients]) => {
-            if (nutrients.length > 0) {
+        // Display nutrients by category in the correct 1-9 group order
+        const groupOrder = [
+            'GROUP 1: ENERGY & FOUNDATION',
+            'GROUP 2: MACRONUTRIENTS',
+            'GROUP 3: VITAMINS',
+            'GROUP 4: MINERALS',
+            'GROUP 5: CARBOHYDRATES',
+            'GROUP 6: LIPIDS & FATS',
+            'GROUP 7: PROTEINS',
+            'GROUP 8: BIOACTIVE COMPOUNDS',
+            'GROUP 9: MISCELLANEOUS'
+        ];
+
+        groupOrder.forEach(groupName => {
+            if (categories[groupName] && categories[groupName].length > 0) {
                 nutritionHtml += `
                     <div class="nutrition-category">
-                        <h4 class="category-title">${categoryName}</h4>
-                        ${nutrients.join('')}
+                        <h4 class="category-title">${groupName}</h4>
+                        ${categories[groupName].join('')}
                     </div>`;
             }
         });
@@ -595,8 +613,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Add consolidated energy entry if we have a value
         if (hasEnergyNutrient && totalEnergyKcal > 0) {
-            const energyCategory = getUSDANutrientCategory('Energy') || 'Energy';
-            if (!categories[energyCategory]) categories[energyCategory] = [];
+            const energyGroup = getNutrientGroup('Energy') || 'Energy';
+            if (!categories[energyGroup]) categories[energyGroup] = [];
             
             const recommendedValue = getRecommendedValue('Energy', 'kcal');
             let valueDisplay;
@@ -611,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="nutrient-name">Energy:</span>
                     <span class="nutrient-value">${valueDisplay}</span>
                 </div>`;
-            categories[energyCategory].push(nutrientInfo);
+            categories[energyGroup].push(nutrientInfo);
         }
 
         // Sort and categorize other nutrients using USDA categories (excluding energy/calorie nutrients)
@@ -642,24 +660,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
 
                 // Get USDA category for this nutrient
-                const usdaCategory = getUSDANutrientCategory(name) || 'Other';
+                const nutrientGroup = getNutrientGroup(name) || 'Other';
                 
                 // Initialize category array if it doesn't exist
-                if (!categories[usdaCategory]) {
-                    categories[usdaCategory] = [];
+                if (!categories[nutrientGroup]) {
+                    categories[nutrientGroup] = [];
                 }
                 
-                categories[usdaCategory].push(nutrientInfo);
+                categories[nutrientGroup].push(nutrientInfo);
             });
 
-        // Build the HTML
+        // Build the HTML using the correct 1-9 group order
+        const groupOrder = [
+            'GROUP 1: ENERGY & FOUNDATION',
+            'GROUP 2: MACRONUTRIENTS',
+            'GROUP 3: VITAMINS',
+            'GROUP 4: MINERALS',
+            'GROUP 5: CARBOHYDRATES',
+            'GROUP 6: LIPIDS & FATS',
+            'GROUP 7: PROTEINS',
+            'GROUP 8: BIOACTIVE COMPOUNDS',
+            'GROUP 9: MISCELLANEOUS'
+        ];
+
         let html = '';
-        Object.entries(categories).forEach(([category, nutrients]) => {
-            if (nutrients.length > 0) {
+        groupOrder.forEach(groupName => {
+            if (categories[groupName] && categories[groupName].length > 0) {
                 html += `
                     <div class="nutrition-category">
-                        <h4 class="category-title">${category}</h4>
-                        ${nutrients.join('')}
+                        <h4 class="category-title">${groupName}</h4>
+                        ${categories[groupName].join('')}
                     </div>`;
             }
         });

@@ -258,14 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const name = nutrient.name;
                     
                     // Get USDA category for this nutrient
-                    const usdaCategory = getRecommendationNutrientCategory(name) || 'Other Nutrients';
+                    const nutrientGroup = getRecommendationNutrientCategory(name) || 'Other Nutrients';
                     
                     // Initialize category array if it doesn't exist
-                    if (!categories[usdaCategory]) {
-                        categories[usdaCategory] = [];
+                    if (!categories[nutrientGroup]) {
+                        categories[nutrientGroup] = [];
                     }
                     
-                    categories[usdaCategory].push(nutrientInfo);
+                    categories[nutrientGroup].push(nutrientInfo);
                 });
 
                 // Create nutrition div with same structure as food items
