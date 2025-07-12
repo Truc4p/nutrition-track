@@ -422,7 +422,7 @@ def process_food_text():
                     'carbs': carbs,
                     'fiber': nutrition.get('fiber, total dietary (G)', 0) or nutrition.get('Fiber, total dietary', 0)
                 }
-                print(result)
+                # print(result)
                 results.append(result)
                 print(f"      ✅ Added to results (Result #{len(results)})")
             else:

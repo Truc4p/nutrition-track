@@ -251,7 +251,12 @@ function setLoading(loading) {
 
 // Fetch data from the backend API
 async function processText(inputText) {
+    console.log('🚀 STARTING processText function');
+    console.log('📝 Input text:', inputText);
+    console.log('🌐 API URL:', API_URL);
+    
     try {
+        console.log('📡 Making API request...');
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
@@ -260,18 +265,28 @@ async function processText(inputText) {
             body: JSON.stringify({ text: inputText }),
         });
 
+        console.log('📊 Response status:', response.status);
+        console.log('📊 Response ok:', response.ok);
+
         if (!response.ok) {
             // Handle HTTP errors (e.g., 404, 500)
+            console.error('❌ HTTP error occurred:', response.status);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        console.log('🔄 Parsing response JSON...');
         const data = await response.json(); // Corresponds to NutritionResponse
-        console.log('Backend response:', data); // Debug log
+        console.log('✅ Backend response received:', data);
+        console.log('📊 Number of results:', data.result ? data.result.length : 0);
 
         // Process the result into the 'foods' array with all nutrients
-        foods = data.result.map(ingredient => {
-            // New Gemini API response format
+        console.log('🔄 Processing API results into foods array...');
+        foods = data.result.map((ingredient, index) => {
+            console.log(`📋 Processing ingredient ${index + 1}:`, ingredient.name);
+            
+            // New API response format
             const nutritionData = ingredient.nutrition || {};
+            console.log(`   📊 Nutrition data keys: ${Object.keys(nutritionData).length} nutrients`);
             
             const fatsValue = parseFloat(ingredient.fat) || parseFloat(nutritionData['total lipid (fat) (G)']) || 0.0;
             const carbsValue = parseFloat(ingredient.carbs) || parseFloat(nutritionData['carbohydrate, by difference (G)']) || 0.0;
@@ -279,13 +294,21 @@ async function processText(inputText) {
             const fiberValue = parseFloat(ingredient.fiber) || parseFloat(nutritionData['fiber, total dietary (G)']) || 0.0;
             const quantityValue = parseFloat(ingredient.quantity) || 0.0;
             const totalCalories = parseFloat(ingredient.calories) || parseFloat(nutritionData['energy (KCAL)']) || 0.0;
+            
+            console.log(`   📊 Parsed values - Calories: ${totalCalories}, Protein: ${proteinValue}g, Carbs: ${carbsValue}g, Fat: ${fatsValue}g`);
+            console.log(`   📊 Quantity: ${quantityValue}${ingredient.original_unit || 'g'}`);
 
             // Process all nutrients from nutrition field
+            console.log(`   🔄 Processing all nutrients for ${ingredient.name}...`);
             const allNutrients = {};
+            let processedNutrientCount = 0;
+            
             if (nutritionData) {
                 Object.entries(nutritionData).forEach(([key, value]) => {
                     const numValue = parseFloat(value) || 0;
                     if (numValue > 0) {
+                        processedNutrientCount++;
+                        
                         // Better formatting for nutrient names
                         let formattedName = key
                             .replace(/,\s*/g, ', ')
@@ -314,33 +337,44 @@ async function processText(inputText) {
                             name: formattedName,
                             value: numValue,
                             unit: unit,
-                            category: 'other' // Default category
                         };
                     }
                 });
             }
+            
+            console.log(`   ✅ Processed ${processedNutrientCount} nutrients with values > 0`);
 
-            return {
+            const foodObject = {
                 id: ingredient.id,
                 name: ingredient.name,
                 fats: fatsValue,
-                saturatedFats: 0, // Not provided in new format, could be calculated if needed
                 carbohydrates: carbsValue,
                 protein: proteinValue,
                 fiber: fiberValue,
-                cholesterol: 0, // Not provided in new format
                 totalCalories: totalCalories,
                 quantity: quantityValue,
                 measurementType: ingredient.original_unit || 'g',
                 allNutrients: allNutrients // Add all nutrients
             };
+            
+            console.log(`   ✅ Created food object for ${ingredient.name}:`, foodObject);
+            return foodObject;
         });
+        
+        console.log('✅ Successfully processed all ingredients into foods array');
+        console.log('📊 Final foods array:', foods);
 
     } catch (error) {
-        console.error("Error fetching or processing nutrition data:", error);
+        console.error("💥 ERROR in processText function:", error);
+        console.error("❌ Error details:", error.message);
+        console.error("❌ Stack trace:", error.stack);
         alert(`Failed to get nutrition data: ${error.message}`); // Inform user
         foods = []; // Clear data on error
+        console.log('🔄 Cleared foods array due to error');
     }
+    
+    console.log('🏁 FINISHED processText function');
+    console.log('📊 Final foods array length:', foods.length);
 }
 
 // Update the HTML based on the current state (foods array)
