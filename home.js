@@ -72,20 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsHeader.style.display = 'none';
         }
     });
-
-    // Event listeners for this page
-
-    // Note: Recommendation functionality is now handled in recommend.js
-    // Event listeners for home page only
 });
-
-// Note: calculateNutrition function removed - we now use recommendations from recommend.js
-// This eliminates code duplication and ensures consistency
 
 // --- State ---
 let foods = [];
 let isLoading = false;
-// Note: recommendation variable moved to recommend.js
 const API_URL = "/api/nlp/process_text_and_get_nutrition/";
 
 // Add these variables at the top with other declarations
@@ -324,15 +315,7 @@ async function processText(inputText) {
                         if (unitMatch) {
                             formattedName = formattedName.replace(/\s*\([^)]+\)$/, '');
                         }
-                        
-                        // Handle special cases
-                        if (formattedName.toLowerCase().includes('vitamin')) {
-                            formattedName = formattedName.replace(/Vitamin\s+(\w)/g, 'Vitamin $1');
-                        }
-                        if (formattedName.toLowerCase().includes('fatty acids')) {
-                            formattedName = formattedName.replace(/Fatty Acids/gi, 'Fatty Acids');
-                        }
-                        
+
                         allNutrients[key] = {
                             name: formattedName,
                             value: numValue,
