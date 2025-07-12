@@ -6,7 +6,6 @@ import re
 import sys
 import requests
 import csv
-import google.generativeai as genai
 from typing import List, Dict, Any
 
 app = Flask(__name__, static_folder='.')
@@ -22,12 +21,6 @@ FOOD_DB_PATH = '../food_dietary_project/food_nutrition_data.csv'
 # YouTube API settings
 YOUTUBE_API_PORT = 5002
 YOUTUBE_API_HOST = 'localhost'
-
-# Configure Gemini API 
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Load food database
 food_database = []
@@ -229,96 +222,53 @@ def find_food_matches(food_names: List[str]) -> List[Dict[str, Any]]:
     return matches
 
 def parse_quantities_and_foods(text: str) -> List[Dict[str, Any]]:
-    """Parse the text to extract quantities and food names"""
-    if not GEMINI_API_KEY:
-        print("Gemini API key not configured, using fallback parser")
-        return fallback_parse_text(text)
-    
-    # Create a list of food names for Gemini to reference
-    food_names_sample = [food['name'] for food in food_database[:50]]  # Sample for context
-    
-    prompt = f"""
-    Parse this food consumption text and extract the quantities and food names. Only return foods that match or are very similar to foods in this database sample: {food_names_sample[:20]}
+    """Parse the text to extract quantities and food names using regex"""
+    print("Using regex-based food parsing")
+    return parse_text(text)
 
-    Text: "{text}"
-    
-    Return ONLY a JSON array with this exact format:
-    [
-        {{"quantity": 100, "unit": "grams", "food_name": "chicken breast"}},
-        {{"quantity": 200, "unit": "grams", "food_name": "wheat bread"}}
-    ]
-    
-    Rules:
-    - Extract numeric quantities (convert words like "one" to 1)
-    - Standardize units to: grams, cups, tablespoons, teaspoons, pieces, slices
-    - Match food names to the closest foods in the database
-    - If no quantity is specified, use 100 grams as default
-    - Return valid JSON only, no other text
-    """
-    
-    try:
-        response = model.generate_content(prompt)
-        
-        # Clean up the response to extract just the JSON
-        response_text = response.text.strip()
-        
-        # Remove markdown code blocks if present
-        if response_text.startswith('```json'):
-            response_text = response_text.replace('```json', '').replace('```', '').strip()
-        elif response_text.startswith('```'):
-            response_text = response_text.replace('```', '').strip()
-        
-        # Parse JSON
-        parsed_foods = json.loads(response_text)
-        return parsed_foods
-        
-    except Exception as e:
-        print(f"Error parsing with Gemini: {e}")
-        # Fallback: simple regex parsing
-        return fallback_parse_text(text)
-
-def fallback_parse_text(text: str) -> List[Dict[str, Any]]:
-    """Fallback parsing when Gemini is not available"""
+def parse_text(text: str) -> List[Dict[str, Any]]:
     results = []
     
-    # More comprehensive regex patterns for food parsing
-    patterns = [
-        # Pattern for "100 grams of chicken breast"
-        r'(\d+(?:\.\d+)?)\s*(grams?|g|cups?|tablespoons?|tbsp|teaspoons?|tsp|pieces?|slices?)\s+(?:of\s+)?([^,]+?)(?:,|\sand\s|$)',
-        # Pattern for "100 grams chicken breast"
-        r'(\d+(?:\.\d+)?)\s*(grams?|g)\s+([^,]+?)(?:,|\sand\s|$)',
-        # Pattern for food names from our database mentioned in text
-        r'(\d+(?:\.\d+)?)\s*(?:grams?\s+(?:of\s+)?)?([A-Za-z][^,\d]*?)(?:,|\sand\s|$)'
-    ]
+    # Use a single, more precise regex pattern to avoid duplicates
+    # This pattern matches: "number unit [of] food_name" followed by comma, "and", or end of string
+    pattern = r'(\d+(?:\.\d+)?)\s*(grams?|g|cups?|tablespoons?|tbsp|teaspoons?|tsp|pieces?|slices?)\s+(?:of\s+)?([^,]+?)(?:,|\sand\s|$)'
     
-    for pattern in patterns:
-        matches = re.finditer(pattern, text, re.IGNORECASE)
-        for match in matches:
-            try:
-                quantity = float(match.group(1))
-                if len(match.groups()) == 3:
-                    unit = match.group(2).lower() if match.group(2) else "grams"
-                    food_name = match.group(3).strip()
-                else:
-                    unit = "grams"
-                    food_name = match.group(2).strip()
-                
-                # Clean up food name
-                food_name = food_name.strip(',').strip()
-                
-                # Skip if food name is too short or contains numbers
-                if len(food_name) < 3 or any(char.isdigit() for char in food_name):
-                    continue
-                
-                results.append({
-                    "quantity": quantity,
-                    "unit": unit,
-                    "food_name": food_name
-                })
-            except (ValueError, IndexError):
+    matches = re.finditer(pattern, text, re.IGNORECASE)
+    processed_positions = set()  # Track processed text positions to avoid overlaps
+    
+    for match in matches:
+        # Skip if this match overlaps with a previously processed match
+        match_start, match_end = match.span()
+        if any(start <= match_start < end or start < match_end <= end for start, end in processed_positions):
+            continue
+        
+        try:
+            quantity = float(match.group(1))
+            unit = match.group(2).lower() if match.group(2) else "grams"
+            food_name = match.group(3).strip()
+            
+            # Clean up food name
+            food_name = food_name.strip(',').strip()
+            
+            # Skip if food name is too short, contains numbers, or starts with "of"
+            if (len(food_name) < 3 or 
+                any(char.isdigit() for char in food_name) or 
+                food_name.lower().startswith('of ')):
                 continue
+            
+            results.append({
+                "quantity": quantity,
+                "unit": unit,
+                "food_name": food_name
+            })
+            
+            # Mark this position as processed
+            processed_positions.add((match_start, match_end))
+            
+        except (ValueError, IndexError):
+            continue
     
-    # Remove duplicates by food name
+    # Remove duplicates by food name (case insensitive)
     seen_foods = set()
     unique_results = []
     for result in results:
@@ -395,11 +345,11 @@ def calculate_nutrition(food_data: dict, quantity_grams: float) -> Dict[str, Any
     
     return nutrition
 
-# New Gemini-based food processing endpoint
-@app.route('/api/gemini/process_food_text', methods=['POST'])
-def process_food_with_gemini():
+# Food processing endpoint using regex parsing
+@app.route('/api/process_food_text', methods=['POST'])
+def process_food_text():
     print("\n" + "="*60)
-    print("🚀 STARTING process_food_with_gemini function")
+    print("🚀 STARTING process_food_text function")
     print("="*60)
     
     try:
@@ -412,34 +362,19 @@ def process_food_with_gemini():
             print("❌ Error: No text provided")
             return jsonify({'error': 'No text provided'}), 400
         
-        # Parse text with Gemini
-        print("\n🧠 STEP 1: Parsing text with Gemini AI...")
+        # Parse text with regex
+        print("\n🧠 STEP 1: Parsing text with regex...")
         parsed_foods = parse_quantities_and_foods(text)
-        print(f"✅ Gemini parsed {len(parsed_foods)} food items:")
+        print(f"✅ Parsed {len(parsed_foods)} food items:")
         for i, food in enumerate(parsed_foods, 1):
             print(f"   {i}. {food['quantity']} {food['unit']} of '{food['food_name']}'")
-        
-        # Deduplicate parsed foods based on food name (case insensitive)
-        print("\n🔄 STEP 2: Deduplicating parsed foods...")
-        seen_foods = {}
-        unique_parsed_foods = []
-        for parsed_food in parsed_foods:
-            food_key = parsed_food['food_name'].lower().strip()
-            if food_key not in seen_foods:
-                seen_foods[food_key] = True
-                unique_parsed_foods.append(parsed_food)
-                print(f"   ✅ Keeping: '{parsed_food['food_name']}'")
-            else:
-                print(f"   ❌ Skipping duplicate: '{parsed_food['food_name']}'")
-        
-        print(f"📊 After deduplication: {len(unique_parsed_foods)} unique foods")
         
         results = []
         processed_food_names = set()  # Track processed foods to avoid duplicates in results
         
-        print("\n🔍 STEP 3: Processing each unique food...")
+        print("\n🔍 STEP 2: Processing each food...")
         
-        for i, parsed_food in enumerate(unique_parsed_foods, 1):
+        for i, parsed_food in enumerate(parsed_foods, 1):
             food_name = parsed_food['food_name']
             quantity = parsed_food['quantity']
             unit = parsed_food['unit']
@@ -459,22 +394,6 @@ def process_food_with_gemini():
                 food_data = matches[0]
                 matched_food_name = food_data['name']
                 print(f"      ✅ Found match: '{matched_food_name}'")
-                
-                # Skip if we've already processed this exact food (avoid duplicates)
-                if matched_food_name.lower() in processed_food_names:
-                    print(f"      ⏭️ Skipping: Already processed exact match")
-                    continue
-                
-                # Also skip if we've processed a very similar food (e.g., both "Adobo, with rice" and "Adobo, with noodles")
-                # by checking for similar base names
-                base_name = re.split(r'[,\(]', matched_food_name)[0].strip().lower()
-                similar_processed = any(
-                    re.split(r'[,\(]', existing)[0].strip().lower() == base_name 
-                    for existing in processed_food_names
-                )
-                if similar_processed:
-                    print(f"      ⏭️ Skipping: Similar food already processed (base: '{base_name}')")
-                    continue
                 
                 processed_food_names.add(matched_food_name.lower())
                 print(f"      ➕ Added to processed list: '{matched_food_name.lower()}'")
@@ -503,6 +422,7 @@ def process_food_with_gemini():
                     'carbs': carbs,
                     'fiber': nutrition.get('fiber, total dietary (G)', 0) or nutrition.get('Fiber, total dietary', 0)
                 }
+                print(result)
                 results.append(result)
                 print(f"      ✅ Added to results (Result #{len(results)})")
             else:
@@ -513,22 +433,22 @@ def process_food_with_gemini():
             print(f"   {i}. {result['name']} ({result['quantity']}g) - {result['calories']:.1f} cal")
         
         print("="*60)
-        print("✅ process_food_with_gemini completed successfully")
+        print("✅ process_food_text completed successfully")
         print("="*60 + "\n")
         
         return jsonify({'result': results})
         
     except Exception as e:
-        print(f"\n💥 ERROR in process_food_with_gemini: {e}")
+        print(f"\n💥 ERROR in process_food_text: {e}")
         print("="*60 + "\n")
         return jsonify({'error': str(e)}), 500
 
 # Keep the proxy for backwards compatibility, but modify it
 @app.route('/api/nlp/<path:endpoint>', methods=['POST', 'GET'])
 def proxy_nlp_api(endpoint):
-    # For the specific endpoint we're replacing, use Gemini instead
+    # For the specific endpoint we're replacing, use our regex parser instead
     if endpoint == 'process_text_and_get_nutrition' or endpoint == 'process_text_and_get_nutrition/':
-        return process_food_with_gemini()
+        return process_food_text()
     
     # For other endpoints, keep the original proxy behavior
     try:
