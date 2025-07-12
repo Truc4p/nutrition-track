@@ -6,11 +6,6 @@ const resultsHeader = document.getElementById('results-header');
 const foodListContainer = document.getElementById('food-list');
 const totalsSection = document.getElementById('totals-section');
 
-// Note: weight, height, age, recommendButton, and recommendationText elements 
-// are now handled in recommend.js for the recommendation page
-
-// Note: goal and healthCondition variables are now handled in recommend.js
-
 document.addEventListener('DOMContentLoaded', () => {
     // State management event listeners
     window.addEventListener('savePageState', (event) => {
@@ -88,6 +83,7 @@ function getNutrientGroup(nutrientName) {
     // Try to get nutrient info from the database first
     let category = null;
     
+    // Get nutrient info from the database
     if (typeof window !== 'undefined' && window.NutrientDatabase) {
         const nutrientInfo = window.NutrientDatabase.getNutrientInfo(nutrientName);
         if (nutrientInfo && nutrientInfo.category) {
@@ -107,51 +103,6 @@ function getNutrientGroup(nutrientName) {
                     category = value.category;
                     break;
                 }
-            }
-        }
-        
-        // Try common mappings if still no category found
-        if (!category) {
-            const commonMappings = {
-                'calories': 'Energy',
-                'energy': 'Energy',
-                'fat': 'Macronutrients',
-                'fats': 'Macronutrients',
-                'carbs': 'Macronutrients',
-                'carbohydrates': 'Macronutrients',
-                'fiber': 'Fiber',
-                'sugar': 'Sugars',
-                'protein': 'Macronutrients',
-                'cholesterol': 'Lipids',
-                'saturated fat': 'Fatty Acid Totals',
-                'trans fat': 'Trans Fatty Acids',
-                'vitamin a': 'Fat-Soluble Vitamins',
-                'vitamin b6': 'B Vitamins',
-                'vitamin b12': 'B Vitamins',
-                'vitamin c': 'Water-Soluble Vitamins',
-                'vitamin d': 'Fat-Soluble Vitamins',
-                'vitamin e': 'Vitamin E',
-                'vitamin k': 'Fat-Soluble Vitamins',
-                'folate': 'Folate',
-                'thiamin': 'B Vitamins',
-                'riboflavin': 'B Vitamins',
-                'niacin': 'B Vitamins',
-                'choline': 'Choline',
-                'calcium': 'Major Minerals',
-                'iron': 'Trace Minerals',
-                'magnesium': 'Major Minerals',
-                'phosphorus': 'Major Minerals',
-                'potassium': 'Major Minerals',
-                'sodium': 'Major Minerals',
-                'zinc': 'Trace Minerals',
-                'copper': 'Trace Minerals',
-                'manganese': 'Trace Minerals',
-                'selenium': 'Trace Minerals'
-            };
-            
-            const mappedCategory = commonMappings[nutrientName.toLowerCase()];
-            if (mappedCategory) {
-                category = mappedCategory;
             }
         }
     }
@@ -400,11 +351,11 @@ function updateUI() {
         collapseIcon.className = 'fas fa-chevron-down collapse-icon';
         headerDiv.appendChild(collapseIcon);
 
-        // All Nutrition Info organized by categories (same style as search.js)
+        // All Nutrition Info organized by categories 
         const nutritionDiv = document.createElement('div');
         nutritionDiv.className = 'food-nutrition';
 
-        // Organize nutrients by USDA categories from nutrient database
+        // Organize nutrients by categories from nutrient database
         const categories = {};
         
         // Track energy/calorie values to avoid duplicates
