@@ -405,6 +405,11 @@ function updateUI() {
                 if (name.includes('energy') || name.includes('calorie')) {
                     return;
                 }
+
+                // Skip MUFA, TFA, PUFA, SFA nutrients
+                if (name.includes('mufa') || name.includes('tfa') || name.includes('pufa') || name.includes('sfa')) {
+                    return;
+                }
                 
                 const displayName = nutrient.name;
                 const value = nutrient.value;
@@ -505,6 +510,11 @@ function calculateAndDisplayTotals() {
             
             // Skip energy/calorie nutrients as we handle them separately
             if (name.includes('energy') || name.includes('calorie')) {
+                return;
+            }
+
+            // Skip MUFA, TFA, PUFA, SFA nutrients
+            if (name.includes('mufa') || name.includes('tfa') || name.includes('pufa') || name.includes('sfa')) {
                 return;
             }
             
@@ -676,6 +686,7 @@ function calculateAndDisplayTotals() {
             if (Math.round(nutrient.value) === 0) return; // Skip values that round to 0
             
             const name = nutrient.name;
+            
             const actualValue = nutrient.value;
             const unit = nutrient.unit.toLowerCase();
             const recommendedValue = getRecommendedValue(name, unit);

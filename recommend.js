@@ -235,14 +235,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add all nutrients to appropriate categories
                 const nutrients = [
                     { name: 'Energy', value: recommendation.calories, unit: 'kcal' },
+                    { name: 'Total lipid (fat)', value: recommendation.totalFat, unit: 'g' },
                     { name: 'Fatty acids, total saturated', value: recommendation.saturatedFat, unit: 'g' },
                     { name: 'Fatty acids, total trans', value: recommendation.transFat, unit: 'g' },
-                    { name: 'Omega-3', value: recommendation.omega3, unit: 'g' },
-                    { name: 'Omega-6', value: recommendation.omega6, unit: 'g' },
-                    { name: 'Carbohydrate', value: `${Math.round(recommendation.carbs.min)} - ${Math.round(recommendation.carbs.max)}`, unit: 'g' },
-                    { name: 'Protein', value: `${Math.round(recommendation.protein.min)} - ${Math.round(recommendation.protein.max)}`, unit: 'g' },
+                    { name: 'Fatty acids, total monounsaturated', value: recommendation.monounsaturatedFat, unit: 'g' },
+                    { name: 'Fatty acids, total polyunsaturated', value: recommendation.polyunsaturatedFat, unit: 'g' },
+                    { name: 'Carbohydrate, by difference', value: `${Math.round(recommendation.carbs.min)}-${Math.round(recommendation.carbs.max)}`, unit: 'g' },
+                    { name: 'Protein', value: `${Math.round(recommendation.protein.min)}-${Math.round(recommendation.protein.max)}`, unit: 'g' },
                     { name: 'Fiber, total dietary', value: recommendation.fiber, unit: 'g' },
-                    { name: 'Water', value: recommendation.water, unit: 'g' },
+                    { name: 'Water', value: recommendation.water, unit: 'ml' },
                     { name: 'Cholesterol', value: recommendation.cholesterol, unit: 'mg' },
                     { name: 'Iron, Fe', value: recommendation.iron, unit: 'mg' },
                     { name: 'Sodium, Na', value: recommendation.sodium, unit: 'mg' },
@@ -250,18 +251,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     { name: 'Calcium, Ca', value: recommendation.calcium, unit: 'mg' },
                     { name: 'Magnesium, Mg', value: recommendation.magnesium, unit: 'mg' },
                     { name: 'Zinc, Zn', value: recommendation.zinc, unit: 'mg' },
-                    { name: 'Copper, Cu', value: recommendation.copper, unit: 'mcg' },
+                    { name: 'Copper, Cu', value: recommendation.copper, unit: 'mg' },
                     { name: 'Manganese, Mn', value: recommendation.manganese, unit: 'mg' },
                     { name: 'Phosphorus, P', value: recommendation.phosphorus, unit: 'mg' },
                     { name: 'Selenium, Se', value: recommendation.selenium, unit: 'mcg' },
-                    { name: 'Vitamin A, RAE', value: recommendation.vitaminA, unit: 'mcg RAE' },
+                    { name: 'Vitamin A, RAE', value: recommendation.vitaminA, unit: 'mcg' },
                     { name: 'Vitamin B-6', value: recommendation.vitaminB6, unit: 'mg' },
                     { name: 'Vitamin B-12', value: recommendation.vitaminB12, unit: 'mcg' },
                     { name: 'Vitamin C, total ascorbic acid', value: recommendation.vitaminC, unit: 'mg' },
-                    { name: 'Vitamin D (D2 + D3)', value: recommendation.vitaminD, unit: 'IU' },
+                    { name: 'Vitamin D (D2 + D3)', value: recommendation.vitaminD, unit: 'mcg' },
                     { name: 'Vitamin E (alpha-tocopherol)', value: recommendation.vitaminE, unit: 'mg' },
                     { name: 'Vitamin K (phylloquinone)', value: recommendation.vitaminK, unit: 'mcg' },
-                    { name: 'Folate, DFE', value: recommendation.folate, unit: 'mcg DFE' },
+                    { name: 'Folate, DFE', value: recommendation.folate, unit: 'mcg' },
                     { name: 'Thiamin', value: recommendation.thiamin, unit: 'mg' },
                     { name: 'Riboflavin', value: recommendation.riboflavin, unit: 'mg' },
                     { name: 'Niacin', value: recommendation.niacin, unit: 'mg' },
@@ -411,10 +412,12 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
     // Calculate recommendations for additional nutrients
 
     // Fat breakdown recommendations
+    const totalFat = calories * 0.3 / 9; // ~30% of calories
     const saturatedFat = calories * 0.1 / 9; // <10% of calories
     const transFat = 0; // As low as possible
-    const omega3 = 1.6; // AI for adult males
-    const omega6 = 17; // AI for adult males
+    const monounsaturatedFat = calories * 0.15 / 9; // ~15% of calories (part of total fat)
+    const polyunsaturatedFat = calories * 0.1 / 9; // ~10% of calories (part of total fat)
+
 
     // Mineral recommendations based on age and gender
     let iron, calcium, magnesium, zinc, copper, manganese, phosphorus, selenium;
@@ -557,10 +560,11 @@ function calculateNutrition(weight, height, age, gender, activityLevel, healthCo
         fiber,
         water,
         cholesterol,
+        totalFat,
         saturatedFat,
         transFat,
-        omega3,
-        omega6,
+        monounsaturatedFat,
+        polyunsaturatedFat,
         iron,
         sodium,
         potassium,

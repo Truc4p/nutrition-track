@@ -316,6 +316,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Skip MUFA, TFA, PUFA, SFA nutrients
+            if (name.includes('mufa') || name.includes('tfa') || name.includes('pufa') || name.includes('sfa')) {
+                return;
+            }
+
             const displayName = nutrient.nutrientName;
             const value = nutrient.value;
             const nutrientInfo = `
@@ -636,7 +641,10 @@ document.addEventListener('DOMContentLoaded', () => {
         allNutrients
             .filter(nutrient => {
                 const name = nutrient.name.toLowerCase();
-                return !name.includes('energy') && !name.includes('calorie');
+                // Skip energy/calorie nutrients and MUFA, TFA, PUFA, SFA nutrients
+                return !name.includes('energy') && !name.includes('calorie') &&
+                       !name.includes('mufa') && !name.includes('tfa') && 
+                       !name.includes('pufa') && !name.includes('sfa');
             })
             .sort((a, b) => a.name.localeCompare(b.name))
             .forEach(nutrient => {
