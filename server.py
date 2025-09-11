@@ -141,6 +141,20 @@ def search_recipes():
 def serve_image(filename):
     return send_from_directory(IMAGE_PATH, filename)
 
+# Backward-compat: redirect legacy recipe detail links to external recipe URL
+@app.route('/api/recipes/<int:recipe_id>')
+def legacy_recipe_redirect(recipe_id: int):
+    try:
+        for recipe in recipes:
+            if recipe.get('id') == recipe_id:
+                target_url = recipe.get('url')
+                if target_url:
+                    return redirect(target_url, code=302)
+                break
+        return jsonify({'message': 'Recipe not found'}), 404
+    except Exception as e:
+        return jsonify({'message': 'Error resolving recipe', 'error': str(e)}), 500
+
 # Proxy YouTube API requests
 @app.route('/api/youtube/videos', methods=['GET'])
 def proxy_youtube_videos():

@@ -242,6 +242,7 @@ function createRecipeCard(recipe) {
     const card = document.createElement('div');
     card.className = 'recipe-card';
     card.setAttribute('data-recipe-id', recipe.id);
+    card.setAttribute('data-recipe-url', recipe.url || '');
     card.style.cursor = 'pointer';
 
     card.innerHTML = `
@@ -257,7 +258,9 @@ function createRecipeCard(recipe) {
     
     // Add click event to the entire card
     card.addEventListener('click', () => {
-        window.open(recipe.url, '_blank');
+        if (recipe.url) {
+            window.open(recipe.url, '_blank');
+        }
     });
     
     return card;
@@ -273,12 +276,11 @@ function reattachRecipeCardEvents() {
     // Re-attach click events to recipe cards after restoring from state
     const recipeCards = resultsContainer.querySelectorAll('.recipe-card');
     recipeCards.forEach(card => {
-        const recipeId = card.getAttribute('data-recipe-id');
-        if (recipeId) {
-            // Add click event to open recipe in new tab
+        const recipeUrl = card.getAttribute('data-recipe-url');
+        if (recipeUrl) {
+            // Add click event to open external recipe URL in new tab
             card.addEventListener('click', () => {
-                // Use recipe ID to construct URL or open a default page
-                window.open(`${BASE_URL}/${recipeId}` || '#', '_blank');
+                window.open(recipeUrl, '_blank');
             });
         }
     });
