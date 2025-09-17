@@ -175,6 +175,13 @@ food_dietary_project/
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+What Management Commands Do:
+    Read your CSV file (text)
+    Parse each row into proper data types
+    Clean data (handle "N/A", convert units)
+    Create Django model objects in PostgreSQL
+    Enable your APIs to work
+
 ## Summary
 - **food_dietary_project**: Main Django configuration & URL routing
 - **nlp_app**: Processes natural language → extracts food items & quantities
