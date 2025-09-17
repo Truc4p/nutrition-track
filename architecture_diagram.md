@@ -173,7 +173,6 @@ food_dietary_project/
 │                         │ (import_*)  │                        │
 │                         └─────────────┘                        │
 └─────────────────────────────────────────────────────────────────┘
-```
 
 What Management Commands Do:
     Read your CSV file (text)
@@ -181,6 +180,7 @@ What Management Commands Do:
     Clean data (handle "N/A", convert units)
     Create Django model objects in PostgreSQL
     Enable your APIs to work
+```
 
 ## Summary
 - **food_dietary_project**: Main Django configuration & URL routing
