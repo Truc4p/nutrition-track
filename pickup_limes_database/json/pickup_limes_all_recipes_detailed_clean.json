@@ -139,7 +139,7 @@
     "total_time": "PT05M",
     "ingredients": [
       "&#189; cup water",
-      "&#189; cup sodium-reduced soy sauce",
+      "&#189; cup sodium-reduced\u00a0soy sauce",
       "2 Tbsp agave syrup",
       "2 Tbsp rice vinegar",
       "1 Tbsp cornstarch",
@@ -290,7 +290,7 @@
       "1&#189; cup kale",
       "1 cup cooked brown lentils",
       "&#8531; cup uncooked basmati rice",
-      " dark soy sauce",
+      " dark\u00a0soy sauce",
       "&#188; cup vegan aioli",
       "2 Tbsp fresh dill"
     ]
@@ -368,7 +368,7 @@
       "&#188; cup fresh parsley",
       "1&#189; roasted red bell pepper from a jar",
       "&#189; cup hummus",
-      "1&#189; Tbsp sodium-reduced soy sauce",
+      "1&#189; Tbsp sodium-reduced\u00a0soy sauce",
       "1 Tbsp  white vinegar",
       "1 pinch ground black pepper"
     ]
@@ -422,7 +422,7 @@
       "1 carrot",
       "1 roasted red bell pepper from a jar",
       "&#189; cup hummus",
-      "1&#189; Tbsp sodium-reduced soy sauce",
+      "1&#189; Tbsp sodium-reduced\u00a0soy sauce",
       "1 Tbsp white vinegar",
       "1 pinch ground black pepper"
     ]
@@ -467,7 +467,7 @@
       "1&#190; cup veggie ground",
       "&#188; cup preserved mustard greens (sui mi ya cai)",
       "1 Tbsp black bean garlic sauce",
-      "&#189; Tbsp dark soy sauce",
+      "&#189; Tbsp dark\u00a0soy sauce",
       "&#189; Tbsp Chinese rice cooking wine",
       " freshly grated ginger",
       "4 head of baby bok choy",
@@ -487,13 +487,13 @@
       "2&#189; Tbsp vegetable oil",
       "2 garlic clove",
       "3 Tbsp gochujang",
-      "3 Tbsp sodium-reduced soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
       "2 Tbsp light brown sugar",
       "2 Tbsp rice vinegar",
       "1 Tbsp toasted sesame oil",
       "1 cup uncooked basmati rice",
       "1&#189; Tbsp rice vinegar",
-      "1&#189; Tbsp sodium-reduced soy sauce",
+      "1&#189; Tbsp sodium-reduced\u00a0soy sauce",
       "1&#189; Tbsp Asian sesame paste",
       "1 Tbsp light brown sugar",
       " toasted sesame oil",
@@ -573,7 +573,7 @@
       "1 celery rib",
       "2 garlic clove",
       "6 cup water",
-      "&#188; cup sodium-reduced soy sauce",
+      "&#188; cup sodium-reduced\u00a0soy sauce",
       "2 Tbsp miso paste",
       "4 dried shiitake mushroom",
       " liquid smoke"
@@ -602,7 +602,7 @@
       "1 cup hot water",
       "1 vegetable bouillon cube",
       "&#189; Tbsp vegetable oil",
-      " sodium-reduced soy sauce",
+      " sodium-reduced\u00a0soy sauce",
       " liquid smoke",
       "1&#189; cup vital wheat gluten",
       "&#188; cup chickpea flour",
@@ -730,8 +730,8 @@
     "total_time": "PT50M",
     "ingredients": [
       "14.109 oz firm tofu",
-      "3 Tbsp sodium-reduced soy sauce",
-      "1 Tbsp dark soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
+      "1 Tbsp dark\u00a0soy sauce",
       "1 Tbsp maple syrup",
       "1 Tbsp vegetable oil",
       "&#189; tsp ground black pepper",
@@ -799,14 +799,14 @@
       "11.287 oz firm tofu",
       "&#188; cup gochujang",
       "5 garlic clove",
-      "3 Tbsp sodium-reduced soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
       "2 Tbsp light brown sugar",
       "3&#189; cup cherry tomatoes"
     ]
   },
   {
     "id": 1954,
-    "name": "Spinach & Feta Börek",
+    "name": "Spinach & Feta B\u00f6rek",
     "image": "https://cdn.pickuplimes.com/cache/89/e8/89e89a5adb37d44c14a3554b6a62cebd.jpg",
     "url": "https://www.pickuplimes.com/recipe/vegan-spinach-b%C3%B6rek-1954",
     "total_time": "PT50M",
@@ -879,7 +879,7 @@
       "2 cup shredded green cabbage",
       "2 stalk green onion",
       "1 cup fresh bean sprouts",
-      "3 Tbsp sodium-reduced soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
       "3 Tbsp mushroom stir-fry sauce",
       "3 Tbsp ketchup",
       "1 Tbsp vegan Worcestershire sauce",
@@ -1089,7 +1089,7 @@
       "&#188; cup roasted unsalted peanuts",
       "1 Tbsp toasted sesame seeds",
       "3 Tbsp peanut butter",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       "&#189; lime",
       " agave syrup",
       "&#190; tsp garlic powder",
@@ -1104,7 +1104,7 @@
     "url": "https://www.pickuplimes.com/recipe/the-best-vegan-chow-mein-800",
     "total_time": "PT35M",
     "ingredients": [
-      "3 Tbsp dark soy sauce",
+      "3 Tbsp dark\u00a0soy sauce",
       "2 Tbsp water",
       "2 Tbsp toasted sesame oil",
       "&#189; vegetable bouillon cube",
@@ -1176,7 +1176,7 @@
       "&#189; stalk green onion",
       "&#189; cup cooked shelled edamame",
       "1&#189; Tbsp vegan mayonnaise",
-      "&#189; Tbsp dark soy sauce",
+      "&#189; Tbsp dark\u00a0soy sauce",
       "&#189; tsp toasted sesame oil"
     ]
   },
@@ -1238,7 +1238,7 @@
       "15.873 oz firm tofu",
       "&#188; cup cornstarch",
       "2 Tbsp cold water",
-      " sodium-reduced soy sauce",
+      " sodium-reduced\u00a0soy sauce",
       "&#8532; cup panko breadcrumbs",
       "2 Tbsp nutritional yeast flakes",
       "&#189; tsp garlic powder",
@@ -1324,7 +1324,7 @@
       "1 Tbsp apple cider vinegar",
       " capers",
       " dijon mustard",
-      " sodium-reduced soy sauce",
+      " sodium-reduced\u00a0soy sauce",
       "&#8539; tsp ground black pepper"
     ]
   },
@@ -1392,7 +1392,7 @@
       "2 Tbsp unsalted vegan butter",
       "7.055 oz shiitake mushrooms",
       "2 stalk green onion",
-      "1 Tbsp dark soy sauce",
+      "1 Tbsp dark\u00a0soy sauce",
       "1&#189; Tbsp mushroom stir-fry sauce",
       "&#189; tsp garlic powder",
       "&#190; cup frozen shelled edamame"
@@ -1468,7 +1468,7 @@
     "ingredients": [
       "1 lime",
       "3 Tbsp rice vinegar",
-      "3 Tbsp sodium-reduced soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
       "2 Tbsp toasted sesame oil",
       "2 Tbsp freshly grated ginger",
       "2 Tbsp agave syrup",
@@ -1711,7 +1711,7 @@
       "&#189; cup canned light coconut milk",
       "&#8531; cup water",
       "&#8531; cup peanut butter",
-      "3 Tbsp sodium-reduced soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
       "1 Tbsp toasted sesame oil",
       "&#189; vegetable bouillon cube",
       "&#189; lime",
@@ -1750,7 +1750,7 @@
       "1 avocado",
       "&#188; cup pickled red onions",
       "&#189; cup vegan sour cream",
-      "1 jalapeño"
+      "1 jalape\u00f1o"
     ]
   },
   {
@@ -1835,7 +1835,7 @@
     "total_time": "PT45M",
     "ingredients": [
       "12.346 oz vegan pie dough",
-      "14.991 oz canned pumpkin purée",
+      "14.991 oz canned pumpkin pur\u00e9e",
       "1 cup soy cooking cream",
       "&#190; cup light brown sugar",
       "&#188; cup cornstarch",
@@ -1874,7 +1874,7 @@
       "6 garlic clove",
       "1 stalk green onion",
       "1 Tbsp gochugaru",
-      "2 Tbsp dark soy sauce",
+      "2 Tbsp dark\u00a0soy sauce",
       " black rice vinegar",
       "6 head of baby bok choy",
       "2 cup frozen edamame in shell"
@@ -1944,7 +1944,7 @@
       " ground cumin",
       "&#189; tsp onion powder",
       "&#188; cup unsweetened soy Greek-style yogurt",
-      "2 Tbsp pickled jalapeños"
+      "2 Tbsp pickled jalape\u00f1os"
     ]
   },
   {
@@ -2011,7 +2011,7 @@
       "3.527 oz enoki mushrooms",
       "1 vegetable bouillon cube",
       "4 cup water",
-      "3 Tbsp sodium-reduced soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
       "0.353 oz kombu (dried kelp)",
       " light brown sugar",
       " rice vinegar",
@@ -2326,7 +2326,7 @@
       "&#190; cup orange juice",
       "2 garlic clove",
       " sriracha",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       "&#189; Tbsp freshly grated ginger",
       "&#189; Tbsp rice vinegar",
       "1 Tbsp cornstarch",
@@ -2597,7 +2597,7 @@
       "&#188; cup rice vinegar",
       "&#188; cup tahini",
       "3 Tbsp white miso paste",
-      "2 Tbsp dark soy sauce",
+      "2 Tbsp dark\u00a0soy sauce",
       "2 garlic clove",
       " toasted sesame oil",
       " maple syrup",
@@ -2623,7 +2623,7 @@
       " vegetable oil",
       "1 medium onion",
       "3 garlic clove",
-      "1 jalapeño",
+      "1 jalape\u00f1o",
       " freshly grated ginger",
       "8.642 oz button mushrooms",
       "1 Tbsp garam masala",
@@ -2973,7 +2973,7 @@
       "6.526 oz quick-cooking ramen noodles",
       "1 red bell pepper",
       "1 cup cherry tomatoes",
-      "2 Tbsp dark soy sauce",
+      "2 Tbsp dark\u00a0soy sauce",
       "2 Tbsp sambal oelek",
       " toasted sesame oil"
     ]
@@ -3040,7 +3040,7 @@
       "2 red bell pepper",
       "1 small broccoli",
       "1&#8532; cup canned full-fat coconut milk",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       " sambal oelek",
       "3 Tbsp roasted unsalted cashews"
     ]
@@ -3734,7 +3734,7 @@
       "1&#188; cup canned corn",
       "&#189; cup fresh cilantro",
       "&#189; cup black olives",
-      "&#189; cup pickled jalapeños"
+      "&#189; cup pickled jalape\u00f1os"
     ]
   },
   {
@@ -3753,7 +3753,7 @@
       "1 Tbsp apple cider vinegar",
       " capers",
       " dijon mustard",
-      " sodium-reduced soy sauce",
+      " sodium-reduced\u00a0soy sauce",
       "&#8539; tsp ground black pepper",
       "&#188; cup raw cashews",
       "1 Tbsp nutritional yeast flakes",
@@ -4271,7 +4271,7 @@
       "2 medium shallot",
       "1 lime",
       "2 Tbsp fresh galangal",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       " ground turmeric",
       "&#189; tsp salt"
     ]
@@ -4429,7 +4429,7 @@
     "total_time": "PT30M",
     "ingredients": [
       "15.873 oz firm tofu",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       "&#188; cup cornstarch",
       "&#189; tsp salt",
       "&#188; tsp ground black pepper",
@@ -4437,7 +4437,7 @@
       "&#189; cup pineapple juice",
       "&#188; cup rice vinegar",
       "&#188; cup tomato paste",
-      "3 Tbsp sodium-reduced soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
       "2 Tbsp maple syrup",
       "2 garlic clove",
       " cornstarch",
@@ -4705,7 +4705,7 @@
       "2 cup cooked chickpeas",
       "&#189; cup kalamata olives",
       "2 Tbsp tahini",
-      " sodium-reduced soy sauce",
+      " sodium-reduced\u00a0soy sauce",
       "&#8539; tsp ground black pepper",
       "2 cup fresh spinach",
       "4 whole wheat pita bread"
@@ -4812,7 +4812,7 @@
       " vegetable oil",
       "6 garlic clove",
       "10 cup fresh spinach",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       " sambal oelek",
       "1 avocado"
     ]
@@ -4831,7 +4831,7 @@
       "&#188; tsp ground black pepper",
       "2 Tbsp maple syrup",
       "1 Tbsp gochujang",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       "1 Tbsp rice vinegar",
       "2 Tbsp vegetable oil",
       "5 garlic clove",
@@ -4929,7 +4929,7 @@
       "&#189; cup gochugaru",
       "3 medium shallot",
       "8 garlic clove",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       "1 Tbsp miso paste",
       "&#189; Tbsp freshly grated ginger",
       "5.291 oz daikon radish",
@@ -4990,36 +4990,7 @@
       "1 small red onion",
       "2 avocado",
       "2 cup cherry tomatoes",
-      "&#188; cup pickled jalapeños"
-    ]
-  },
-  {
-    "id": 8,
-    "name": "Kimchi Noodle Jar",
-    "image": "https://www.pickuplimes.com/static/images/logo/pul_logo_main_flat_987_247.9cf5ed7b1374.png",
-    "url": "https://www.pickuplimes.com/recipe/kimchi-noodle-jar-8",
-    "total_time": "PT50M",
-    "ingredients": [
-      "&#188; cup cornstarch",
-      "2 Tbsp vegetable oil",
-      "2 Tbsp sodium-reduced soy sauce",
-      "1 Tbsp gochujang",
-      "22.928 oz firm tofu",
-      "3 Tbsp gochujang",
-      "2 Tbsp sodium-reduced soy sauce",
-      "2 Tbsp toasted sesame oil",
-      "1 Tbsp rice vinegar",
-      "1 Tbsp maple syrup",
-      "2 cup frozen shelled edamame",
-      "6.349 oz dry brown rice noodles",
-      " toasted sesame oil",
-      "4 garlic clove",
-      "6 cup fresh spinach",
-      "3 cup shiitake mushrooms",
-      "&#188; tsp salt",
-      "2 carrot",
-      "2 Tbsp water",
-      "1 cup vegan kimchi"
+      "&#188; cup pickled jalape\u00f1os"
     ]
   },
   {
@@ -5194,7 +5165,7 @@
       "1 medium leek",
       "4 garlic clove",
       "2 stalk green onion",
-      "1 jalapeño",
+      "1 jalape\u00f1o",
       "1 large broccoli",
       "1 Tbsp olive oil",
       " salt",
@@ -5278,7 +5249,7 @@
       "&#8531; cup tahini",
       "&#188; cup water",
       "1 Tbsp sambal oelek",
-      " sodium-reduced soy sauce",
+      " sodium-reduced\u00a0soy sauce",
       " agave syrup",
       "&#189; tsp onion powder"
     ]
@@ -5331,7 +5302,7 @@
       "2 roasted red bell pepper from a jar",
       "2 Tbsp black bean garlic sauce",
       "3 Tbsp rice vinegar",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       "&#189; Tbsp toasted sesame oil"
     ]
   },
@@ -5506,7 +5477,7 @@
       "1 Tbsp vegetable oil",
       "5 garlic clove",
       "1 large onion",
-      "1 jalapeño",
+      "1 jalape\u00f1o",
       " freshly grated ginger",
       "1&#189; Tbsp garam masala",
       "1&#189; Tbsp ground coriander",
@@ -5578,7 +5549,7 @@
       "1 Tbsp tahini",
       " water",
       " sambal oelek",
-      " sodium-reduced soy sauce"
+      " sodium-reduced\u00a0soy sauce"
     ]
   },
   {
@@ -5837,14 +5808,14 @@
   },
   {
     "id": 81,
-    "name": "Tofu Vietnamese Sub - Bánh Mì",
+    "name": "Tofu Vietnamese Sub - B\u00e1nh M\u00ec",
     "image": "https://cdn.pickuplimes.com/cache/ee/9c/ee9cc5df564c9109247b3e87172c70fc.jpg",
     "url": "https://www.pickuplimes.com/recipe/tofu-vietnamese-sub-b%C3%A1nh-m%C3%AC-81",
     "total_time": "PT25M",
     "ingredients": [
       "15.873 oz firm tofu",
       "3 garlic clove",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       " sriracha",
       " granulated sugar",
       " toasted sesame oil",
@@ -5871,7 +5842,7 @@
     "url": "https://www.pickuplimes.com/recipe/potato-hash-cakes-with-baked-marinated-tempeh-84",
     "total_time": "PT01H20M",
     "ingredients": [
-      "&#188; cup sodium-reduced soy sauce",
+      "&#188; cup sodium-reduced\u00a0soy sauce",
       "2 Tbsp maple syrup",
       "1 Tbsp sriracha",
       "8.818 oz tempeh",
@@ -5908,7 +5879,7 @@
   },
   {
     "id": 86,
-    "name": "Avocado Hummus Toast with Miso Mushroom and Kale Sauté",
+    "name": "Avocado Hummus Toast with Miso Mushroom and Kale Saut\u00e9",
     "image": "https://cdn.pickuplimes.com/cache/77/65/77659b6f2d7e2e8a0a4042cc7806cba1.jpg",
     "url": "https://www.pickuplimes.com/recipe/avocado-hummus-toast-with-miso-mushroom-and-kale-saut%C3%A9-86",
     "total_time": "PT35M",
@@ -6074,7 +6045,7 @@
       "&#189; butternut squash",
       "2 red bell pepper",
       "2 carrot",
-      "1 jalapeño",
+      "1 jalape\u00f1o",
       "1 medium onion",
       " olive oil",
       "&#189; tsp ground cumin",
@@ -6187,7 +6158,7 @@
   },
   {
     "id": 99,
-    "name": "One-Pot Creamy Rosé Pasta",
+    "name": "One-Pot Creamy Ros\u00e9 Pasta",
     "image": "https://cdn.pickuplimes.com/cache/d9/ae/d9ae02cb0f1d185ec1ea1e30920eb90f.jpg",
     "url": "https://www.pickuplimes.com/recipe/one-pot-creamy-ros%C3%A9-pasta-99",
     "total_time": "PT30M",
@@ -6228,7 +6199,7 @@
       "14.109 oz dry fusilli pasta",
       "&#188; cup sun-dried tomatoes in oil",
       "2 Tbsp nutritional yeast flakes",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       " paprika powder",
       "1 pinch ground black pepper",
       "1 pinch salt",
@@ -6359,7 +6330,7 @@
       "2 garlic clove",
       "4.938 oz button mushrooms",
       "&#8531; cup raw walnuts",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       "&#189; Tbsp ground cumin",
       " ground coriander",
       "1&#189; cup cooked brown lentils",
@@ -6383,26 +6354,26 @@
     "ingredients": [
       "1 tsp (5ml) vegetable oil",
       "3 garlic cloves, crushed",
-      "1 cup (115g) veggie ground†",
+      "1 cup (115g) veggie ground\u2020",
       "2 Tbsp (17g) Mexican seasoning burrito seasoning",
       "2 Tbsp (30ml) water",
       "2 medium ready-made pizza crusts gluten-free pizza crusts",
       "5 Tbsp (80g) tomato paste",
       "1 bell pepper, diced",
       "1 small red onion, thinly sliced",
-      "⅓ cups (55g) canned corn",
-      "¼ cups (38g) pickled jalapeños, sliced",
+      "\u2153 cups (55g) canned corn",
+      "\u00bc cups (38g) pickled jalape\u00f1os, sliced",
       "10 cherry tomatoes, cut in half",
       "1 avocado, sliced",
       "1 stalk green onion, sliced",
-      "¼ cups (65g) unsweetened soy yogurt any unsweetened plant-based yogurt of choice",
+      "\u00bc cups (65g) unsweetened soy yogurt any unsweetened plant-based yogurt of choice",
       "2 Tbsp (30g) vegan mayonnaise",
       "2 Tbsp (2g) fresh cilantro",
-      "¼ tsp salt",
+      "\u00bc tsp salt",
       "pizza dough",
-      "•",
-      "•",
-      "•"
+      "\u2022",
+      "\u2022",
+      "\u2022"
     ]
   },
   {
@@ -6515,7 +6486,7 @@
       "1 carrot",
       "1 red bell pepper",
       "1 cup shredded green cabbage",
-      "&#188; cup sodium-reduced soy sauce",
+      "&#188; cup sodium-reduced\u00a0soy sauce",
       "3 Tbsp tamarind paste",
       "2 Tbsp granulated sugar",
       "1 Tbsp rice vinegar",
@@ -6535,7 +6506,7 @@
       "1 medium tomato",
       "1 red bell pepper",
       "&#189; small red onion",
-      "1 jalapeño",
+      "1 jalape\u00f1o",
       "1 lime",
       "2 Tbsp fresh cilantro",
       "2 Tbsp fresh mint leaves",
@@ -6639,7 +6610,7 @@
       "&#188; head of red cabbage",
       "&#188; cup roasted unsalted cashews",
       "3 Tbsp peanut butter",
-      "1&#189; Tbsp sodium-reduced soy sauce",
+      "1&#189; Tbsp sodium-reduced\u00a0soy sauce",
       "1&#189; Tbsp toasted sesame oil",
       "1 Tbsp hoisin sauce",
       "1 Tbsp sriracha",
@@ -6695,7 +6666,7 @@
       "2 lemon",
       "2 Tbsp extra-virgin olive oil",
       "1 Tbsp tahini",
-      " sodium-reduced soy sauce",
+      " sodium-reduced\u00a0soy sauce",
       " balsamic vinegar",
       " onion powder",
       "1 pinch salt",
@@ -7253,7 +7224,7 @@
       "3 Tbsp Thai red curry paste",
       "2&#189; cup vegetable broth",
       "1&#8532; cup canned full-fat coconut milk",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       " sambal oelek",
       "1 red bell pepper",
       "4.409 oz dry brown rice noodles",
@@ -7278,7 +7249,7 @@
       "&#189; tsp chili powder",
       "&#8539; tsp ground black pepper",
       "1&#8532; cup canned diced tomatoes",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       "9 small soft tortilla",
       "1 cup cherry tomatoes",
       "1 avocado",
@@ -7465,12 +7436,12 @@
       "1 cup uncooked white rice",
       "2 bell pepper",
       "&#8531; cup sun-dried tomatoes in oil",
-      "&#8531; cup sodium-reduced soy sauce",
+      "&#8531; cup sodium-reduced\u00a0soy sauce",
       " sambal oelek",
       "&#189; cup peanut butter",
       "&#8531; cup water",
       "1 garlic clove",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       "&#189; lime",
       " light brown sugar"
     ]
@@ -7781,7 +7752,7 @@
       "&#189; tsp ground black pepper",
       "&#8539; tsp ground cinnamon",
       "2 Tbsp apple cider vinegar",
-      " sodium-reduced soy sauce"
+      " sodium-reduced\u00a0soy sauce"
     ]
   },
   {
@@ -7793,7 +7764,7 @@
     "ingredients": [
       "8.818 oz tempeh",
       "1 cup barbecue sauce",
-      "3 Tbsp sodium-reduced soy sauce",
+      "3 Tbsp sodium-reduced\u00a0soy sauce",
       "2 Tbsp tahini",
       "1 garlic clove",
       "&#189; lime",
@@ -7826,7 +7797,7 @@
       "2 Tbsp roasted pumpkin seeds",
       "&#188; cup tahini",
       "&#188; cup water",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       "&#189; Tbsp maple syrup",
       " apple cider vinegar",
       " miso paste",
@@ -7923,7 +7894,7 @@
       "1 garlic clove",
       "&#189; lemon",
       "2 Tbsp Asian sesame paste",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       "&#189; Tbsp maple syrup",
       "&#189; Tbsp rice vinegar",
       "&#189; tsp miso paste",
@@ -7966,7 +7937,7 @@
       "1&#189; cup cooked shelled edamame",
       "&#189; cup wakame seaweed salad",
       "1 lime",
-      "2 Tbsp sodium-reduced soy sauce",
+      "2 Tbsp sodium-reduced\u00a0soy sauce",
       " toasted sesame oil",
       " agave syrup",
       " garlic powder",
@@ -8129,7 +8100,7 @@
       "&#188; cup tahini",
       "2 Tbsp water",
       "1 Tbsp balsamic vinegar",
-      " sodium-reduced soy sauce"
+      " sodium-reduced\u00a0soy sauce"
     ]
   },
   {
@@ -8396,7 +8367,7 @@
       "6.349 oz button mushrooms",
       "1 carrot",
       "&#189; medium broccoli",
-      "1 Tbsp sodium-reduced soy sauce",
+      "1 Tbsp sodium-reduced\u00a0soy sauce",
       " rice vinegar",
       "6.349 oz dry white rice noodles",
       "&#189; Tbsp vegetable oil",
@@ -8559,7 +8530,7 @@
       "1 mango",
       "1 avocado",
       "1 lime",
-      "&#189; jalapeño",
+      "&#189; jalape\u00f1o",
       "2 cup fresh strawberries",
       "&#188; small red onion",
       "1 Tbsp fresh basil",
@@ -8704,7 +8675,7 @@
       " miso paste",
       " freshly grated ginger",
       " toasted sesame oil",
-      " sodium-reduced soy sauce",
+      " sodium-reduced\u00a0soy sauce",
       " rice vinegar",
       "&#189; tsp onion powder",
       "1 pinch ground black pepper",
@@ -8891,15 +8862,15 @@
       "2 Tbsp (14g) ground flaxseeds",
       "6 Tbsp (90ml) water",
       "3 ripe bananas",
-      "½ cups (110g) granulated sugar",
-      "¼ cups (60ml) vegetable oil",
-      "¼ cups (60g) unsweetened applesauce",
+      "\u00bd cups (110g) granulated sugar",
+      "\u00bc cups (60ml) vegetable oil",
+      "\u00bc cups (60g) unsweetened applesauce",
       "1 tsp (5ml) pure vanilla extract",
       "1 tsp (5g) baking soda",
       "1 tsp (2.6g) ground cinnamon",
-      "½ tsp salt",
-      "½ tsp baking powder",
-      "1¾ cups (235g) all-purpose flour",
+      "\u00bd tsp salt",
+      "\u00bd tsp baking powder",
+      "1\u00be cups (235g) all-purpose flour",
       "3.2 oz (90g) dairy-free dark chocolate, coarsely chopped dairy-free dark chocolate chips"
     ]
   },
@@ -9052,7 +9023,7 @@
       "6 burger bun",
       "1 cup arugula",
       "1 cup coleslaw",
-      "&#188; cup pickled jalapeños"
+      "&#188; cup pickled jalape\u00f1os"
     ]
   },
   {
@@ -9326,11 +9297,11 @@
     "url": "https://www.pickuplimes.com/recipe/homemade-kombucha-continuous-brew-29",
     "total_time": "6 days + 20 min",
     "ingredients": [
-      "14 cups (3360ml) boiling water, ideally 185°F (85°C)",
+      "14 cups (3360ml) boiling water, ideally 185\u00b0F (85\u00b0C)",
       "1 cup (200g) organic cane sugar",
-      "1 SCOBY (symbiotic culture of bacteria and yeast) †",
+      "1 SCOBY (symbiotic culture of bacteria and yeast) \u2020",
       "2 cups (480ml) starter tea, from previous batch of kombucha, or from unpasteurized, neutral-flavored, store-bought kombucha",
-      "8 bags organic, unflavoured green tea, black tea, or mix†"
+      "8 bags organic, unflavoured green tea, black tea, or mix\u2020"
     ]
   },
   {

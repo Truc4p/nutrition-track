@@ -1,6 +1,6 @@
 import json
 
-with open('pickup_limes_database/json/pickup_limes_all_recipes_detailed.json', 'r') as f:
+with open('pickup_limes_database/json/pickup_limes_all_recipes_detailed_clean.json', 'r') as f:
     recipes = json.load(f)
 
 print(f'🎉 CLEAN RESULTS:')
@@ -23,5 +23,19 @@ problematic = [r for r in recipes if (
 
 if problematic:
     print(f'\n⚠️  Found {len(problematic)} problematic entries')
+    print(f'\n🔍 PROBLEMATIC ENTRIES:')
+    for i, recipe in enumerate(problematic, 1):
+        print(f'{i}. {recipe.get("name", "N/A")}')
+        issues = []
+        if recipe.get('name') == 'Recipes':
+            issues.append('Name is "Recipes"')
+        if 'Unknown' in recipe.get('name', ''):
+            issues.append('Name contains "Unknown"')
+        if not recipe.get('ingredients'):
+            issues.append('Missing ingredients')
+        if 'logo' in recipe.get('image', ''):
+            issues.append('Image contains logo')
+        print(f'   Issues: {", ".join(issues)}')
+        print()
 else:
     print(f'\n✅ NO problematic entries found - all data is clean!') 
