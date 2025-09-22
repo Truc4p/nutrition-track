@@ -1,6 +1,6 @@
 Django==5.1.7
 djangorestframework==3.14.0
-requests==2.31.0
+requests==2.32.3
 pint==0.20.1
 spacy==3.5.1
 word2number==1.1
