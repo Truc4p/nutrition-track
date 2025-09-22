@@ -391,7 +391,48 @@ function updateUI() {
             categories[energyGroup].push(nutrientInfo);
         }
 
-        // Organize all other nutrients by group (excluding energy/calorie nutrients)
+        // Track folate values to consolidate them
+        let folateValue = 0;
+        let folateUnit = 'ug';
+        let hasFolate = false;
+
+        // First pass: find the best folate value (prefer DFE, then total, then food)
+        Object.values(food.allNutrients).forEach(nutrient => {
+            const name = nutrient.name.toLowerCase();
+            if (name.includes('folate')) {
+                if (name.includes('dfe') && nutrient.value > 0) {
+                    // DFE is the preferred measurement
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unit.toLowerCase();
+                    hasFolate = true;
+                } else if (!hasFolate && name.includes('total') && nutrient.value > 0) {
+                    // Use total if no DFE found
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unit.toLowerCase();
+                    hasFolate = true;
+                } else if (!hasFolate && name.includes('food') && nutrient.value > 0) {
+                    // Use food folate as last resort
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unit.toLowerCase();
+                    hasFolate = true;
+                }
+            }
+        });
+
+        // Add consolidated folate entry if we have a value
+        if (hasFolate && folateValue > 0 && Math.round(folateValue) > 0) {
+            const folateGroup = getNutrientGroup('Folate, DFE') || 'GROUP 3: VITAMINS';
+            if (!categories[folateGroup]) categories[folateGroup] = [];
+            
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">Folate, DFE:</span>
+                    <span class="nutrient-value">${Math.round(folateValue)} ${folateUnit}</span>
+                </div>`;
+            categories[folateGroup].push(nutrientInfo);
+        }
+
+        // Organize all other nutrients by group (excluding energy/calorie and folate nutrients)
         Object.values(food.allNutrients)
             .sort((a, b) => a.name.localeCompare(b.name))
             .forEach(nutrient => {
@@ -403,6 +444,11 @@ function updateUI() {
                 
                 // Skip all energy/calorie related nutrients as we've already handled them
                 if (name.includes('energy') || name.includes('calorie')) {
+                    return;
+                }
+
+                // Skip all folate nutrients as we've consolidated them
+                if (name.includes('folate')) {
                     return;
                 }
 
@@ -679,7 +725,58 @@ function calculateAndDisplayTotals() {
         return null;
     }
 
-            Object.values(nutritionTotals)
+    // Track folate values to consolidate them in totals
+    let totalFolateValue = 0;
+    let folateUnit = 'ug';
+    let hasTotalFolate = false;
+
+    // First pass: find and consolidate folate values (prefer DFE, then total, then food)
+    Object.values(nutritionTotals).forEach(nutrient => {
+        const name = nutrient.name.toLowerCase();
+        if (name.includes('folate')) {
+            if (name.includes('dfe') && nutrient.value > 0) {
+                // DFE is the preferred measurement
+                totalFolateValue = nutrient.value;
+                folateUnit = nutrient.unit.toLowerCase();
+                hasTotalFolate = true;
+            } else if (!hasTotalFolate && name.includes('total') && nutrient.value > 0) {
+                // Use total if no DFE found
+                totalFolateValue = nutrient.value;
+                folateUnit = nutrient.unit.toLowerCase();
+                hasTotalFolate = true;
+            } else if (!hasTotalFolate && name.includes('food') && nutrient.value > 0) {
+                // Use food folate as last resort
+                totalFolateValue = nutrient.value;
+                folateUnit = nutrient.unit.toLowerCase();
+                hasTotalFolate = true;
+            }
+        }
+    });
+
+    // Add consolidated folate entry if we have a value
+    if (hasTotalFolate && totalFolateValue > 0 && Math.round(totalFolateValue) > 0) {
+        const folateGroup = getNutrientGroup('Folate, DFE') || 'GROUP 3: VITAMINS';
+        if (!categories[folateGroup]) categories[folateGroup] = [];
+        
+        const recommendedValue = getRecommendedValue('Folate, DFE', folateUnit);
+        let valueDisplay;
+        if (recommendedValue) {
+            valueDisplay = `${Math.round(totalFolateValue)} / <span class="recommended-value">${recommendedValue}</span> ${folateUnit}`;
+        } else {
+            valueDisplay = `${Math.round(totalFolateValue)} ${folateUnit}`;
+        }
+        
+        const nutrientInfo = `
+            <div class="nutrition-total-item">
+                <span class="nutrient-name">Folate, DFE:</span>
+                <span class="nutrient-value">${valueDisplay}</span>
+            </div>`;
+        categories[folateGroup].push(nutrientInfo);
+    }
+
+    // Process all other nutrients (excluding folate which we've consolidated)
+    Object.values(nutritionTotals)
+        .filter(nutrient => !nutrient.name.toLowerCase().includes('folate')) // Exclude folate nutrients
         .sort((a, b) => a.name.localeCompare(b.name))
         .forEach(nutrient => {
             if (!nutrient.value || nutrient.value === 0) return;

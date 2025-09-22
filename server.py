@@ -11,8 +11,64 @@ from typing import List, Dict, Any
 app = Flask(__name__, static_folder='.')
 CORS(app)  # Enable CORS for all routes
 
+def parse_iso8601_duration(duration_str):
+    """
+    Parse ISO 8601 duration format (like P2DT02H30M) into human-readable format
+    Examples:
+    - PT30M -> "30 min"
+    - PT01H30M -> "1 hour 30 min"
+    - P2DT02H30M -> "2 days 2 hours 30 min"
+    """
+    if not duration_str:
+        return 'N/A'
+    
+    # Handle simple PT format first (existing logic)
+    if duration_str.startswith('PT') and 'D' not in duration_str:
+        # Convert PT05M to "5 min", PT01H40M to "1 hour 40 min"
+        time_str = duration_str.replace('PT', '')
+        
+        hours_match = re.search(r'(\d+)H', time_str)
+        minutes_match = re.search(r'(\d+)M', time_str)
+        
+        parts = []
+        if hours_match:
+            hours = int(hours_match.group(1))
+            parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+        
+        if minutes_match:
+            minutes = int(minutes_match.group(1))
+            parts.append(f"{minutes} min")
+        
+        return ' '.join(parts) if parts else 'N/A'
+    
+    # Handle full ISO 8601 format with days (P2DT02H30M)
+    if duration_str.startswith('P'):
+        # Extract components using regex
+        days_match = re.search(r'P(\d+)D', duration_str)
+        hours_match = re.search(r'T(\d+)H', duration_str)
+        minutes_match = re.search(r'(\d+)M', duration_str)
+        
+        parts = []
+        
+        if days_match:
+            days = int(days_match.group(1))
+            parts.append(f"{days} day{'s' if days != 1 else ''}")
+        
+        if hours_match:
+            hours = int(hours_match.group(1))
+            parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+        
+        if minutes_match:
+            minutes = int(minutes_match.group(1))
+            parts.append(f"{minutes} min")
+        
+        return ' '.join(parts) if parts else 'N/A'
+    
+    # Fallback for unknown formats
+    return duration_str
+
 # Load recipe data 
-RECIPE_DB_PATH = '../meal/pickup_limes_database/json/pickup_limes_all_recipes_detailed.json'
+RECIPE_DB_PATH = '../meal/pickup_limes_database/json/pickup_limes_all_recipes_detailed_clean.json'
 IMAGE_PATH = '../meal/pickup_limes_database/images'
 
 # Load food nutrition database
@@ -112,11 +168,8 @@ def search_recipes():
             if not match_found:
                 continue
 
-        # Convert time format
-        time_display = recipe.get('total_time', 'N/A')
-        if time_display.startswith('PT'):
-            # Convert PT05M to "5 minutes", PT01H40M to "1 hour 40 minutes"
-            time_display = time_display.replace('PT', '').replace('H', ' hour ').replace('M', ' min')
+        # Convert time format using the ISO 8601 parser
+        time_display = parse_iso8601_duration(recipe.get('total_time', 'N/A'))
 
         # Use the image URL directly from the recipe data
         image_url = recipe.get('image', '')

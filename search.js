@@ -303,7 +303,48 @@ document.addEventListener('DOMContentLoaded', () => {
             categories[energyGroup].push(nutrientInfo);
         }
 
-        // Categorize all other nutrients using USDA categories (excluding energy/calorie nutrients)
+        // Track folate values to consolidate them
+        let folateValue = 0;
+        let folateUnit = 'ug';
+        let hasFolate = false;
+
+        // First pass: find the best folate value (prefer DFE, then total, then food)
+        sortedNutrients.forEach(nutrient => {
+            const name = nutrient.nutrientName.toLowerCase();
+            if (name.includes('folate')) {
+                if (name.includes('dfe') && nutrient.value > 0) {
+                    // DFE is the preferred measurement
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unitName.toLowerCase();
+                    hasFolate = true;
+                } else if (!hasFolate && name.includes('total') && nutrient.value > 0) {
+                    // Use total if no DFE found
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unitName.toLowerCase();
+                    hasFolate = true;
+                } else if (!hasFolate && name.includes('food') && nutrient.value > 0) {
+                    // Use food folate as last resort
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unitName.toLowerCase();
+                    hasFolate = true;
+                }
+            }
+        });
+
+        // Add consolidated folate entry if we have a value
+        if (hasFolate && folateValue > 0 && Math.round(folateValue) > 0) {
+            const folateGroup = getNutrientGroup('Folate, DFE') || 'GROUP 3: VITAMINS';
+            if (!categories[folateGroup]) categories[folateGroup] = [];
+            
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">Folate, DFE</span>
+                    <span class="nutrient-value">${Math.round(folateValue)} ${folateUnit}</span>
+                </div>`;
+            categories[folateGroup].push(nutrientInfo);
+        }
+
+        // Categorize all other nutrients using USDA categories (excluding energy/calorie and folate nutrients)
         sortedNutrients.forEach(nutrient => {
             if (!nutrient.value || nutrient.value === 0) return;
             if (Math.round(nutrient.value) === 0) return; // Skip values that round to 0
@@ -313,6 +354,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Skip all energy/calorie related nutrients as we've already handled them
             if (name.includes('energy') || name.includes('calorie')) {
+                return;
+            }
+
+            // Skip all folate nutrients as we've consolidated them
+            if (name.includes('folate')) {
                 return;
             }
 
@@ -637,12 +683,62 @@ document.addEventListener('DOMContentLoaded', () => {
             categories[energyGroup].push(nutrientInfo);
         }
 
-        // Sort and categorize other nutrients using USDA categories (excluding energy/calorie nutrients)
+        // Track folate values to consolidate them in totals
+        let totalFolateValue = 0;
+        let folateUnit = 'ug';
+        let hasTotalFolate = false;
+
+        // First pass: find and consolidate folate values (prefer DFE, then total, then food)
+        allNutrients.forEach(nutrient => {
+            const name = nutrient.name.toLowerCase();
+            if (name.includes('folate')) {
+                if (name.includes('dfe') && nutrient.value > 0) {
+                    // DFE is the preferred measurement
+                    totalFolateValue = nutrient.value;
+                    folateUnit = nutrient.unit;
+                    hasTotalFolate = true;
+                } else if (!hasTotalFolate && name.includes('total') && nutrient.value > 0) {
+                    // Use total if no DFE found
+                    totalFolateValue = nutrient.value;
+                    folateUnit = nutrient.unit;
+                    hasTotalFolate = true;
+                } else if (!hasTotalFolate && name.includes('food') && nutrient.value > 0) {
+                    // Use food folate as last resort
+                    totalFolateValue = nutrient.value;
+                    folateUnit = nutrient.unit;
+                    hasTotalFolate = true;
+                }
+            }
+        });
+
+        // Add consolidated folate entry if we have a value
+        if (hasTotalFolate && totalFolateValue > 0 && Math.round(totalFolateValue) > 0) {
+            const folateGroup = getNutrientGroup('Folate, DFE') || 'GROUP 3: VITAMINS';
+            if (!categories[folateGroup]) categories[folateGroup] = [];
+            
+            const recommendedValue = getRecommendedValue('Folate, DFE', folateUnit);
+            let valueDisplay;
+            if (recommendedValue) {
+                valueDisplay = `${Math.round(totalFolateValue)} / <span class="recommended-value">${recommendedValue}</span> ${folateUnit}`;
+            } else {
+                valueDisplay = `${Math.round(totalFolateValue)} ${folateUnit}`;
+            }
+            
+            const nutrientInfo = `
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">Folate, DFE</span>
+                    <span class="nutrient-value">${valueDisplay}</span>
+                </div>`;
+            categories[folateGroup].push(nutrientInfo);
+        }
+
+        // Sort and categorize other nutrients using USDA categories (excluding energy/calorie and folate nutrients)
         allNutrients
             .filter(nutrient => {
                 const name = nutrient.name.toLowerCase();
-                // Skip energy/calorie nutrients and MUFA, TFA, PUFA, SFA nutrients
+                // Skip energy/calorie nutrients, folate nutrients, and MUFA, TFA, PUFA, SFA nutrients
                 return !name.includes('energy') && !name.includes('calorie') &&
+                       !name.includes('folate') &&
                        !name.includes('mufa') && !name.includes('tfa') && 
                        !name.includes('pufa') && !name.includes('sfa');
             })
