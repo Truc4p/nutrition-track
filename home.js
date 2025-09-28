@@ -72,7 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- State ---
 let foods = [];
 let isLoading = false;
-const API_URL = "/api/nlp/process_text_and_get_nutrition/";
+
+// Gemini AI API Configuration
+const GEMINI_API_KEY = 'AIzaSyDg9XGvb1qb58I5Z5hI427EOoubjHoKqLI'; // Replace with your Gemini API key
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+// USDA API Configuration
+const USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx';
+const USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search';
+const USDA_DETAIL_URL = 'https://api.nal.usda.gov/fdc/v1/food';
 
 // Add these variables at the top with other declarations
 let selectedFood = null;
@@ -191,118 +199,463 @@ function setLoading(loading) {
     submitButton.disabled = isLoading; // Disable submit while loading
 }
 
-// Fetch data from the backend API
-async function processText(inputText) {
-    console.log('🚀 STARTING processText function');
-    console.log('📝 Input text:', inputText);
-    console.log('🌐 API URL:', API_URL);
+// Process text using Gemini AI to extract food information
+async function extractFoodsWithGemini(inputText) {
+    console.log('🤖 Starting Gemini AI text extraction...');
     
+    const prompt = `
+Extract food information from this text: "${inputText}"
+
+Please analyze the text and extract all food items with their quantities and units. Return the response as a JSON array with this exact structure:
+
+[
+  {
+    "name": "food name (cleaned, without descriptors like 'raw', 'cooked')",
+    "originalName": "original name from text",
+    "quantity": number,
+    "unit": "unit (g, oz, cups, etc.)"
+  }
+]
+
+Rules:
+1. Extract ONLY the food items mentioned
+2. Convert quantities to numbers (e.g., "100" not "100g")  
+3. Clean food names (remove "raw", "cooked", "fresh", etc.)
+4. Keep original name for reference
+5. If no unit specified, assume "g" (grams)
+6. If text contains no food, return empty array []
+
+Examples:
+"I ate 100g chicken breast and 50g rice" → 
+[{"name": "chicken breast", "originalName": "chicken breast", "quantity": 100, "unit": "g"}, {"name": "rice", "originalName": "rice", "quantity": 50, "unit": "g"}]
+
+"200 grams of raw spinach" → 
+[{"name": "spinach", "originalName": "raw spinach", "quantity": 200, "unit": "g"}]
+
+Respond ONLY with the JSON array, no other text.
+`;
+
     try {
-        console.log('📡 Making API request...');
-        const response = await fetch(API_URL, {
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ text: inputText }),
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.1,
+                    maxOutputTokens: 1000,
+                }
+            })
         });
 
-        console.log('📊 Response status:', response.status);
-        console.log('📊 Response ok:', response.ok);
-
         if (!response.ok) {
-            // Handle HTTP errors (e.g., 404, 500)
-            console.error('❌ HTTP error occurred:', response.status);
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`Gemini API error: ${response.status}`);
         }
 
-        console.log('🔄 Parsing response JSON...');
-        const data = await response.json(); // Corresponds to NutritionResponse
-        console.log('✅ Backend response received:', data);
-        console.log('📊 Number of results:', data.result ? data.result.length : 0);
+        const data = await response.json();
+        const extractedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!extractedText) {
+            throw new Error('No response from Gemini AI');
+        }
 
-        // Process the result into the 'foods' array with all nutrients
-        console.log('🔄 Processing API results into foods array...');
-        foods = data.result.map((ingredient, index) => {
-            console.log(`📋 Processing ingredient ${index + 1}:`, ingredient.name);
-            
-            // New API response format
-            const nutritionData = ingredient.nutrition || {};
-            console.log(`   📊 Nutrition data keys: ${Object.keys(nutritionData).length} nutrients`);
-            
-            const fatsValue = parseFloat(ingredient.fat) || parseFloat(nutritionData['total lipid (fat) (G)']) || 0.0;
-            const carbsValue = parseFloat(ingredient.carbs) || parseFloat(nutritionData['carbohydrate, by difference (G)']) || 0.0;
-            const proteinValue = parseFloat(ingredient.protein) || parseFloat(nutritionData['protein (G)']) || 0.0;
-            const fiberValue = parseFloat(ingredient.fiber) || parseFloat(nutritionData['fiber, total dietary (G)']) || 0.0;
-            const quantityValue = parseFloat(ingredient.quantity) || 0.0;
-            const totalCalories = parseFloat(ingredient.calories) || parseFloat(nutritionData['energy (KCAL)']) || 0.0;
-            
-            console.log(`   📊 Parsed values - Calories: ${totalCalories}, Protein: ${proteinValue}g, Carbs: ${carbsValue}g, Fat: ${fatsValue}g`);
-            console.log(`   📊 Quantity: ${quantityValue}${ingredient.original_unit || 'g'}`);
+        console.log('🤖 Gemini raw response:', extractedText);
+        
+        // Parse the JSON response
+        let foodItems;
+        try {
+            // Clean the response to extract just the JSON array
+            const jsonMatch = extractedText.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+                foodItems = JSON.parse(jsonMatch[0]);
+            } else {
+                // Fallback: try parsing the entire response
+                foodItems = JSON.parse(extractedText);
+            }
+        } catch (parseError) {
+            console.error('Failed to parse Gemini response as JSON:', parseError);
+            throw new Error('Invalid response format from Gemini AI');
+        }
 
-            // Process all nutrients from nutrition field
-            console.log(`   🔄 Processing all nutrients for ${ingredient.name}...`);
-            const allNutrients = {};
-            let processedNutrientCount = 0;
+        console.log('✅ Extracted food items:', foodItems);
+        return Array.isArray(foodItems) ? foodItems : [];
+
+    } catch (error) {
+        console.error('💥 Gemini AI extraction error:', error);
+        throw new Error(`Failed to extract foods: ${error.message}`);
+    }
+}
+
+// Search USDA database for a food item using multiple strategies
+async function searchUSDAFood(foodName) {
+    console.log(`🔍 Searching USDA for: ${foodName}`);
+    
+    // Try multiple search strategies in order of preference
+    const searchStrategies = [
+        // Strategy 1: Exact search
+        foodName,
+        
+        // Strategy 2: Clean version (remove descriptors)
+        foodName.replace(/\b(raw|cooked|fresh|frozen|dried|steamed|baked|grilled|fried|boiled|roasted)\b/gi, '').trim(),
+        
+        // Strategy 3: Just the main food word (first word usually)
+        foodName.split(/[\s,]+/)[0],
+        
+        // Strategy 4: Common variations
+        foodName.replace(/\bs\b/gi, ''), // Remove plural 's'
+        foodName.replace(/\b(chicken|beef|pork|fish)\s+(breast|thigh|leg|fillet)\b/gi, '$1, $2'), // "chicken breast" -> "chicken, breast"
+    ];
+    
+    // Remove duplicates and empty strings
+    const uniqueStrategies = [...new Set(searchStrategies)].filter(term => term && term.trim().length > 0);
+    
+    console.log(`🔍 Will try ${uniqueStrategies.length} search strategies: ${uniqueStrategies.map(s => `"${s}"`).join(', ')}`);
+    
+    // Try each search strategy
+    for (let i = 0; i < uniqueStrategies.length; i++) {
+        const searchTerm = uniqueStrategies[i];
+        console.log(`🔍 Strategy ${i + 1}: Searching for "${searchTerm}"`);
+        
+        try {
+            const response = await fetch(
+                `${USDA_API_URL}?api_key=${USDA_API_KEY}&query=${encodeURIComponent(searchTerm)}&pageSize=20`
+            );
             
-            if (nutritionData) {
-                Object.entries(nutritionData).forEach(([key, value]) => {
-                    const numValue = parseFloat(value) || 0;
-                    if (numValue > 0) {
+            if (!response.ok) {
+                console.log(`⚠️ Strategy ${i + 1} failed: HTTP ${response.status}`);
+                continue;
+            }
+            
+            const data = await response.json();
+            const foods = data.foods || [];
+            
+            console.log(`📊 Strategy ${i + 1} returned ${foods.length} results for "${searchTerm}"`);
+            
+            if (foods.length === 0) {
+                console.log(`⚠️ Strategy ${i + 1}: No results found`);
+                continue;
+            }
+            
+            // Find the best match using intelligent scoring
+            const bestMatch = findBestFoodMatch(foodName, foods);
+            
+            if (bestMatch) {
+                console.log(`✅ Found USDA match with Strategy ${i + 1}: ${bestMatch.food.description} (${bestMatch.food.dataType}) - Score: ${bestMatch.score.toFixed(2)}`);
+                return bestMatch.food;
+            }
+            
+            console.log(`⚠️ Strategy ${i + 1}: No suitable matches found`);
+            
+        } catch (error) {
+            console.log(`❌ Strategy ${i + 1} failed: ${error.message}`);
+            continue;
+        }
+    }
+    
+    console.log(`❌ All search strategies failed for: ${foodName}`);
+    return null;
+}
+
+// Intelligent food matching using multiple criteria
+function findBestFoodMatch(originalFoodName, usdaFoods) {
+    const originalLower = originalFoodName.toLowerCase().trim();
+    const originalWords = originalLower.split(/[\s,.-]+/).filter(w => w.length > 0);
+    
+    console.log(`🎯 Finding best match for "${originalFoodName}" from ${usdaFoods.length} options`);
+    console.log(`🎯 Original words: [${originalWords.join(', ')}]`);
+    
+    const scoredFoods = usdaFoods.map(food => {
+        const description = food.description.toLowerCase();
+        let score = 0;
+        
+        // Scoring factors:
+        
+        // 1. Exact match (highest priority)
+        if (description === originalLower) {
+            score += 100;
+        }
+        
+        // 2. Contains all original words
+        const containsAllWords = originalWords.every(word => description.includes(word));
+        if (containsAllWords) {
+            score += 50;
+        }
+        
+        // 3. Word match ratio (how many original words are found)
+        const foundWords = originalWords.filter(word => description.includes(word));
+        const wordMatchRatio = foundWords.length / originalWords.length;
+        score += wordMatchRatio * 30;
+        
+        // 4. Starts with original food name
+        if (description.startsWith(originalLower)) {
+            score += 25;
+        }
+        
+        // 5. Data type preference (heavily favor government data over branded)
+        if (food.dataType === 'Foundation') {
+            score += 25;
+        } else if (food.dataType === 'SR Legacy') {
+            score += 22;
+        } else if (food.dataType === 'Survey (FNDDS)') {
+            score += 20;
+        } else if (food.dataType === 'Branded') {
+            score += 2; // Much lower score for branded items
+        }
+        
+        // 6. Penalize overly simple branded descriptions (like just "SALMON")
+        const wordCount = description.split(/\s+/).length;
+        if (food.dataType === 'Branded' && wordCount <= 1) {
+            score -= 30; // Heavy penalty for single-word branded items
+        } else if (wordCount > 8) {
+            score -= 10; // Penalize very long descriptions
+        }
+        
+        // 7. Bonus for descriptive, detailed names
+        if (wordCount >= 3 && wordCount <= 6) {
+            score += 10; // Bonus for appropriately detailed descriptions
+        }
+        
+        // 7. Bonus for common preparation states if original doesn't specify
+        const hasPreparation = /\b(raw|cooked|fresh|frozen|dried|steamed|baked|grilled|fried|boiled|roasted)\b/i.test(originalLower);
+        if (!hasPreparation) {
+            // Prefer "raw" for fruits/vegetables, "cooked" for meats/grains
+            const isFruitVegetable = /\b(apple|banana|orange|grape|berry|lettuce|spinach|carrot|tomato|pepper|onion|garlic|broccoli)\b/i.test(originalLower);
+            const isMeatGrain = /\b(chicken|beef|pork|fish|salmon|rice|pasta|bread|oat)\b/i.test(originalLower);
+            
+            if (isFruitVegetable && /\braw\b/i.test(description)) {
+                score += 8;
+            } else if (isMeatGrain && /\b(cooked|baked|grilled)\b/i.test(description)) {
+                score += 8;
+            }
+        }
+        
+        // 8. Penalize branded/restaurant items for generic searches
+        if (food.dataType === 'Branded' && /\b(brand|restaurant|company|inc|llc|corp)\b/i.test(description)) {
+            score -= 15;
+        }
+        
+        // 9. Bonus for having good nutrition data
+        const nutrientCount = food.foodNutrients ? food.foodNutrients.length : 0;
+        if (nutrientCount > 20) {
+            score += 5;
+        } else if (nutrientCount < 5) {
+            score -= 10;
+        }
+        
+        return {
+            food: food,
+            score: score,
+            description: description,
+            wordMatchRatio: wordMatchRatio,
+            foundWords: foundWords
+        };
+    });
+    
+    // Sort by score (highest first)
+    scoredFoods.sort((a, b) => b.score - a.score);
+    
+    // Log top matches for debugging
+    console.log(`🎯 Top 5 matches:`);
+    scoredFoods.slice(0, 5).forEach((match, index) => {
+        console.log(`   ${index + 1}. "${match.food.description}" (${match.food.dataType}) - Score: ${match.score.toFixed(2)} - Words: ${match.wordMatchRatio.toFixed(2)}`);
+    });
+    
+    // Return best match if it has a reasonable score
+    const bestMatch = scoredFoods[0];
+    if (bestMatch && bestMatch.score >= 15) { // Minimum threshold
+        return bestMatch;
+    }
+    
+    console.log(`⚠️ No match met minimum score threshold of 15 (best was ${bestMatch ? bestMatch.score.toFixed(2) : 'N/A'})`);
+    return null;
+}
+
+// Get detailed nutrition data from USDA for a specific food ID
+async function getUSDANutritionDetails(fdcId) {
+    console.log(`📊 Fetching detailed nutrition for USDA ID: ${fdcId}`);
+    
+    try {
+        const response = await fetch(`${USDA_DETAIL_URL}/${fdcId}?api_key=${USDA_API_KEY}`);
+        
+        if (!response.ok) {
+            throw new Error(`USDA detail error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(`✅ Retrieved detailed nutrition data for: ${data.description}`);
+        
+        return data;
+        
+    } catch (error) {
+        console.error(`❌ Failed to get USDA nutrition details:`, error);
+        return null;
+    }
+}
+
+// Process text using Gemini AI + USDA API instead of backend
+async function processText(inputText) {
+    console.log('🚀 STARTING processText function');
+    console.log('📝 Input text:', inputText);
+    
+    try {
+        // Step 1: Use Gemini AI to extract food information
+        console.log('🤖 Step 1: Extracting foods with Gemini AI...');
+        const extractedFoods = await extractFoodsWithGemini(inputText);
+        
+        if (!extractedFoods || extractedFoods.length === 0) {
+            console.log('⚠️ No foods found in text');
+            foods = [];
+            return;
+        }
+        
+        console.log(`✅ Found ${extractedFoods.length} food items`);
+        
+        // Step 2: Search USDA database for each food and get nutrition data
+        console.log('� Step 2: Searching USDA database for each food...');
+        const foodPromises = extractedFoods.map(async (foodItem, index) => {
+            console.log(`📋 Processing food ${index + 1}/${extractedFoods.length}: ${foodItem.name}`);
+            
+            try {
+                // Search USDA database
+                const usdaFood = await searchUSDAFood(foodItem.name);
+                if (!usdaFood) {
+                    console.log(`⚠️ No USDA data found for: ${foodItem.name}`);
+                    return null;
+                }
+                
+                // Get detailed nutrition data
+                const detailedNutrition = await getUSDANutritionDetails(usdaFood.fdcId);
+                if (!detailedNutrition) {
+                    console.log(`⚠️ No detailed nutrition found for: ${foodItem.name}`);
+                    return null;
+                }
+                
+                // Process nutrition data similar to original format
+                console.log(`� Processing nutrition data for ${foodItem.name}...`);
+                
+                // Extract key macronutrients
+                const nutrients = detailedNutrition.foodNutrients || [];
+                let fatsValue = 0;
+                let carbsValue = 0; 
+                let proteinValue = 0;
+                let fiberValue = 0;
+                let totalCalories = 0;
+                
+                // Create allNutrients object similar to original format
+                const allNutrients = {};
+                let processedNutrientCount = 0;
+                
+                nutrients.forEach(nutrient => {
+                    if (!nutrient.amount || nutrient.amount === 0) return;
+                    
+                    const name = nutrient.nutrient.name.toLowerCase();
+                    const value = nutrient.amount;
+                    const unit = nutrient.nutrient.unitName || '';
+                    
+                    // Extract macronutrients
+                    if (name.includes('energy') && unit.toLowerCase() === 'kcal') {
+                        totalCalories = value;
+                    } else if (name.includes('protein')) {
+                        proteinValue = value;
+                    } else if (name.includes('total lipid') || name.includes('fat')) {
+                        fatsValue = value;
+                    } else if (name.includes('carbohydrate, by difference')) {
+                        carbsValue = value;
+                    } else if (name.includes('fiber, total dietary')) {
+                        fiberValue = value;
+                    }
+                    
+                    // Add to allNutrients with formatting similar to original
+                    if (value > 0) {
                         processedNutrientCount++;
                         
-                        // Better formatting for nutrient names
-                        let formattedName = key
+                        // Format nutrient name
+                        let formattedName = nutrient.nutrient.name
                             .replace(/,\s*/g, ', ')
                             .replace(/\b\w/g, l => l.toUpperCase())
                             .replace(/\s+/g, ' ')
                             .trim();
                         
-                        // Extract unit from key (e.g., "(MG)" from "calcium, ca (MG)")
-                        const unitMatch = key.match(/\(([^)]+)\)$/);
-                        const unit = unitMatch ? unitMatch[1].toUpperCase() : '';
-                        
-                        // Clean the name by removing the unit part
-                        if (unitMatch) {
-                            formattedName = formattedName.replace(/\s*\([^)]+\)$/, '');
-                        }
-
+                        const key = nutrient.nutrient.name.toLowerCase();
                         allNutrients[key] = {
                             name: formattedName,
-                            value: numValue,
-                            unit: unit,
+                            value: value,
+                            unit: unit.toUpperCase(),
                         };
                     }
                 });
+                
+                console.log(`✅ Processed ${processedNutrientCount} nutrients for ${foodItem.name}`);
+                console.log(`📊 Key values - Calories: ${totalCalories}, Protein: ${proteinValue}g, Carbs: ${carbsValue}g, Fat: ${fatsValue}g`);
+                
+                // Scale nutrition values based on quantity (USDA data is per 100g)
+                const scalingFactor = foodItem.quantity / 100;
+                
+                const foodObject = {
+                    id: `usda_${usdaFood.fdcId}_${index}`,
+                    name: detailedNutrition.description, // Use actual USDA description instead of original name
+                    originalName: foodItem.originalName || foodItem.name, // Keep original for reference
+                    usdaDescription: detailedNutrition.description, // Store USDA description
+                    fats: fatsValue * scalingFactor,
+                    carbohydrates: carbsValue * scalingFactor, 
+                    protein: proteinValue * scalingFactor,
+                    fiber: fiberValue * scalingFactor,
+                    totalCalories: totalCalories * scalingFactor,
+                    quantity: foodItem.quantity,
+                    measurementType: foodItem.unit,
+                    allNutrients: Object.fromEntries(
+                        Object.entries(allNutrients).map(([key, nutrient]) => [
+                            key, 
+                            {
+                                ...nutrient,
+                                value: nutrient.value * scalingFactor
+                            }
+                        ])
+                    )
+                };
+                
+                console.log(`✅ Created food object for ${foodItem.name}:`, foodObject);
+                return foodObject;
+                
+            } catch (error) {
+                console.error(`❌ Failed to process food ${foodItem.name}:`, error);
+                return null;
             }
-            
-            console.log(`   ✅ Processed ${processedNutrientCount} nutrients with values > 0`);
-
-            const foodObject = {
-                id: ingredient.id,
-                name: ingredient.name,
-                fats: fatsValue,
-                carbohydrates: carbsValue,
-                protein: proteinValue,
-                fiber: fiberValue,
-                totalCalories: totalCalories,
-                quantity: quantityValue,
-                measurementType: ingredient.original_unit || 'g',
-                allNutrients: allNutrients // Add all nutrients
-            };
-            
-            console.log(`   ✅ Created food object for ${ingredient.name}:`, foodObject);
-            return foodObject;
         });
         
-        console.log('✅ Successfully processed all ingredients into foods array');
+        // Wait for all food processing to complete
+        console.log('⏳ Waiting for all food processing to complete...');
+        const processedFoods = await Promise.all(foodPromises);
+        
+        // Filter out failed foods and update global foods array
+        foods = processedFoods.filter(food => food !== null);
+        
+        console.log('✅ Successfully processed foods');
         console.log('📊 Final foods array:', foods);
-
+        console.log(`📊 Successfully processed ${foods.length} out of ${extractedFoods.length} foods`);
+        
     } catch (error) {
         console.error("💥 ERROR in processText function:", error);
         console.error("❌ Error details:", error.message);
         console.error("❌ Stack trace:", error.stack);
-        alert(`Failed to get nutrition data: ${error.message}`); // Inform user
+        
+        // Provide more specific error messages
+        let errorMessage = 'Failed to process text';
+        if (error.message.includes('Gemini')) {
+            errorMessage = 'Failed to understand the text. Please try rephrasing your input.';
+        } else if (error.message.includes('USDA')) {
+            errorMessage = 'Failed to find nutrition data. Please check food names and try again.';
+        } else if (error.message.includes('API key')) {
+            errorMessage = 'API configuration error. Please contact support.';
+        }
+        
+        alert(errorMessage);
         foods = []; // Clear data on error
         console.log('🔄 Cleared foods array due to error');
     }
