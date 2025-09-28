@@ -447,18 +447,18 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
         // 9. Prefer actual food over processed products for generic searches
         if (!hasPreparation) { // Only for generic searches like "salmon", "rice"
             // Heavy penalties for processed products when searching for basic foods
-            if (/\b(oil|powder|flour|extract|supplement|pill|capsule|sauce|dressing|cake|bread|soup|mix|product)\b/i.test(description)) {
+            if (/\b(oil|paper|powder|flour|extract|supplement|pill|capsule|sauce|dressing|cake|bread|soup|mix|product)\b/i.test(description)) {
                 score -= 200; // Even heavier penalty for processed products
             }
             
             // Specific penalties for obvious non-food matches
-            if (/\b(oil|dressing|sauce|powder|extract|supplement)\b/i.test(description)) {
+            if (/\b(oil|paper|dressing|sauce|powder|extract|supplement)\b/i.test(description)) {
                 score -= 500; // Massive penalty for oils, dressings, supplements etc.
             }
             
             // Bonus for basic food preparations - but only if it's actually the food, not a product
             const isBasicFood = /\b(raw|cooked|baked|grilled|steamed|boiled|roasted|fresh)\b/i.test(description);
-            const isNotProcessed = !/\b(oil|dressing|sauce|powder|extract|supplement|cake|bread|soup|mix|product)\b/i.test(description);
+            const isNotProcessed = !/\b(oil|paper|dressing|sauce|powder|extract|supplement|cake|bread|soup|mix|product)\b/i.test(description);
             
             if (isBasicFood && isNotProcessed) {
                 score += 50; // Higher bonus for simple food preparations
