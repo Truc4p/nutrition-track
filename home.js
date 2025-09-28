@@ -376,43 +376,47 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
         
         // Scoring factors:
         
-        // 1. Exact match (highest priority)
-        if (description === originalLower) {
-            score += 100;
+        // 1. Data type preference (HIGHEST PRIORITY - heavily favor government data over branded)
+        if (food.dataType === 'Foundation') {
+            score += 1000; // Massive boost for Foundation data
+        } else if (food.dataType === 'SR Legacy') {
+            score += 950; // Very high boost for SR Legacy
+        } else if (food.dataType === 'Survey (FNDDS)') {
+            score += 900; // High boost for FNDDS
+        } else if (food.dataType === 'Branded') {
+            score += 10; // Very low base score for branded items
+            
+            // Heavy penalty for overly simple branded descriptions
+            const wordCount = description.split(/\s+/).length;
+            if (wordCount <= 1) {
+                score -= 500; // Massive penalty for single-word branded items
+            }
         }
         
-        // 2. Contains all original words
-        const containsAllWords = originalWords.every(word => description.includes(word));
-        if (containsAllWords) {
+        // 2. Exact match bonus (but much lower than data type preference)
+        if (description === originalLower) {
             score += 50;
         }
         
-        // 3. Word match ratio (how many original words are found)
+        // 3. Contains all original words
+        const containsAllWords = originalWords.every(word => description.includes(word));
+        if (containsAllWords) {
+            score += 30;
+        }
+        
+        // 4. Word match ratio (how many original words are found)
         const foundWords = originalWords.filter(word => description.includes(word));
         const wordMatchRatio = foundWords.length / originalWords.length;
-        score += wordMatchRatio * 30;
+        score += wordMatchRatio * 20;
         
-        // 4. Starts with original food name
+        // 5. Starts with original food name
         if (description.startsWith(originalLower)) {
-            score += 25;
+            score += 15;
         }
         
-        // 5. Data type preference (heavily favor government data over branded)
-        if (food.dataType === 'Foundation') {
-            score += 25;
-        } else if (food.dataType === 'SR Legacy') {
-            score += 22;
-        } else if (food.dataType === 'Survey (FNDDS)') {
-            score += 20;
-        } else if (food.dataType === 'Branded') {
-            score += 2; // Much lower score for branded items
-        }
-        
-        // 6. Penalize overly simple branded descriptions (like just "SALMON")
+        // 6. Description quality checks
         const wordCount = description.split(/\s+/).length;
-        if (food.dataType === 'Branded' && wordCount <= 1) {
-            score -= 30; // Heavy penalty for single-word branded items
-        } else if (wordCount > 8) {
+        if (wordCount > 8) {
             score -= 10; // Penalize very long descriptions
         }
         
@@ -440,7 +444,33 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
             score -= 15;
         }
         
-        // 9. Bonus for having good nutrition data
+        // 9. Prefer actual food over processed products for generic searches
+        if (!hasPreparation) { // Only for generic searches like "salmon", "rice"
+            // Heavy penalties for processed products when searching for basic foods
+            if (/\b(oil|powder|flour|extract|supplement|pill|capsule|sauce|dressing|cake|bread|soup|mix|product)\b/i.test(description)) {
+                score -= 200; // Even heavier penalty for processed products
+            }
+            
+            // Specific penalties for obvious non-food matches
+            if (/\b(oil|dressing|sauce|powder|extract|supplement)\b/i.test(description)) {
+                score -= 500; // Massive penalty for oils, dressings, supplements etc.
+            }
+            
+            // Bonus for basic food preparations - but only if it's actually the food, not a product
+            const isBasicFood = /\b(raw|cooked|baked|grilled|steamed|boiled|roasted|fresh)\b/i.test(description);
+            const isNotProcessed = !/\b(oil|dressing|sauce|powder|extract|supplement|cake|bread|soup|mix|product)\b/i.test(description);
+            
+            if (isBasicFood && isNotProcessed) {
+                score += 50; // Higher bonus for simple food preparations
+            }
+            
+            // Extra bonus for whole foods vs processed foods
+            if (isNotProcessed) {
+                score += 25; // Higher bonus for non-processed foods
+            }
+        }
+
+        // 10. Bonus for having good nutrition data
         const nutrientCount = food.foodNutrients ? food.foodNutrients.length : 0;
         if (nutrientCount > 20) {
             score += 5;
@@ -468,11 +498,11 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
     
     // Return best match if it has a reasonable score
     const bestMatch = scoredFoods[0];
-    if (bestMatch && bestMatch.score >= 15) { // Minimum threshold
+    if (bestMatch && bestMatch.score >= 50) { // Higher threshold due to new scoring system
         return bestMatch;
     }
     
-    console.log(`⚠️ No match met minimum score threshold of 15 (best was ${bestMatch ? bestMatch.score.toFixed(2) : 'N/A'})`);
+    console.log(`⚠️ No match met minimum score threshold of 50 (best was ${bestMatch ? bestMatch.score.toFixed(2) : 'N/A'})`);
     return null;
 }
 
