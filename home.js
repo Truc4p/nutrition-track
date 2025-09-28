@@ -453,7 +453,7 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
             
             // Specific penalties for obvious non-food matches
             if (/\b(oil|paper|dressing|sauce|powder|extract|supplement)\b/i.test(description)) {
-                score -= 500; // Massive penalty for oils, dressings, supplements etc.
+                score -= 500; // Massive penalty for oils, papers, dressings, supplements etc.
             }
             
             // Bonus for basic food preparations - but only if it's actually the food, not a product
