@@ -73,9 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
 let foods = [];
 let isLoading = false;
 
-// Gemini AI API Configuration
-const GEMINI_API_KEY = 'AIzaSyDg9XGvb1qb58I5Z5hI427EOoubjHoKqLI'; // Replace with your Gemini API key
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+// Django API Configuration
+const DJANGO_API_URL = 'http://localhost:8000/nlp/process_text/';
 
 // USDA API Configuration
 const USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx';
@@ -199,95 +198,44 @@ function setLoading(loading) {
     submitButton.disabled = isLoading; // Disable submit while loading
 }
 
-// Process text using Gemini AI to extract food information
-async function extractFoodsWithGemini(inputText) {
-    console.log('🤖 Starting Gemini AI text extraction...');
+// Process text using local Django API to extract food information
+async function extractFoodsWithDjangoAPI(inputText) {
+    console.log('🔧 Starting Django API text extraction...');
     
-    const prompt = `
-Extract food information from this text: "${inputText}"
-
-Please analyze the text and extract all food items with their quantities and units. Return the response as a JSON array with this exact structure:
-
-[
-  {
-    "name": "food name (cleaned, without descriptors like 'raw', 'cooked')",
-    "originalName": "original name from text",
-    "quantity": number,
-    "unit": "unit (g, oz, cups, etc.)"
-  }
-]
-
-Rules:
-1. Extract ONLY the food items mentioned
-2. Convert quantities to numbers (e.g., "100" not "100g")  
-3. Clean food names (remove "raw", "cooked", "fresh", etc.)
-4. Keep original name for reference
-5. If no unit specified, assume "g" (grams)
-6. If text contains no food, return empty array []
-
-Examples:
-"I ate 100g chicken breast and 50g rice" → 
-[{"name": "chicken breast", "originalName": "chicken breast", "quantity": 100, "unit": "g"}, {"name": "rice", "originalName": "rice", "quantity": 50, "unit": "g"}]
-
-"200 grams of raw spinach" → 
-[{"name": "spinach", "originalName": "raw spinach", "quantity": 200, "unit": "g"}]
-
-Respond ONLY with the JSON array, no other text.
-`;
-
     try {
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(DJANGO_API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.1,
-                    maxOutputTokens: 1000,
-                }
+                text: inputText
             })
         });
 
         if (!response.ok) {
-            throw new Error(`Gemini API error: ${response.status}`);
+            throw new Error(`Django API error: ${response.status}`);
         }
 
         const data = await response.json();
-        const extractedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        console.log('🔧 Django API response:', data);
         
-        if (!extractedText) {
-            throw new Error('No response from Gemini AI');
-        }
-
-        console.log('🤖 Gemini raw response:', extractedText);
+        // Extract food items from the ingredients array (from process_text endpoint)
+        const ingredients = data.ingredients || [];
         
-        // Parse the JSON response
-        let foodItems;
-        try {
-            // Clean the response to extract just the JSON array
-            const jsonMatch = extractedText.match(/\[[\s\S]*\]/);
-            if (jsonMatch) {
-                foodItems = JSON.parse(jsonMatch[0]);
-            } else {
-                // Fallback: try parsing the entire response
-                foodItems = JSON.parse(extractedText);
-            }
-        } catch (parseError) {
-            console.error('Failed to parse Gemini response as JSON:', parseError);
-            throw new Error('Invalid response format from Gemini AI');
-        }
+        // Transform the Django API response to match the expected format
+        const foodItems = ingredients.map(item => ({
+            name: item.food_name || '',
+            originalName: item.food_name || '',
+            quantity: parseFloat(item.quantity) || 0,
+            unit: item.measurement_type || 'g'
+        }));
 
         console.log('✅ Extracted food items:', foodItems);
         return Array.isArray(foodItems) ? foodItems : [];
 
     } catch (error) {
-        console.error('💥 Gemini AI extraction error:', error);
+        console.error('💥 Django API extraction error:', error);
         throw new Error(`Failed to extract foods: ${error.message}`);
     }
 }
@@ -528,15 +476,15 @@ async function getUSDANutritionDetails(fdcId) {
     }
 }
 
-// Process text using Gemini AI + USDA API instead of backend
+// Process text using Django API + USDA API instead of backend
 async function processText(inputText) {
     console.log('🚀 STARTING processText function');
     console.log('📝 Input text:', inputText);
     
     try {
-        // Step 1: Use Gemini AI to extract food information
-        console.log('🤖 Step 1: Extracting foods with Gemini AI...');
-        const extractedFoods = await extractFoodsWithGemini(inputText);
+        // Step 1: Use Django API to extract food information
+        console.log('🔧 Step 1: Extracting foods with Django API...');
+        const extractedFoods = await extractFoodsWithDjangoAPI(inputText);
         
         if (!extractedFoods || extractedFoods.length === 0) {
             console.log('⚠️ No foods found in text');
@@ -677,7 +625,7 @@ async function processText(inputText) {
         
         // Provide more specific error messages
         let errorMessage = 'Failed to process text';
-        if (error.message.includes('Gemini')) {
+        if (error.message.includes('Django')) {
             errorMessage = 'Failed to understand the text. Please try rephrasing your input.';
         } else if (error.message.includes('USDA')) {
             errorMessage = 'Failed to find nutrition data. Please check food names and try again.';
