@@ -7,21 +7,20 @@ const recommendationText = document.getElementById('recommendation-text');
 
 // Initialize these variables only when needed
 let goal = '';
-let healthCondition = '';
 let recommendation = null;
 
 // Helper function to get nutrient group from the 9-group structure
 function getNutrientGroup(nutrientName) {
     // Try to get nutrient info from the database first
     let category = null;
-    
+
     if (typeof window !== 'undefined' && window.NutrientDatabase) {
         const nutrientInfo = window.NutrientDatabase.getNutrientInfo(nutrientName);
         if (nutrientInfo && nutrientInfo.category) {
             category = nutrientInfo.category;
         }
     }
-    
+
     // Fallback to NUTRIENT_DATABASE if available
     if (!category && typeof NUTRIENT_DATABASE !== 'undefined') {
         if (NUTRIENT_DATABASE[nutrientName]) {
@@ -37,32 +36,32 @@ function getNutrientGroup(nutrientName) {
             }
         }
     }
-    
+
     // Map categories to the 9 major groups
     const categoryToGroup = {
         // GROUP 1: ENERGY & FOUNDATION
         'Energy': 'GROUP 1: ENERGY & FOUNDATION',
         'Basic Components': 'GROUP 1: ENERGY & FOUNDATION',
-        
+
         // GROUP 2: MACRONUTRIENTS
         'Macronutrients': 'GROUP 2: MACRONUTRIENTS',
-        
+
         // GROUP 3: VITAMINS
         'Fat-Soluble Vitamins': 'GROUP 3: VITAMINS',
         'Water-Soluble Vitamins': 'GROUP 3: VITAMINS',
         'B Vitamins': 'GROUP 3: VITAMINS',
         'Vitamin E': 'GROUP 3: VITAMINS',
         'Folate': 'GROUP 3: VITAMINS',
-        
+
         // GROUP 4: MINERALS
         'Major Minerals': 'GROUP 4: MINERALS',
         'Trace Minerals': 'GROUP 4: MINERALS',
-        
+
         // GROUP 5: CARBOHYDRATES
         'Fiber': 'GROUP 5: CARBOHYDRATES',
         'Sugars': 'GROUP 5: CARBOHYDRATES',
         'Complex Carbohydrates': 'GROUP 5: CARBOHYDRATES',
-        
+
         // GROUP 6: LIPIDS & FATS
         'Lipids': 'GROUP 6: LIPIDS & FATS',
         'Fatty Acid Totals': 'GROUP 6: LIPIDS & FATS',
@@ -71,20 +70,20 @@ function getNutrientGroup(nutrientName) {
         'Polyunsaturated Fatty Acids': 'GROUP 6: LIPIDS & FATS',
         'Trans Fatty Acids': 'GROUP 6: LIPIDS & FATS',
         'Phytosterols': 'GROUP 6: LIPIDS & FATS',
-        
+
         // GROUP 7: PROTEINS
         'Amino Acids': 'GROUP 7: PROTEINS',
-        
+
         // GROUP 8: BIOACTIVE COMPOUNDS
         'Carotenoids': 'GROUP 8: BIOACTIVE COMPOUNDS',
         'Choline': 'GROUP 8: BIOACTIVE COMPOUNDS',
         'Isoflavones': 'GROUP 8: BIOACTIVE COMPOUNDS',
-        
+
         // GROUP 9: MISCELLANEOUS
         'Other Compounds': 'GROUP 9: MISCELLANEOUS',
         'Organic Acids': 'GROUP 9: MISCELLANEOUS'
     };
-    
+
     return categoryToGroup[category] || 'GROUP 9: MISCELLANEOUS';
 }
 
@@ -98,13 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const genderField = document.getElementById('gender');
             const activityField = document.getElementById('activity-level');
             const goalField = document.getElementById('goal');
-            const healthConditionField = document.getElementById('health-condition');
             const recommendationField = document.getElementById('recommendation-text');
-            
+
             const state = {
                 recommendation: recommendation,
                 goal: goal,
-                healthCondition: healthCondition,
                 recommendForm: {
                     weight: weightField ? weightField.value : '',
                     height: heightField ? heightField.value : '',
@@ -112,11 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     gender: genderField ? genderField.value : '',
                     activityLevel: activityField ? activityField.value : '',
                     goalValue: goalField ? goalField.value : '',
-                    healthConditionValue: healthConditionField ? healthConditionField.value : '',
                     recommendationText: recommendationField ? recommendationField.innerHTML : ''
                 }
             };
-            
+
             event.detail.saveState('recommend', state);
         }
     });
@@ -129,15 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (state.recommendation) {
                     recommendation = state.recommendation;
                 }
-                
+
                 if (state.goal) {
                     goal = state.goal;
                 }
-                
-                if (state.healthCondition) {
-                    healthCondition = state.healthCondition;
-                }
-                
+
                 // Restore recommend form fields
                 if (state.recommendForm) {
                     const form = state.recommendForm;
@@ -149,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const goalField = document.getElementById('goal');
                     const healthConditionField = document.getElementById('health-condition');
                     const recommendationField = document.getElementById('recommendation-text');
-                    
+
                     if (weightField && form.weight) weightField.value = form.weight;
                     if (heightField && form.height) heightField.value = form.height;
                     if (ageField && form.age) ageField.value = form.age;
@@ -168,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    
+
     // Listen for the clearPageInputs event to clear input fields when state is cleared
     window.addEventListener('clearPageInputs', () => {
         const weightField = document.getElementById('weight');
@@ -177,22 +169,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const genderField = document.getElementById('gender');
         const activityField = document.getElementById('activity-level');
         const goalField = document.getElementById('goal');
-        const healthConditionField = document.getElementById('health-condition');
         const recommendationField = document.getElementById('recommendation-text');
-        
+
         if (weightField) weightField.value = '';
         if (heightField) heightField.value = '';
         if (ageField) ageField.value = '';
         if (genderField) genderField.value = 'female';  // Default option to match HTML
         if (activityField) activityField.value = 'sedentary';  // Default option
-        if (goalField) goalField.value = 'general';  // Default option
-        if (healthConditionField) healthConditionField.value = '';
+        if (goalField) goalField.value = 'maintain';  // Default option
         if (recommendationField) recommendationField.innerHTML = '';
-        
+
         // Reset global variables
         recommendation = null;
         goal = '';
-        healthCondition = '';
     });
 
     // Event listeners for recommendation page
@@ -200,8 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         recommendButton.addEventListener('click', async () => {
             // Get the current values when the button is clicked
             goal = document.getElementById('goal').value;
-            healthCondition = document.getElementById('health-condition').value.trim();
-            
+
             const weight = parseFloat(weightInput.value);
             const height = parseFloat(heightInput.value);
             const age = parseInt(ageInput.value, 10);
@@ -215,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Update the global recommendation variable
-                recommendation = calculateSkinNutrition(weight, height, age, gender, activityLevel, healthCondition);
+                recommendation = calculateWeightNutrition(weight, height, age, gender, activityLevel, goal);
 
                 // Add console.log to debug the recommendation variable
                 console.log("Recommendation data:", recommendation);
@@ -278,15 +266,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>`;
 
                     const name = nutrient.name;
-                    
+
                     // Get USDA category for this nutrient
                     const nutrientGroup = getNutrientGroup(name) || 'GROUP 9: MISCELLANEOUS';
-                    
+
                     // Initialize category array if it doesn't exist
                     if (!categories[nutrientGroup]) {
                         categories[nutrientGroup] = [];
                     }
-                    
+
                     categories[nutrientGroup].push(nutrientInfo);
                 });
 
@@ -312,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (categories[categoryName] && categories[categoryName].length > 0) {
                         const categoryDiv = document.createElement('div');
                         categoryDiv.className = 'nutrition-category';
-                        
+
                         const categoryTitle = document.createElement('h4');
                         categoryTitle.className = 'category-title';
                         categoryTitle.textContent = categoryName;
@@ -338,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function calculateSkinNutrition(weight, height, age, gender, activityLevel, healthCondition) {
+function calculateWeightNutrition(weight, height, age, gender, activityLevel, goal) {
     // Mifflin-St Jeor Equation for BMR
     const bmr =
         gender === "male"
@@ -354,8 +342,16 @@ function calculateSkinNutrition(weight, height, age, gender, activityLevel, heal
         athlete: 1.9,
     };
 
-    // Calculate maintenance calories for optimal skin health (no weight adjustment)
+    // Calculate calories based on weight goal
     let calories = bmr * activityMultipliers[activityLevel];
+    
+    // Adjust calories based on weight goal
+    if (goal === "gain") {
+        calories += 300; // Add 300 calories for weight gain
+    } else if (goal === "lose") {
+        calories -= 500; // Reduce 500 calories for weight loss
+    }
+    // 'maintain' keeps calories at maintenance level
 
     // AMDR (Acceptable Macronutrient Distribution Ranges) for macronutrients
     const fats = {
@@ -369,9 +365,7 @@ function calculateSkinNutrition(weight, height, age, gender, activityLevel, heal
     const protein = {
         min: (calories * 0.1) / 4, // 10% of calories
         max: (calories * 0.35) / 4, // 35% of calories
-    };
-
-    // RDA/AI for fiber and cholesterol
+    };    // RDA/AI for fiber and cholesterol
     let fiber;
     if (age >= 1 && age <= 3) {
         fiber = 14; // Children 1-3 years
@@ -398,27 +392,23 @@ function calculateSkinNutrition(weight, height, age, gender, activityLevel, heal
 
     // Cholesterol recommendation
     let cholesterol = 300; // General recommendation
-    const conditions = ["heart disease", "diabetes"];
-    if (conditions.some(condition => healthCondition.toLowerCase().includes(condition))) {
-        cholesterol = 200; // Limit for individuals with heart disease or diabetes
-    }
 
     // Calculate recommendations for additional nutrients
 
-    // Fat breakdown recommendations optimized for skin health
-    const totalFat = calories * 0.35 / 9; // Increased to 35% for better skin support
-    const saturatedFat = calories * 0.08 / 9; // Reduced to <8% for better skin health
+    // Fat breakdown recommendations
+    let totalFat = calories * 0.30 / 9; // 30% of calories from fat
+    let saturatedFat = calories * 0.10 / 9; // <10% from saturated fat
     const transFat = 0; // As low as possible
-    const monounsaturatedFat = calories * 0.15 / 9; // ~15% (part of total fat)
-    const polyunsaturatedFat = calories * 0.12 / 9; // Increased to ~12% for omega-3s
+    let monounsaturatedFat = calories * 0.10 / 9; // ~10% (part of total fat)
+    let polyunsaturatedFat = calories * 0.10 / 9; // ~10% for essential fatty acids
 
-
-    // Enhanced mineral recommendations for skin health
-    // General recommendations with skin health focus
-    sodium = 1500; // mg, general recommendation
-    potassium = 4700; // mg, general recommendation
+    // Mineral recommendations
+    // General dietary recommendations
+    let sodium = 1500; // mg, general recommendation
+    let potassium = 4700; // mg, general recommendation
 
     // Iron recommendations (mg/day)
+    let iron;
     if (gender === "male") {
         iron = 8;
     } else {
@@ -430,6 +420,7 @@ function calculateSkinNutrition(weight, height, age, gender, activityLevel, heal
     }
 
     // Calcium recommendations (mg/day)
+    let calcium;
     if (age >= 19 && age <= 50) {
         calcium = 1000;
     } else if (age >= 51 && age <= 70) {
@@ -442,39 +433,42 @@ function calculateSkinNutrition(weight, height, age, gender, activityLevel, heal
         calcium = 1200;
     }
 
-    // Magnesium recommendations (mg/day) - Enhanced for skin health
+    // Magnesium recommendations (mg/day)
+    let magnesium;
     if (gender === "male") {
-        magnesium = (age >= 31 ? 420 : 400) * 1.1;
+        magnesium = (age >= 31 ? 420 : 400);
     } else {
-        magnesium = (age >= 31 ? 320 : 310) * 1.1;
+        magnesium = (age >= 31 ? 320 : 310);
     }
 
-    // Zinc recommendations (mg/day) - Enhanced for skin repair and acne control
+    // Zinc recommendations (mg/day)
+    let zinc;
     if (gender === "male") {
-        zinc = 15; // Increased from 11 for better skin support
+        zinc = 11; // Standard RDA
     } else {
-        zinc = 12; // Increased from 8 for better skin support
+        zinc = 8; // Standard RDA
     }
 
     // Copper recommendations (mcg/day)
-    copper = 900;
+    let copper = 900;
 
     // Manganese recommendations (mg/day)
-    manganese = gender === "male" ? 2.3 : 1.8;
+    let manganese = gender === "male" ? 2.3 : 1.8;
 
     // Phosphorus recommendations (mg/day)
-    phosphorus = 700;
+    let phosphorus = 700;
 
-    // Selenium recommendations (mcg/day) - Enhanced for antioxidant protection
-    selenium = 70; // Increased from 55 for better skin protection
+    // Selenium recommendations (mcg/day)
+    let selenium = 55; // Standard RDA
 
-    // Enhanced nutrient recommendations for skin health
-    // Prioritize skin-supporting nutrients beyond basic RDA
+    // Vitamin recommendations
+    // Standard dietary recommendations
 
-    // Vitamin A (mcg RAE/day) - Enhanced for skin cell turnover
-    vitaminA = (gender === "male" ? 900 : 700) * 1.1;
+    // Vitamin A (mcg RAE/day)
+    let vitaminA = gender === "male" ? 900 : 700; // Standard RDA
 
-    // Vitamin B6 (mg/day) - Important for skin metabolism
+    // Vitamin B6 (mg/day)
+    let vitaminB6;
     if (age >= 19 && age <= 50) {
         vitaminB6 = 1.3;
     } else {
@@ -482,42 +476,44 @@ function calculateSkinNutrition(weight, height, age, gender, activityLevel, heal
     }
 
     // Vitamin B12 (mcg/day)
-    vitaminB12 = 2.4;
+    let vitaminB12 = 2.4;
 
-    // Vitamin C (mg/day) - Enhanced for collagen synthesis
+    // Vitamin C (mg/day)
+    let vitaminC;
     if (gender === "male") {
-        vitaminC = 120; // Increased from 90 for better skin support
+        vitaminC = 90; // Standard RDA
     } else {
-        vitaminC = 100; // Increased from 75 for better skin support
+        vitaminC = 75; // Standard RDA
     }
 
-    // Vitamin D (mcg/day) - Important for skin health
+    // Vitamin D (mcg/day)
+    let vitaminD;
     if (age >= 19 && age <= 70) {
         vitaminD = 600;
     } else {
         vitaminD = 800;
     }
 
-    // Vitamin E (mg/day) - Enhanced for skin protection
-    vitaminE = 20; // Increased from 15 for better antioxidant protection
+    // Vitamin E (mg/day)
+    let vitaminE = 15; // Standard RDA
 
     // Vitamin K (mcg/day)
-    vitaminK = gender === "male" ? 120 : 90;
+    let vitaminK = gender === "male" ? 120 : 90;
 
-    // Folate (mcg DFE/day) - Important for skin cell regeneration
-    folate = 400;
+    // Folate (mcg DFE/day)
+    let folate = 400;
 
     // Thiamin (mg/day)
-    thiamin = gender === "male" ? 1.2 : 1.1;
+    let thiamin = gender === "male" ? 1.2 : 1.1;
 
     // Riboflavin (mg/day)
-    riboflavin = gender === "male" ? 1.3 : 1.1;
+    let riboflavin = gender === "male" ? 1.3 : 1.1;
 
-    // Niacin (mg/day) - Enhanced for skin barrier function
-    niacin = (gender === "male" ? 16 : 14) * 1.1;
+    // Niacin (mg/day)
+    let niacin = gender === "male" ? 16 : 14; // Standard RDA
 
     // Choline (mg/day)
-    choline = gender === "male" ? 550 : 425;
+    let choline = gender === "male" ? 550 : 425;
 
     // Adjust recommendations based on activity level
     if (activityLevel === "very-active" || activityLevel === "athlete") {
@@ -530,81 +526,33 @@ function calculateSkinNutrition(weight, height, age, gender, activityLevel, heal
         zinc *= 1.1;
     }
 
-    // Adjust for health conditions
-    if (healthCondition && healthCondition.toLowerCase().includes("diabetes")) {
-        // Adjust fiber for diabetes
-        fiber *= 1.2;
-        // Reduce simple carbs recommendation
-        carbs.max *= 0.9;
-    }
-
-    // Adjust nutrients based on specific skin health goals
-    if (goal === "anti-aging") {
-        // Boost antioxidants for anti-aging
-        vitaminC *= 1.3;
-        vitaminE *= 1.2;
-        vitaminA *= 1.2;
-        selenium *= 1.1;
-        zinc *= 1.1;
-    } else if (goal === "acne") {
-        // Nutrients that help with acne control
-        zinc *= 1.5; // Zinc is crucial for acne control
-        vitaminA *= 1.3;
-        vitaminE *= 1.2;
-        // Reduce dairy-related nutrients that may worsen acne
-        calcium *= 0.9;
-    } else if (goal === "hydration") {
-        // Focus on hydration and moisture
-        water *= 1.3;
-        vitaminE *= 1.2;
+    // Adjust nutrients based on weight goals
+    if (goal === "gain") {
+        // Increase protein for muscle building
+        protein.min *= 1.3;
+        protein.max *= 1.3;
+        // Increase healthy fats
+        monounsaturatedFat *= 1.2;
+        // Ensure adequate B vitamins for metabolism
+        thiamin *= 1.1;
+        riboflavin *= 1.1;
+        niacin *= 1.1;
+    } else if (goal === "lose") {
+        // Increase protein to preserve muscle mass
+        protein.min *= 1.4;
+        protein.max *= 1.4;
+        // Increase fiber for satiety
+        fiber *= 1.3;
+        // Increase water for metabolism
+        water *= 1.2;
+        // Ensure adequate nutrients during calorie restriction
         vitaminC *= 1.1;
-        // Omega-3 fatty acids (increase polyunsaturated fats)
-        polyunsaturatedFat *= 1.3;
-    } else if (goal === "brightening") {
-        // Nutrients for skin brightening and even tone
-        vitaminC *= 1.4; // Vitamin C is key for brightening
-        vitaminA *= 1.2;
-        vitaminE *= 1.2;
-        niacin *= 1.2; // Niacinamide for even skin tone
-        folate *= 1.1;
+        vitaminD *= 1.1;
+        iron *= 1.1;
+        calcium *= 1.1;
     }
+    // 'maintain' keeps standard recommendations
 
-    // Adjust for specific skin conditions
-    if (healthCondition) {
-        const condition = healthCondition.toLowerCase();
-        if (condition.includes("acne")) {
-            zinc *= 1.5;
-            vitaminA *= 1.3;
-            // Reduce potential inflammatory foods
-            saturatedFat *= 0.8;
-        }
-        if (condition.includes("eczema") || condition.includes("sensitive")) {
-            // Anti-inflammatory nutrients
-            vitaminE *= 1.3;
-            vitaminC *= 1.2;
-            polyunsaturatedFat *= 1.2; // Omega-3s
-            zinc *= 1.2;
-        }
-        if (condition.includes("dry")) {
-            // Nutrients for dry skin
-            vitaminE *= 1.3;
-            vitaminA *= 1.2;
-            water *= 1.2;
-            totalFat *= 1.1; // Healthy fats for moisture
-        }
-        if (condition.includes("oily")) {
-            // Nutrients to help balance oil production
-            zinc *= 1.3;
-            vitaminA *= 1.2;
-            niacin *= 1.2;
-        }
-    }
-
-    // General skin health boosts for all goals
-    vitaminC = Math.max(vitaminC, 100); // Ensure minimum 100mg for collagen
-    zinc = Math.max(zinc, 12); // Ensure minimum 12mg for skin repair
-    vitaminE = Math.max(vitaminE, 20); // Ensure minimum 20mg for protection
-    
     // Adjust for water intake
     if (activityLevel === "very-active" || activityLevel === "athlete") {
         water *= 1.2;
@@ -648,6 +596,7 @@ function calculateSkinNutrition(weight, height, age, gender, activityLevel, heal
     };
 }
 
+// Helper function to format numerical values
 function formatValue(value) {
     return typeof value === 'number' ? Math.round(value) : value;
 } 
