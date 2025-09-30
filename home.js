@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
 let foods = [];
 let isLoading = false;
 
-// Django API Configuration
-const DJANGO_API_URL = 'http://localhost:8000/nlp/process_text/';
+// Django NLP API Configuration
+const DJANGO_API_URL = '/nlp/process_text/';
 
 // USDA API Configuration
 const USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx';
@@ -198,9 +198,9 @@ function setLoading(loading) {
     submitButton.disabled = isLoading; // Disable submit while loading
 }
 
-// Process text using local Django API to extract food information
+// Process text using Django NLP API to extract food information
 async function extractFoodsWithDjangoAPI(inputText) {
-    console.log('🔧 Starting Django API text extraction...');
+    console.log('🤖 Starting Django NLP text extraction...');
     
     try {
         const response = await fetch(DJANGO_API_URL, {
@@ -212,31 +212,32 @@ async function extractFoodsWithDjangoAPI(inputText) {
                 text: inputText
             })
         });
-
+        
         if (!response.ok) {
             throw new Error(`Django API error: ${response.status}`);
         }
-
-        const data = await response.json();
-        console.log('🔧 Django API response:', data);
         
-        // Extract food items from the ingredients array (from process_text endpoint)
-        const ingredients = data.ingredients || [];
+        const result = await response.json();
+        console.log('🤖 Django NLP response:', result);
         
-        // Transform the Django API response to match the expected format
-        const foodItems = ingredients.map(item => ({
-            name: item.food_name || '',
-            originalName: item.food_name || '',
-            quantity: parseFloat(item.quantity) || 0,
-            unit: item.measurement_type || 'g'
+        if (!result.ingredients || !Array.isArray(result.ingredients)) {
+            throw new Error('Invalid response format from Django NLP API');
+        }
+        
+        // Convert Django NLP format to our expected format
+        const extractedFoods = result.ingredients.map(ingredient => ({
+            name: ingredient.food_name,
+            originalName: ingredient.food_name,
+            quantity: ingredient.quantity,
+            unit: ingredient.measurement_type
         }));
-
-        console.log('✅ Extracted food items:', foodItems);
-        return Array.isArray(foodItems) ? foodItems : [];
-
+        
+        console.log('✅ Extracted food items:', extractedFoods);
+        return extractedFoods;
+        
     } catch (error) {
-        console.error('💥 Django API extraction error:', error);
-        throw new Error(`Failed to extract foods: ${error.message}`);
+        console.error('💥 Django NLP extraction error:', error);
+        throw error;
     }
 }
 
@@ -476,14 +477,14 @@ async function getUSDANutritionDetails(fdcId) {
     }
 }
 
-// Process text using Django API + USDA API instead of backend
+// Process text using Django NLP + USDA API instead of backend
 async function processText(inputText) {
     console.log('🚀 STARTING processText function');
     console.log('📝 Input text:', inputText);
     
     try {
-        // Step 1: Use Django API to extract food information
-        console.log('🔧 Step 1: Extracting foods with Django API...');
+        // Step 1: Use Django NLP to extract food information
+        console.log('🤖 Step 1: Extracting foods with Django NLP...');
         const extractedFoods = await extractFoodsWithDjangoAPI(inputText);
         
         if (!extractedFoods || extractedFoods.length === 0) {
