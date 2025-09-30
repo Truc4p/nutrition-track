@@ -154,17 +154,11 @@ def tokenize_by_quantity(text):
         if not segment:
             continue
             
-        # Try to match "100g chicken breast" pattern (no space between number and unit)
-        quantity_first_match = re.search(r'(\d+(?:\.\d+)?)([a-zA-Z]+)\s+([a-zA-Z][a-zA-Z\s]+)', segment)
-        
-        # Try to match "100 grams of chicken breast" pattern (with space)
-        quantity_first_space_match = re.search(r'(\d+(?:\.\d+)?)\s+([a-zA-Z]+)(?:\s+of)?\s+([a-zA-Z][a-zA-Z\s]+)', segment)
-        
-        # Try to match "chicken breast 100g" pattern
-        food_first_match = re.search(r'([a-zA-Z][a-zA-Z\s]+)\s+(\d+(?:\.\d+)?)([a-zA-Z]+)', segment)
+        # Try to match "100 grams of chicken breast" pattern
+        quantity_first_match = re.search(r'(\d+(?:\.\d+)?)\s+([a-zA-Z]+)(?:\s+of)?\s+([a-zA-Z][a-zA-Z\s]+)', segment)
         
         # Try to match "chicken breast 100 grams" pattern
-        food_first_space_match = re.search(r'([a-zA-Z][a-zA-Z\s]+)\s+(\d+(?:\.\d+)?)\s+([a-zA-Z]+)', segment)
+        food_first_match = re.search(r'([a-zA-Z][a-zA-Z\s]+)\s+(\d+(?:\.\d+)?)\s+([a-zA-Z]+)', segment)
         
         if quantity_first_match:
             # Extract data from the match
@@ -176,29 +170,9 @@ def tokenize_by_quantity(text):
             tokenized_result.append(
                 [int(quantity) if quantity.isdigit() else float(quantity), unit, food])
                 
-        elif quantity_first_space_match:
-            # Extract data from the match
-            quantity, unit, food = quantity_first_space_match.groups()
-            food = food.strip()
-            # Convert plurals to singular
-            food = p.singular_noun(food) or food
-            # Add to results
-            tokenized_result.append(
-                [int(quantity) if quantity.isdigit() else float(quantity), unit, food])
-                
         elif food_first_match:
             # Extract data from the match
             food, quantity, unit = food_first_match.groups()
-            food = food.strip()
-            # Convert plurals to singular
-            food = p.singular_noun(food) or food
-            # Add to results
-            tokenized_result.append(
-                [int(quantity) if quantity.isdigit() else float(quantity), unit, food])
-                
-        elif food_first_space_match:
-            # Extract data from the match
-            food, quantity, unit = food_first_space_match.groups()
             food = food.strip()
             # Convert plurals to singular
             food = p.singular_noun(food) or food
