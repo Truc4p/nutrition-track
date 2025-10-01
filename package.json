@@ -1,0 +1,21 @@
+{
+  "name": "chatbot-server",
+  "version": "1.0.0",
+  "description": "A chatbot server using Express and Gemini AI",
+  "main": "chatbot.js",
+  "scripts": {
+    "start": "node chatbot.js",
+    "dev": "nodemon chatbot.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["chatbot", "express", "gemini", "ai"],
+  "author": "",
+  "license": "ISC"
+} 
