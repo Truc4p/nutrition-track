@@ -599,5 +599,121 @@ def get_youtube_stats():
         session.close()
 
 
+# ===== LOCAL USDA DATABASE API ENDPOINTS =====
+# Add local USDA database path
+usda_db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'usda-database')
+sys.path.append(usda_db_path)
+
+try:
+    from usda_search import get_usda_search
+    USDA_LOCAL_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Local USDA database not available: {e}")
+    print(f"Please run 'python usda-database/download_usda.py' to set up the local database.")
+    USDA_LOCAL_AVAILABLE = False
+
+@app.route('/api/usda/search', methods=['GET'])
+def usda_local_search():
+    """
+    Search local USDA database for foods.
+    Much faster than API calls.
+    
+    Query parameters:
+    - query: search term (required)
+    - limit: max results (default: 20)
+    """
+    if not USDA_LOCAL_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'Local USDA database not available. Please run download_usda.py to set it up.',
+            'fallback_to_api': True
+        }), 503
+    
+    try:
+        query = request.args.get('query', '').strip()
+        if not query:
+            return jsonify({
+                'success': False,
+                'error': 'Query parameter is required'
+            }), 400
+        
+        limit = int(request.args.get('limit', 20))
+        
+        usda_search = get_usda_search()
+        results = usda_search.search_foods(query, limit=limit)
+        
+        return jsonify({
+            'success': True,
+            'totalHits': len(results),
+            'foods': results
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'fallback_to_api': True
+        }), 500
+
+@app.route('/api/usda/food/<int:fdc_id>', methods=['GET'])
+def usda_local_food_details(fdc_id):
+    """
+    Get detailed nutrition data for a specific food from local database.
+    Much faster than API calls.
+    """
+    if not USDA_LOCAL_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'Local USDA database not available. Please run download_usda.py to set it up.',
+            'fallback_to_api': True
+        }), 503
+    
+    try:
+        usda_search = get_usda_search()
+        food_details = usda_search.get_food_details(fdc_id)
+        
+        if not food_details:
+            return jsonify({
+                'success': False,
+                'error': f'Food with ID {fdc_id} not found'
+            }), 404
+        
+        return jsonify({
+            'success': True,
+            'food': food_details
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'fallback_to_api': True
+        }), 500
+
+@app.route('/api/usda/stats', methods=['GET'])
+def usda_local_stats():
+    """Get statistics about the local USDA database."""
+    if not USDA_LOCAL_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'Local USDA database not available'
+        }), 503
+    
+    try:
+        usda_search = get_usda_search()
+        stats = usda_search.get_stats()
+        
+        return jsonify({
+            'success': True,
+            'stats': stats
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

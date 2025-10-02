@@ -11,3 +11,8 @@ __pycache__/
 
 # postgreSQL database 
 db.postgreSQL
+
+# USDA local database files (large files)
+usda-database/usda_foods.db
+usda-database/usda_data.zip
+usda-database/usda_data/

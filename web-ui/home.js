@@ -81,6 +81,11 @@ const USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx';
 const USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search';
 const USDA_DETAIL_URL = 'https://api.nal.usda.gov/fdc/v1/food';
 
+// Local USDA Database Configuration (faster!)
+const USDA_LOCAL_SEARCH_URL = '/api/usda/search';
+const USDA_LOCAL_DETAIL_URL = '/api/usda/food';
+let USE_LOCAL_USDA = true; // Try local database first, fallback to API if unavailable
+
 // Add these variables at the top with other declarations
 let selectedFood = null;
 let addedFoods = [];
@@ -272,16 +277,45 @@ async function searchUSDAFood(foodName) {
         console.log(`🔍 Strategy ${i + 1}: Searching for "${searchTerm}"`);
         
         try {
-            const response = await fetch(
-                `${USDA_API_URL}?api_key=${USDA_API_KEY}&query=${encodeURIComponent(searchTerm)}&pageSize=20`
-            );
+            let data;
             
-            if (!response.ok) {
-                console.log(`⚠️ Strategy ${i + 1} failed: HTTP ${response.status}`);
-                continue;
+            // Try local database first if available
+            if (USE_LOCAL_USDA) {
+                try {
+                    const localResponse = await fetch(
+                        `${USDA_LOCAL_SEARCH_URL}?query=${encodeURIComponent(searchTerm)}&limit=20`
+                    );
+                    
+                    if (localResponse.ok) {
+                        const localData = await localResponse.json();
+                        if (localData.success) {
+                            console.log(`⚡ Using LOCAL database (fast!)`);
+                            data = { foods: localData.foods };
+                        } else if (localData.fallback_to_api) {
+                            console.log(`⚠️ Local DB not available, falling back to API`);
+                            USE_LOCAL_USDA = false; // Disable for future requests this session
+                        }
+                    }
+                } catch (localError) {
+                    console.log(`⚠️ Local DB error, falling back to API: ${localError.message}`);
+                    USE_LOCAL_USDA = false;
+                }
             }
             
-            const data = await response.json();
+            // Fallback to USDA API if local not available
+            if (!data) {
+                const response = await fetch(
+                    `${USDA_API_URL}?api_key=${USDA_API_KEY}&query=${encodeURIComponent(searchTerm)}&pageSize=20`
+                );
+                
+                if (!response.ok) {
+                    console.log(`⚠️ Strategy ${i + 1} failed: HTTP ${response.status}`);
+                    continue;
+                }
+                
+                data = await response.json();
+            }
+            
             const foods = data.foods || [];
             
             console.log(`📊 Strategy ${i + 1} returned ${foods.length} results for "${searchTerm}"`);
@@ -418,6 +452,83 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
                 score += 25; // Higher bonus for non-processed foods
             }
         }
+        
+        // 9b. Penalize compound/mixed foods when searching for simple ingredients
+        // If searching for single word like "rice", heavily penalize results with other main food items
+        if (originalWords.length === 1) {
+            const searchWord = originalWords[0];
+            const descWords = description.split(/[\s,]+/);
+            
+            // Penalize non-food products (beverages, snacks, babyfood, desserts)
+            const unwantedCategories = [
+                'alcoholic', 'beverage', 'drink', 'juice', 'soda',
+                'babyfood', 'baby', 'infant',
+                'snacks', 'snack', 'candy', 'dessert', 'cake', 'cookie', 'bar',
+                'cereal', 'breakfast',
+                'sauce', 'dressing', 'condiment',
+                'supplement', 'powder', 'mix'
+            ];
+            
+            const hasUnwantedCategory = unwantedCategories.some(cat => 
+                description.includes(cat)
+            );
+            
+            if (hasUnwantedCategory) {
+                score -= 400; // Heavy penalty for non-food products
+                console.log(`   ⚠️ Penalizing "${description}" for unwanted category (-400)`);
+            }
+            
+            // List of major food items that indicate a compound/mixed dish
+            const otherFoodItems = ['pork', 'beef', 'chicken', 'turkey', 'sausage', 'bacon', 'ham',
+                                   'tuna', 'shrimp', 'cheese', 'egg', 'tofu',
+                                   'beans', 'lentils', 'pasta', 'noodles', 'bread',
+                                   'potato', 'corn', 'wheat', 'oat', 'barley', 'apple', 'banana'];
+            
+            // Special handling for fish/seafood - don't penalize "fish" when searching for fish types
+            const isFishSearch = ['salmon', 'tuna', 'cod', 'trout', 'tilapia', 'halibut', 'mackerel'].includes(searchWord);
+            
+            // Check if description contains other major food items not in the search
+            const hasOtherFoods = descWords.some(word => {
+                const isOtherFood = otherFoodItems.includes(word) && word !== searchWord;
+                // Don't penalize "fish" if we're searching for a fish type
+                if (isFishSearch && word === 'fish') {
+                    return false;
+                }
+                return isOtherFood;
+            });
+            
+            if (hasOtherFoods) {
+                score -= 300; // Heavy penalty for compound foods
+                console.log(`   ⚠️ Penalizing "${description}" for being a compound food (-300)`);
+            }
+            
+            // Check if the search word is actually the PRIMARY food (not just an ingredient)
+            // For single-word searches, prefer results that start with the food name or just have the food name
+            const startsWithSearchWord = descWords[0] === searchWord || 
+                                        (descWords[1] === searchWord && ['the', 'a', 'an'].includes(descWords[0]));
+            
+            // Check if it's a simple food description (food name + preparation method only)
+            const preparationWords = ['raw', 'cooked', 'baked', 'grilled', 'steamed', 'boiled', 'roasted', 
+                                     'fried', 'fresh', 'frozen', 'dried', 'canned', 'chopped', 'sliced'];
+            const typeWords = ['white', 'brown', 'red', 'green', 'yellow', 'long-grain', 'short-grain',
+                              'wild', 'atlantic', 'pacific', 'chinook', 'sockeye', 'coho', 'pink'];
+            
+            const isSimpleDescription = descWords.every(word => 
+                word === searchWord || 
+                preparationWords.includes(word) || 
+                typeWords.includes(word) ||
+                word === 'and' || word === 'with' || word === 'without' ||
+                word.includes('(') || word.includes(')')  // Allow parenthetical notes
+            );
+            
+            if (startsWithSearchWord && isSimpleDescription && !hasUnwantedCategory) {
+                score += 200; // Big bonus for simple, pure food
+                console.log(`   ✅ Bonus for "${description}" - simple primary food (+200)`);
+            } else if (startsWithSearchWord && !hasUnwantedCategory) {
+                score += 100; // Moderate bonus if it starts with search word
+                console.log(`   ✅ Bonus for "${description}" - starts with search word (+100)`);
+            }
+        }
 
         // 10. Bonus for having good nutrition data
         const nutrientCount = food.foodNutrients ? food.foodNutrients.length : 0;
@@ -460,6 +571,29 @@ async function getUSDANutritionDetails(fdcId) {
     console.log(`📊 Fetching detailed nutrition for USDA ID: ${fdcId}`);
     
     try {
+        // Try local database first if available
+        if (USE_LOCAL_USDA) {
+            try {
+                const localResponse = await fetch(`${USDA_LOCAL_DETAIL_URL}/${fdcId}`);
+                
+                if (localResponse.ok) {
+                    const localData = await localResponse.json();
+                    if (localData.success) {
+                        console.log(`⚡ Using LOCAL database (fast!)`);
+                        console.log(`✅ Retrieved detailed nutrition data for: ${localData.food.description}`);
+                        return localData.food;
+                    } else if (localData.fallback_to_api) {
+                        console.log(`⚠️ Local DB not available, falling back to API`);
+                        USE_LOCAL_USDA = false;
+                    }
+                }
+            } catch (localError) {
+                console.log(`⚠️ Local DB error, falling back to API: ${localError.message}`);
+                USE_LOCAL_USDA = false;
+            }
+        }
+        
+        // Fallback to USDA API if local not available
         const response = await fetch(`${USDA_DETAIL_URL}/${fdcId}?api_key=${USDA_API_KEY}`);
         
         if (!response.ok) {
