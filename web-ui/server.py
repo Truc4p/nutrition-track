@@ -90,8 +90,8 @@ def parse_iso8601_duration(duration_str):
     return duration_str
 
 # Load recipe data 
-RECIPE_DB_PATH = '../meal/pickup_limes_database/json/pickup_limes_all_recipes_detailed_clean.json'
-IMAGE_PATH = '../meal/pickup_limes_database/images'
+RECIPE_DB_PATH = '../meal-scraper/pickup_limes_database/json/pickup_limes_all_recipes_detailed_clean.json'
+IMAGE_PATH = '../meal-scraper/pickup_limes_database/images'
 
 # Initialize the inflect engine for singular conversion
 p = inflect.engine()

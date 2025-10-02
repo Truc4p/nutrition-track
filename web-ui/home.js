@@ -188,7 +188,7 @@ async function handleSubmit() {
     setLoading(true);
     await processText(inputText);
     setLoading(false);
-    updateUI(); // Update UI after fetching
+    // UI is already updated progressively in processText, no need to call updateUI here
 }
 
 // Show/hide loading indicator
@@ -495,6 +495,12 @@ async function processText(inputText) {
         
         console.log(`✅ Found ${extractedFoods.length} food items`);
         
+        // Clear existing foods array to start fresh
+        foods = [];
+        
+        // Show results header immediately so user sees something is happening
+        if (resultsHeader) resultsHeader.style.display = 'block';
+        
         // Step 2: Search USDA database for each food and get nutrition data
         console.log('� Step 2: Searching USDA database for each food...');
         const foodPromises = extractedFoods.map(async (foodItem, index) => {
@@ -600,6 +606,11 @@ async function processText(inputText) {
                 };
                 
                 console.log(`✅ Created food object for ${foodItem.name}:`, foodObject);
+                
+                // Add to global foods array and update UI immediately (progressive rendering)
+                foods.push(foodObject);
+                updateUI();
+                
                 return foodObject;
                 
             } catch (error) {
@@ -609,11 +620,8 @@ async function processText(inputText) {
         });
         
         // Wait for all food processing to complete
-        console.log('⏳ Waiting for all food processing to complete...');
-        const processedFoods = await Promise.all(foodPromises);
-        
-        // Filter out failed foods and update global foods array
-        foods = processedFoods.filter(food => food !== null);
+        console.log('⏳ Processing foods progressively (updating UI as each completes)...');
+        await Promise.all(foodPromises);
         
         console.log('✅ Successfully processed foods');
         console.log('📊 Final foods array:', foods);
@@ -645,64 +653,95 @@ async function processText(inputText) {
 
 // Update the HTML based on the current state (foods array)
 function updateUI() {
+    console.time('updateUI'); // Performance timing
+    
     // Clear previous list items
     foodListContainer.innerHTML = '';
 
     if (foods.length === 0) {
         totalsSection.style.display = 'none'; // Hide totals if no food
+        console.timeEnd('updateUI');
         return; // Nothing more to render
     }
 
+    // Use DocumentFragment for better performance (single reflow instead of multiple)
+    const fragment = document.createDocumentFragment();
+
     // --- Populate Food List ---
     foods.forEach((food, index) => {
-        const listItem = document.createElement('li');
-        listItem.className = 'food-item';
-        listItem.id = `food-item-${index}`;
-
-        // Top: Food name and quantity as h4
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'food-header';
-        const headerH4 = document.createElement('h4');
-        headerH4.className = 'food-title';
+        // Build HTML string instead of creating elements one by one
+        let htmlContent = '';
         
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'food-name2';
-        nameSpan.textContent = food.name;
-        
-        headerH4.appendChild(nameSpan);
-        headerDiv.appendChild(headerH4);
-        
-        // Add quantity span
-        const quantitySpan = document.createElement('span');
-        quantitySpan.className = 'food-quantity';
-        quantitySpan.textContent = `${food.quantity.toFixed(2)} ${food.measurementType}`;
-        headerDiv.appendChild(quantitySpan);
-        
-        // Add collapse icon
-        const collapseIcon = document.createElement('i');
-        collapseIcon.className = 'fas fa-chevron-down collapse-icon';
-        headerDiv.appendChild(collapseIcon);
-
-        // All Nutrition Info organized by categories 
-        const nutritionDiv = document.createElement('div');
-        nutritionDiv.className = 'food-nutrition';
+        // Header HTML
+        htmlContent += `
+            <div class="food-header">
+                <h4 class="food-title">
+                    <span class="food-name2">${food.name}</span>
+                </h4>
+                <span class="food-quantity">${food.quantity.toFixed(2)} ${food.measurementType}</span>
+                <i class="fas fa-chevron-down collapse-icon"></i>
+            </div>
+        `;
 
         // Organize nutrients by categories from nutrient database
         const categories = {};
         
-        // Track energy/calorie values to avoid duplicates
+        // Track energy and folate values
         let energyValue = 0;
         let hasEnergyNutrient = false;
+        let folateValue = 0;
+        let folateUnit = 'ug';
+        let hasFolate = false;
 
-        // First pass: check if we have energy nutrients and get the kcal value
-        Object.values(food.allNutrients).forEach(nutrient => {
+        // Single pass through nutrients - collect all data at once
+        const sortedNutrients = Object.values(food.allNutrients).sort((a, b) => a.name.localeCompare(b.name));
+        
+        sortedNutrients.forEach(nutrient => {
+            if (!nutrient.value || nutrient.value === 0) return;
+            if (Math.round(nutrient.value) === 0) return;
+            
             const name = nutrient.name.toLowerCase();
             const unit = nutrient.unit.toLowerCase();
             
+            // Check for energy
             if ((name.includes('energy') || name.includes('calorie')) && unit === 'kcal') {
                 energyValue = nutrient.value;
                 hasEnergyNutrient = true;
+                return; // Skip adding to categories
             }
+            
+            // Check for folate (prefer DFE, then total, then food)
+            if (name.includes('folate')) {
+                if (name.includes('dfe') && nutrient.value > 0) {
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unit.toLowerCase();
+                    hasFolate = true;
+                } else if (!hasFolate && name.includes('total') && nutrient.value > 0) {
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unit.toLowerCase();
+                    hasFolate = true;
+                } else if (!hasFolate && name.includes('food') && nutrient.value > 0) {
+                    folateValue = nutrient.value;
+                    folateUnit = nutrient.unit.toLowerCase();
+                    hasFolate = true;
+                }
+                return; // Skip adding to categories
+            }
+            
+            // Skip MUFA, TFA, PUFA, SFA nutrients
+            if (name.includes('mufa') || name.includes('tfa') || name.includes('pufa') || name.includes('sfa')) {
+                return;
+            }
+            
+            // Add to appropriate category
+            const nutrientGroup = getNutrientGroup(nutrient.name);
+            if (!categories[nutrientGroup]) categories[nutrientGroup] = [];
+            
+            categories[nutrientGroup].push(`
+                <div class="nutrition-total-item">
+                    <span class="nutrient-name">${nutrient.name}:</span>
+                    <span class="nutrient-value">${Math.round(nutrient.value)} ${unit}</span>
+                </div>`);
         });
 
         // If no kcal energy nutrient found, use totalCalories
@@ -710,105 +749,29 @@ function updateUI() {
             energyValue = food.totalCalories;
         }
 
-        // Add consolidated energy entry if we have a value
+        // Add consolidated energy entry
         if (energyValue > 0) {
             const energyGroup = getNutrientGroup('Energy');
             if (!categories[energyGroup]) categories[energyGroup] = [];
-            
-            const nutrientInfo = `
+            categories[energyGroup].unshift(`
                 <div class="nutrition-total-item">
                     <span class="nutrient-name">Energy:</span>
                     <span class="nutrient-value">${Math.round(energyValue)} kcal</span>
-                </div>`;
-            categories[energyGroup].push(nutrientInfo);
+                </div>`);
         }
 
-        // Track folate values to consolidate them
-        let folateValue = 0;
-        let folateUnit = 'ug';
-        let hasFolate = false;
-
-        // First pass: find the best folate value (prefer DFE, then total, then food)
-        Object.values(food.allNutrients).forEach(nutrient => {
-            const name = nutrient.name.toLowerCase();
-            if (name.includes('folate')) {
-                if (name.includes('dfe') && nutrient.value > 0) {
-                    // DFE is the preferred measurement
-                    folateValue = nutrient.value;
-                    folateUnit = nutrient.unit.toLowerCase();
-                    hasFolate = true;
-                } else if (!hasFolate && name.includes('total') && nutrient.value > 0) {
-                    // Use total if no DFE found
-                    folateValue = nutrient.value;
-                    folateUnit = nutrient.unit.toLowerCase();
-                    hasFolate = true;
-                } else if (!hasFolate && name.includes('food') && nutrient.value > 0) {
-                    // Use food folate as last resort
-                    folateValue = nutrient.value;
-                    folateUnit = nutrient.unit.toLowerCase();
-                    hasFolate = true;
-                }
-            }
-        });
-
-        // Add consolidated folate entry if we have a value
+        // Add consolidated folate entry
         if (hasFolate && folateValue > 0 && Math.round(folateValue) > 0) {
             const folateGroup = getNutrientGroup('Folate, DFE') || 'GROUP 3: VITAMINS';
             if (!categories[folateGroup]) categories[folateGroup] = [];
-            
-            const nutrientInfo = `
+            categories[folateGroup].push(`
                 <div class="nutrition-total-item">
                     <span class="nutrient-name">Folate, DFE:</span>
                     <span class="nutrient-value">${Math.round(folateValue)} ${folateUnit}</span>
-                </div>`;
-            categories[folateGroup].push(nutrientInfo);
+                </div>`);
         }
 
-        // Organize all other nutrients by group (excluding energy/calorie and folate nutrients)
-        Object.values(food.allNutrients)
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .forEach(nutrient => {
-                if (!nutrient.value || nutrient.value === 0) return;
-                if (Math.round(nutrient.value) === 0) return; // Skip values that round to 0
-                
-                const name = nutrient.name.toLowerCase();
-                const unit = nutrient.unit.toLowerCase();
-                
-                // Skip all energy/calorie related nutrients as we've already handled them
-                if (name.includes('energy') || name.includes('calorie')) {
-                    return;
-                }
-
-                // Skip all folate nutrients as we've consolidated them
-                if (name.includes('folate')) {
-                    return;
-                }
-
-                // Skip MUFA, TFA, PUFA, SFA nutrients
-                if (name.includes('mufa') || name.includes('tfa') || name.includes('pufa') || name.includes('sfa')) {
-                    return;
-                }
-                
-                const displayName = nutrient.name;
-                const value = nutrient.value;
-                const nutrientInfo = `
-                    <div class="nutrition-total-item">
-                        <span class="nutrient-name">${displayName}:</span>
-                        <span class="nutrient-value">${Math.round(value)} ${unit}</span>
-                    </div>`;
-
-                // Get nutrient group for this nutrient
-                const nutrientGroup = getNutrientGroup(displayName);
-                
-                // Initialize category array if it doesn't exist
-                if (!categories[nutrientGroup]) {
-                    categories[nutrientGroup] = [];
-                }
-                
-                categories[nutrientGroup].push(nutrientInfo);
-            });
-
-        // Display nutrients by category in the correct 1-9 group order
+        // Build nutrition HTML by category in the correct order
         const groupOrder = [
             'GROUP 1: ENERGY & FOUNDATION',
             'GROUP 2: MACRONUTRIENTS',
@@ -821,30 +784,37 @@ function updateUI() {
             'GROUP 9: MISCELLANEOUS'
         ];
 
+        let nutritionHtml = '<div class="food-nutrition">';
         groupOrder.forEach(groupName => {
             if (categories[groupName] && categories[groupName].length > 0) {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'nutrition-category';
-                
-                const categoryTitle = document.createElement('h4');
-                categoryTitle.className = 'category-title';
-                categoryTitle.textContent = groupName;
-                categoryDiv.appendChild(categoryTitle);
-
-                categoryDiv.innerHTML += categories[groupName].join('');
-                nutritionDiv.appendChild(categoryDiv);
+                nutritionHtml += `
+                    <div class="nutrition-category">
+                        <h4 class="category-title">${groupName}</h4>
+                        ${categories[groupName].join('')}
+                    </div>`;
             }
         });
+        nutritionHtml += '</div>';
 
-        listItem.appendChild(headerDiv);
-        listItem.appendChild(nutritionDiv);
-        foodListContainer.appendChild(listItem);
+        // Create list item and set all HTML at once
+        const listItem = document.createElement('li');
+        listItem.className = 'food-item';
+        listItem.id = `food-item-${index}`;
+        listItem.innerHTML = htmlContent + nutritionHtml;
         
         // Add click event listener to toggle expansion
         listItem.addEventListener('click', function() {
             this.classList.toggle('expanded');
         });
+        
+        // Add to fragment instead of directly to DOM
+        fragment.appendChild(listItem);
     });
+
+    // Single DOM update - much faster than multiple appendChild calls
+    foodListContainer.appendChild(fragment);
+    
+    console.timeEnd('updateUI');
 
     // --- Calculate and Display Comprehensive Totals ---
     calculateAndDisplayTotals();
@@ -852,42 +822,25 @@ function updateUI() {
 
 // New function to calculate and display comprehensive totals
 function calculateAndDisplayTotals() {
+    console.time('calculateAndDisplayTotals'); // Performance timing
+    
     // Calculate totals for all nutrients
     const nutritionTotals = {};
-
-    // First, consolidate energy values
     let totalEnergyKcal = 0;
     
+    // Single pass through all foods and their nutrients
     foods.forEach(food => {
-        // Track energy for this food
         let foodEnergyKcal = 0;
         let hasEnergyNutrient = false;
         
-        // Check for energy nutrients in kcal
         Object.values(food.allNutrients).forEach(nutrient => {
             const name = nutrient.name.toLowerCase();
             const unit = nutrient.unit.toLowerCase();
             
+            // Handle energy
             if ((name.includes('energy') || name.includes('calorie')) && unit === 'kcal') {
                 foodEnergyKcal = nutrient.value;
                 hasEnergyNutrient = true;
-            }
-        });
-        
-        // If no kcal energy nutrient found, use totalCalories
-        if (!hasEnergyNutrient && food.totalCalories > 0) {
-            foodEnergyKcal = food.totalCalories;
-        }
-        
-        totalEnergyKcal += foodEnergyKcal;
-        
-        // Add all other nutrients (excluding energy/calorie nutrients)
-        Object.values(food.allNutrients).forEach(nutrient => {
-            const name = nutrient.name.toLowerCase();
-            const unit = nutrient.unit.toLowerCase();
-            
-            // Skip energy/calorie nutrients as we handle them separately
-            if (name.includes('energy') || name.includes('calorie')) {
                 return;
             }
 
@@ -896,6 +849,7 @@ function calculateAndDisplayTotals() {
                 return;
             }
             
+            // Accumulate other nutrients
             const key = nutrient.name.toLowerCase();
             if (!nutritionTotals[key]) {
                 nutritionTotals[key] = {
@@ -907,6 +861,13 @@ function calculateAndDisplayTotals() {
             }
             nutritionTotals[key].value += nutrient.value;
         });
+        
+        // If no kcal energy nutrient found, use totalCalories
+        if (!hasEnergyNutrient && food.totalCalories > 0) {
+            foodEnergyKcal = food.totalCalories;
+        }
+        
+        totalEnergyKcal += foodEnergyKcal;
     });
     
     // Add consolidated energy entry
@@ -937,36 +898,6 @@ function calculateAndDisplayTotals() {
             console.log('Error accessing recommendation data:', e);
         }
     }
-
-    // Clear and rebuild totals section
-    totalsSection.innerHTML = '';
-
-    // Create a single list item for totals (same structure as food-list)
-    const totalListItem = document.createElement('div');
-    totalListItem.className = 'total-food-item expanded';
-    totalListItem.id = 'total-food-item';
-
-    // Create header similar to food items
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'food-header';
-    const headerH4 = document.createElement('h4');
-    headerH4.className = 'food-title';
-    
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'food-name2';
-    nameSpan.textContent = 'TOTAL NUTRITION';
-    
-    headerH4.appendChild(nameSpan);
-    headerDiv.appendChild(headerH4);
-    
-    // Add summary span
-    const summarySpan = document.createElement('span');
-    summarySpan.className = 'food-quantity';
-    summarySpan.textContent = `${foods.length} item${foods.length !== 1 ? 's' : ''}`;
-    headerDiv.appendChild(summarySpan);
-
-    // Organize totals by the 9 major groups from nutrient database
-    const categories = {};
 
     // Helper function to get recommended value for a nutrient
     function getRecommendedValue(nutrientName, unit) {
@@ -1057,35 +988,62 @@ function calculateAndDisplayTotals() {
         return null;
     }
 
-    // Track folate values to consolidate them in totals
+    // Organize totals by the 9 major groups from nutrient database
+    const categories = {};
+
+    // Track and consolidate folate values (prefer DFE, then total, then food)
     let totalFolateValue = 0;
     let folateUnit = 'ug';
     let hasTotalFolate = false;
 
-    // First pass: find and consolidate folate values (prefer DFE, then total, then food)
-    Object.values(nutritionTotals).forEach(nutrient => {
+    // Sort and process all nutrients in a single pass
+    const sortedNutrients = Object.values(nutritionTotals)
+        .filter(nutrient => nutrient.value > 0 && Math.round(nutrient.value) > 0)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    sortedNutrients.forEach(nutrient => {
         const name = nutrient.name.toLowerCase();
+        
+        // Handle folate consolidation
         if (name.includes('folate')) {
             if (name.includes('dfe') && nutrient.value > 0) {
-                // DFE is the preferred measurement
                 totalFolateValue = nutrient.value;
                 folateUnit = nutrient.unit.toLowerCase();
                 hasTotalFolate = true;
             } else if (!hasTotalFolate && name.includes('total') && nutrient.value > 0) {
-                // Use total if no DFE found
                 totalFolateValue = nutrient.value;
                 folateUnit = nutrient.unit.toLowerCase();
                 hasTotalFolate = true;
             } else if (!hasTotalFolate && name.includes('food') && nutrient.value > 0) {
-                // Use food folate as last resort
                 totalFolateValue = nutrient.value;
                 folateUnit = nutrient.unit.toLowerCase();
                 hasTotalFolate = true;
             }
+            return; // Skip adding individual folate entries
         }
+        
+        // Process other nutrients
+        const unit = nutrient.unit.toLowerCase();
+        const recommendedValue = getRecommendedValue(nutrient.name, unit);
+        
+        let valueDisplay;
+        if (recommendedValue) {
+            valueDisplay = `${Math.round(nutrient.value)} / <span class="recommended-value">${recommendedValue}</span> ${unit}`;
+        } else {
+            valueDisplay = `${Math.round(nutrient.value)} ${unit}`;
+        }
+        
+        const nutrientGroup = getNutrientGroup(nutrient.name);
+        if (!categories[nutrientGroup]) categories[nutrientGroup] = [];
+        
+        categories[nutrientGroup].push(`
+            <div class="nutrition-total-item">
+                <span class="nutrient-name">${nutrient.name}:</span>
+                <span class="nutrient-value">${valueDisplay}</span>
+            </div>`);
     });
 
-    // Add consolidated folate entry if we have a value
+    // Add consolidated folate entry
     if (hasTotalFolate && totalFolateValue > 0 && Math.round(totalFolateValue) > 0) {
         const folateGroup = getNutrientGroup('Folate, DFE') || 'GROUP 3: VITAMINS';
         if (!categories[folateGroup]) categories[folateGroup] = [];
@@ -1098,56 +1056,23 @@ function calculateAndDisplayTotals() {
             valueDisplay = `${Math.round(totalFolateValue)} ${folateUnit}`;
         }
         
-        const nutrientInfo = `
+        categories[folateGroup].push(`
             <div class="nutrition-total-item">
                 <span class="nutrient-name">Folate, DFE:</span>
                 <span class="nutrient-value">${valueDisplay}</span>
-            </div>`;
-        categories[folateGroup].push(nutrientInfo);
+            </div>`);
     }
 
-    // Process all other nutrients (excluding folate which we've consolidated)
-    Object.values(nutritionTotals)
-        .filter(nutrient => !nutrient.name.toLowerCase().includes('folate')) // Exclude folate nutrients
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .forEach(nutrient => {
-            if (!nutrient.value || nutrient.value === 0) return;
-            if (Math.round(nutrient.value) === 0) return; // Skip values that round to 0
-            
-            const name = nutrient.name;
-            
-            const actualValue = nutrient.value;
-            const unit = nutrient.unit.toLowerCase();
-            const recommendedValue = getRecommendedValue(name, unit);
-            
-            // Format the value display
-            let valueDisplay;
-            if (recommendedValue) {
-                valueDisplay = `${Math.round(actualValue)} / <span class="recommended-value">${recommendedValue}</span> ${unit}`;
-            } else {
-                valueDisplay = `${Math.round(actualValue)} ${unit}`;
-            }
-            
-            const nutrientInfo = `
-                <div class="nutrition-total-item">
-                    <span class="nutrient-name">${name}:</span>
-                    <span class="nutrient-value">${valueDisplay}</span>
-                </div>`;
-
-            // Get nutrient group for this nutrient
-            const nutrientGroup = getNutrientGroup(name);
-            
-            // Initialize category array if it doesn't exist
-            if (!categories[nutrientGroup]) {
-                categories[nutrientGroup] = [];
-            }
-            
-            categories[nutrientGroup].push(nutrientInfo);
-        });
-
-    // Create nutrition div with same structure as food items
-    const nutritionDiv = document.createElement('div');
-    nutritionDiv.className = 'food-nutrition';
+    // Build complete HTML string
+    let htmlContent = `
+        <div class="total-food-item expanded" id="total-food-item">
+            <div class="food-header">
+                <h4 class="food-title">
+                    <span class="food-name2">TOTAL NUTRITION</span>
+                </h4>
+                <span class="food-quantity">${foods.length} item${foods.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="food-nutrition">`;
 
     // Display nutrients by category in the correct 1-9 group order
     const groupOrder = [
@@ -1164,24 +1089,23 @@ function calculateAndDisplayTotals() {
 
     groupOrder.forEach(groupName => {
         if (categories[groupName] && categories[groupName].length > 0) {
-            const categoryDiv = document.createElement('div');
-            categoryDiv.className = 'nutrition-category';
-            
-            const categoryTitle = document.createElement('h4');
-            categoryTitle.className = 'category-title';
-            categoryTitle.textContent = groupName;
-            categoryDiv.appendChild(categoryTitle);
-
-            categoryDiv.innerHTML += categories[groupName].join('');
-            nutritionDiv.appendChild(categoryDiv);
+            htmlContent += `
+                <div class="nutrition-category">
+                    <h4 class="category-title">${groupName}</h4>
+                    ${categories[groupName].join('')}
+                </div>`;
         }
     });
 
-    totalListItem.appendChild(headerDiv);
-    totalListItem.appendChild(nutritionDiv);
-    totalsSection.appendChild(totalListItem);
+    htmlContent += `
+            </div>
+        </div>`;
 
-    totalsSection.style.display = 'block'; // Show totals
+    // Single DOM update
+    totalsSection.innerHTML = htmlContent;
+    totalsSection.style.display = 'block';
+    
+    console.timeEnd('calculateAndDisplayTotals');
 }
 
 // Utility function to format values
