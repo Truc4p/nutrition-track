@@ -8,6 +8,27 @@ import requests
 import csv
 from typing import List, Dict, Any
 import inflect
+from datetime import datetime
+from dotenv import load_dotenv
+
+# Add YouTube scraper modules path
+youtube_scraper_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'youtube-scraper')
+sys.path.append(youtube_scraper_path)
+
+try:
+    from db.models import Session, YouTubeVideo
+    from scripts.scraper import scrape_videos
+    YOUTUBE_INTEGRATION_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: YouTube integration not available: {e}")
+    YOUTUBE_INTEGRATION_AVAILABLE = False
+
+# Load environment variables
+load_dotenv()
+
+# Gemini API Configuration
+GEMINI_KEY = 'AIzaSyAZbp4SEeaAq8ioyvuWNF7kcwalhNA8h8I'
+GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
 
 app = Flask(__name__, static_folder='.')
 CORS(app)  # Enable CORS for all routes
@@ -71,10 +92,6 @@ def parse_iso8601_duration(duration_str):
 # Load recipe data 
 RECIPE_DB_PATH = '../meal/pickup_limes_database/json/pickup_limes_all_recipes_detailed_clean.json'
 IMAGE_PATH = '../meal/pickup_limes_database/images'
-
-# YouTube API settings
-YOUTUBE_API_PORT = 5002
-YOUTUBE_API_HOST = 'localhost'
 
 # Initialize the inflect engine for singular conversion
 p = inflect.engine()
@@ -338,19 +355,6 @@ def legacy_recipe_redirect(recipe_id: int):
     except Exception as e:
         return jsonify({'message': 'Error resolving recipe', 'error': str(e)}), 500
 
-# Proxy YouTube API requests
-@app.route('/api/youtube/videos', methods=['GET'])
-def proxy_youtube_videos():
-    try:
-        youtube_url = f'http://{YOUTUBE_API_HOST}:{YOUTUBE_API_PORT}/api/youtube/videos'
-        response = requests.get(youtube_url, params=request.args)
-        return jsonify(response.json())
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
 # Django NLP endpoint integrated into Flask server
 @app.route('/nlp/process_text/', methods=['POST', 'OPTIONS'])
 def django_nlp_process_text():
@@ -415,6 +419,184 @@ def proxy_nlp_api(endpoint):
             'success': False,
             'error': str(e)
         }), 500
+
+
+# Chatbot API Route
+@app.route('/ai/chat', methods=['POST'])
+def chat():
+    """Handle chatbot requests using Gemini API."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
+            
+        user_message = data.get('userMessage', '')
+        if not user_message:
+            return jsonify({'error': 'No message provided'}), 400
+            
+        # Create a nutrition-focused prompt
+        prompt = f"You are a helpful nutrition assistant. Please provide accurate and helpful nutrition advice.\nUser's message: {user_message}\nPlease respond with relevant nutrition information and advice."
+        
+        # Send request to Gemini API
+        response = requests.post(GEMINI_API_URL, 
+            headers={'Content-Type': 'application/json'},
+            json={
+                'contents': [
+                    {
+                        'parts': [{'text': prompt}]
+                    }
+                ]
+            }
+        )
+        
+        if not response.ok:
+            return jsonify({
+                'error': f'Gemini API error: {response.status_code}',
+                'details': response.text
+            }), 500
+        
+        data = response.json()
+        
+        # Extract the recommendation from the response
+        recommendation = (
+            data.get('candidates', [{}])[0]
+            .get('content', {})
+            .get('parts', [{}])[0]
+            .get('text', 'No recommendation available.')
+        )
+        
+        return jsonify({'recommendation': recommendation})
+        
+    except Exception as e:
+        return jsonify({
+            'error': 'An error occurred while processing your request',
+            'details': str(e)
+        }), 500
+
+
+# YouTube API Routes
+@app.route('/api/youtube/videos', methods=['GET'])
+def get_youtube_videos():
+    """Get videos from the database with optional filtering."""
+    if not YOUTUBE_INTEGRATION_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'YouTube integration not available. Please check dependencies.'
+        }), 500
+    
+    try:
+        session = Session()
+        
+        # Get query parameters
+        query = request.args.get('query', '').lower()
+        limit = int(request.args.get('limit', 40))
+        
+        # Base query
+        db_query = session.query(YouTubeVideo).filter(YouTubeVideo.is_active == True)
+        
+        # Apply search filter if provided
+        if query:
+            search_terms = query.split()
+            for term in search_terms:
+                db_query = db_query.filter(
+                    (YouTubeVideo.title.ilike(f'%{term}%')) | 
+                    (YouTubeVideo.description.ilike(f'%{term}%')) |
+                    (YouTubeVideo.keywords.ilike(f'%{term}%'))
+                )
+        
+        # Order by publish date (newest first) and limit results
+        videos = db_query.order_by(YouTubeVideo.published_at.desc()).limit(limit).all()
+        
+        # Convert to dictionary format
+        results = [video.to_dict() for video in videos]
+        
+        return jsonify({
+            'success': True,
+            'count': len(results),
+            'results': results
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    
+    finally:
+        session.close()
+
+
+@app.route('/api/youtube/refresh', methods=['POST'])
+def refresh_youtube_videos():
+    """Refresh the video database by scraping new videos."""
+    if not YOUTUBE_INTEGRATION_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'YouTube integration not available. Please check dependencies.'
+        }), 500
+    
+    try:
+        # Get optional search query
+        query = request.json.get('query', '') if request.is_json else ''
+        
+        # Run the scraper
+        count = scrape_videos(query)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully scraped {count} videos',
+            'count': count
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/youtube/stats', methods=['GET'])
+def get_youtube_stats():
+    """Get statistics about the video database."""
+    if not YOUTUBE_INTEGRATION_AVAILABLE:
+        return jsonify({
+            'success': False,
+            'error': 'YouTube integration not available. Please check dependencies.'
+        }), 500
+    
+    try:
+        session = Session()
+        
+        total_videos = session.query(YouTubeVideo).count()
+        active_videos = session.query(YouTubeVideo).filter(YouTubeVideo.is_active == True).count()
+        
+        # Get the date of the most recent video
+        most_recent = session.query(YouTubeVideo).order_by(YouTubeVideo.published_at.desc()).first()
+        most_recent_date = most_recent.published_at if most_recent else None
+        
+        # Get the date of the oldest video
+        oldest = session.query(YouTubeVideo).order_by(YouTubeVideo.published_at).first()
+        oldest_date = oldest.published_at if oldest else None
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_videos': total_videos,
+                'active_videos': active_videos,
+                'most_recent_video': most_recent_date.isoformat() if most_recent_date else None,
+                'oldest_video': oldest_date.isoformat() if oldest_date else None,
+                'database_last_updated': datetime.utcnow().isoformat()
+            }
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    
+    finally:
+        session.close()
 
 
 if __name__ == '__main__':

@@ -1,9 +1,10 @@
 // Shared Chatbot Service
 class ChatbotService {
     constructor() {
-        // Use current host IP instead of hardcoded localhost
+        // Use current host and port instead of hardcoded localhost:3001
         const currentHost = window.location.hostname;
-        this.GEMINI_API_URL = `http://${currentHost}:3001/ai/chat`;
+        const currentPort = window.location.port || '5001';
+        this.GEMINI_API_URL = `http://${currentHost}:${currentPort}/ai/chat`;
         
         // Shared message history across all chat interfaces
         this.messages = [];
