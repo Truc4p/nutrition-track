@@ -6,6 +6,14 @@ const resultsHeader = document.getElementById('results-header');
 const foodListContainer = document.getElementById('food-list');
 const totalsSection = document.getElementById('totals-section');
 
+// Image upload elements
+const mealImageInput = document.getElementById('meal-image-input');
+const uploadImageButton = document.getElementById('upload-image-button');
+const analyzeImageButton = document.getElementById('analyze-image-button');
+const imagePreview = document.getElementById('image-preview');
+const previewImg = document.getElementById('preview-img');
+const removeImageButton = document.getElementById('remove-image-button');
+
 document.addEventListener('DOMContentLoaded', () => {
     // State management event listeners
     window.addEventListener('savePageState', (event) => {
@@ -177,7 +185,108 @@ if (submitButton) {
     submitButton.addEventListener('click', handleSubmit);
 }
 
+// Image upload event listeners
+if (uploadImageButton) {
+    uploadImageButton.addEventListener('click', () => {
+        mealImageInput.click();
+    });
+}
+
+if (mealImageInput) {
+    mealImageInput.addEventListener('change', handleImageSelect);
+}
+
+if (removeImageButton) {
+    removeImageButton.addEventListener('click', handleRemoveImage);
+}
+
+if (analyzeImageButton) {
+    analyzeImageButton.addEventListener('click', handleAnalyzeImage);
+}
+
 // --- Functions ---
+
+// Image upload handling functions
+function handleImageSelect(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            imagePreview.style.display = 'block';
+            analyzeImageButton.style.display = 'inline-block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function handleRemoveImage() {
+    mealImageInput.value = '';
+    previewImg.src = '';
+    imagePreview.style.display = 'none';
+    analyzeImageButton.style.display = 'none';
+}
+
+async function handleAnalyzeImage() {
+    const file = mealImageInput.files[0];
+    if (!file) return;
+
+    setLoading(true);
+    
+    try {
+        // Convert image to base64
+        const base64Image = await fileToBase64(file);
+        
+        // Remove the data URL prefix to get just the base64 string
+        const base64Data = base64Image.split(',')[1];
+        
+        // Send to server for Gemini analysis
+        const response = await fetch('/ai/analyze-meal-image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image: base64Data,
+                mimeType: file.type
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error);
+        }
+        
+        // Parse the response and populate the food input
+        if (result.analysis) {
+            foodInput.value = result.analysis;
+            handleInputChange();
+            
+            // Optionally auto-submit the analysis
+            // await handleSubmit();
+        }
+        
+    } catch (error) {
+        console.error('Error analyzing image:', error);
+        alert(`Failed to analyze image: ${error.message}`);
+    } finally {
+        setLoading(false);
+    }
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
 
 // Enable/disable buttons based on input
 function handleInputChange() {

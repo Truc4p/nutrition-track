@@ -28,7 +28,8 @@ load_dotenv()
 
 # Gemini API Configuration
 GEMINI_KEY = 'AIzaSyAZbp4SEeaAq8ioyvuWNF7kcwalhNA8h8I'
-GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
+GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_KEY}'
+GEMINI_VISION_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_KEY}'
 
 app = Flask(__name__, static_folder='.')
 CORS(app)  # Enable CORS for all routes
@@ -470,6 +471,119 @@ def chat():
     except Exception as e:
         return jsonify({
             'error': 'An error occurred while processing your request',
+            'details': str(e)
+        }), 500
+
+
+# Meal Image Analysis API Route
+@app.route('/ai/analyze-meal-image', methods=['POST'])
+def analyze_meal_image():
+    """Analyze a meal image using Gemini Vision API to estimate ingredient weights."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
+        
+        image_data = data.get('image', '')
+        mime_type = data.get('mimeType', 'image/jpeg')
+        
+        if not image_data:
+            return jsonify({'error': 'No image data provided'}), 400
+        
+        # Create a detailed prompt for ingredient estimation
+        prompt = """Analyze this meal image and estimate the weight in grams of each ingredient/component. 
+        
+Please provide your response in a format that can be directly used in a food tracking app, like this example:
+
+"100g chicken breast, 150g rice, 70g corn, 80g tomatoes, 70g avocado, 40g jicama"
+
+Important guidelines:
+1. Estimate weights in grams (g)
+2. Use simple, searchable ingredient names (e.g., "chicken breast" not "seasoned chicken")
+3. List each ingredient separately with its estimated weight
+4. Be as accurate as possible based on typical portion sizes
+5. Format as: "[weight]g [ingredient name], [weight]g [ingredient name], ..."
+6. Do NOT include detailed explanations or ranges - just provide the comma-separated list
+
+Example good response: "130g chicken breast, 175g brown rice, 80g corn, 90g tomatoes, 75g avocado, 40g jicama"
+"""
+        
+        print(f"Analyzing image with mime type: {mime_type}")
+        print(f"Image data length: {len(image_data)} characters")
+        
+        # Send request to Gemini Vision API
+        response = requests.post(GEMINI_VISION_API_URL,
+            headers={'Content-Type': 'application/json'},
+            json={
+                'contents': [
+                    {
+                        'parts': [
+                            {'text': prompt},
+                            {
+                                'inline_data': {
+                                    'mime_type': mime_type,
+                                    'data': image_data
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        )
+        
+        print(f"Gemini API response status: {response.status_code}")
+        
+        if not response.ok:
+            error_details = response.text
+            print(f"Gemini API error: {error_details}")
+            return jsonify({
+                'error': f'Gemini API error: {response.status_code}',
+                'details': error_details
+            }), 500
+        
+        result = response.json()
+        print(f"Gemini API result: {result}")
+        
+        # Extract the analysis from the response
+        analysis = (
+            result.get('candidates', [{}])[0]
+            .get('content', {})
+            .get('parts', [{}])[0]
+            .get('text', 'Unable to analyze the meal image.')
+        )
+        
+        # Clean up the analysis to extract just the ingredient list
+        # Remove any explanatory text and get the core ingredient list
+        lines = analysis.strip().split('\n')
+        ingredient_list = None
+        
+        for line in lines:
+            line = line.strip()
+            # Look for lines that contain ingredient patterns like "100g chicken"
+            if 'g ' in line.lower() and (',' in line or ' and ' in line.lower()):
+                ingredient_list = line
+                break
+        
+        # If we found a clean ingredient list, use it; otherwise use the full analysis
+        if ingredient_list:
+            analysis = ingredient_list
+        
+        # Remove quotes if present
+        analysis = analysis.strip('"\'')
+        
+        print(f"Final analysis: {analysis}")
+        
+        return jsonify({
+            'success': True,
+            'analysis': analysis
+        })
+        
+    except Exception as e:
+        print(f"Error in analyze_meal_image: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': 'An error occurred while analyzing the image',
             'details': str(e)
         }), 500
 

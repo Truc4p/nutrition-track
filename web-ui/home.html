@@ -21,6 +21,25 @@
                 <h3>What did you eat today?</h3>
                 <textarea id="food-input"
                     placeholder="e.g., 1 cup of rice and 100g chicken breast">I ate 150g salmon, 100g rice, and 50g broccoli</textarea>
+                
+                <!-- Image Upload Section -->
+                <div class="image-upload-section">
+                    <h4>Or upload a meal image:</h4>
+                    <div class="image-upload-container">
+                        <input type="file" id="meal-image-input" accept="image/*" style="display: none;">
+                        <button id="upload-image-button" class="secondary-button">
+                            <i class="fas fa-camera"></i> Upload Image
+                        </button>
+                        <div id="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Meal preview">
+                            <button id="remove-image-button" class="remove-button">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <button id="analyze-image-button" style="display: none;">Analyze Meal</button>
+                    </div>
+                </div>
+                
                 <div class="button-container">
                     <button id="submit-button" disabled>Submit</button>
                 </div>
