@@ -27,7 +27,7 @@ const HomeScreen = () => {
 
   const handleImagePick = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 0.7,
       base64: true,
@@ -36,12 +36,23 @@ const HomeScreen = () => {
     if (!result.canceled && result.assets[0].base64) {
       setSelectedImage(result.assets[0].uri);
       
+      // Detect mime type from URI
+      const uri = result.assets[0].uri.toLowerCase();
+      let mimeType = 'image/jpeg'; // default
+      if (uri.endsWith('.png')) {
+        mimeType = 'image/png';
+      } else if (uri.endsWith('.jpg') || uri.endsWith('.jpeg')) {
+        mimeType = 'image/jpeg';
+      } else if (uri.endsWith('.webp')) {
+        mimeType = 'image/webp';
+      }
+      
       // Analyze the image
       try {
         setIsLoading(true);
         const response = await aiService.analyzeMealImage(
           result.assets[0].base64,
-          result.assets[0].type || 'image/jpeg'
+          mimeType
         );
         
         if (response.success && response.analysis) {
@@ -72,12 +83,21 @@ const HomeScreen = () => {
     if (!result.canceled && result.assets[0].base64) {
       setSelectedImage(result.assets[0].uri);
       
+      // Detect mime type from URI (camera photos are usually JPEG)
+      const uri = result.assets[0].uri.toLowerCase();
+      let mimeType = 'image/jpeg'; // default for camera
+      if (uri.endsWith('.png')) {
+        mimeType = 'image/png';
+      } else if (uri.endsWith('.webp')) {
+        mimeType = 'image/webp';
+      }
+      
       // Analyze the image
       try {
         setIsLoading(true);
         const response = await aiService.analyzeMealImage(
           result.assets[0].base64,
-          result.assets[0].type || 'image/jpeg'
+          mimeType
         );
         
         if (response.success && response.analysis) {
