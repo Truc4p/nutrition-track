@@ -49,8 +49,24 @@ const SearchScreen = () => {
   };
 
   const selectFood = async (food: USDAFood) => {
-    setSelectedFood(food);
-    setSearchResults([]);
+    setIsLoading(true);
+    try {
+      // Fetch detailed nutrition data for the selected food
+      const detailResponse = await usdaService.getFoodDetails(food.fdcId);
+      
+      if (detailResponse.success && detailResponse.food) {
+        setSelectedFood(detailResponse.food);
+      } else {
+        setSelectedFood(food); // Fallback to basic data if detail fetch fails
+      }
+      setSearchResults([]);
+    } catch (error) {
+      console.error('Error fetching food details:', error);
+      setSelectedFood(food); // Fallback to basic data on error
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const addFood = () => {
@@ -69,16 +85,22 @@ const SearchScreen = () => {
     const nutrients: Record<string, any> = {};
 
     selectedFood.foodNutrients.forEach(nutrient => {
-      if (nutrient.value > 0) {
-        const formattedName = nutrient.nutrientName
+      // Handle both nested and flat nutrient structures
+      const name = nutrient.nutrient?.name || nutrient.nutrientName;
+      const value = nutrient.amount || nutrient.value;
+      const unit = nutrient.nutrient?.unitName || nutrient.unitName || '';
+      
+      // Check if nutrient has valid data
+      if (value && value > 0 && name) {
+        const formattedName = name
           .replace(/,\s*/g, ', ')
           .replace(/\b\w/g, (l: string) => l.toUpperCase())
           .trim();
 
-        nutrients[nutrient.nutrientName.toLowerCase()] = {
+        nutrients[name.toLowerCase()] = {
           name: formattedName,
-          value: nutrient.value * scalingFactor,
-          unit: nutrient.unitName.toUpperCase(),
+          value: value * scalingFactor,
+          unit: unit.toUpperCase(),
         };
       }
     });
@@ -136,8 +158,8 @@ const SearchScreen = () => {
       <View style={styles.searchResults}>
         <ScrollView style={styles.searchResultsScroll}>
           {searchResults.map((food) => {
-            const calories = food.foodNutrients.find(n =>
-              n.nutrientName.toLowerCase().includes('energy')
+            const calories = food.foodNutrients?.find(n =>
+              n.nutrientName?.toLowerCase().includes('energy')
             )?.value || 0;
 
             return (
@@ -159,16 +181,43 @@ const SearchScreen = () => {
   const renderFoodDetails = () => {
     if (!selectedFood) return null;
 
+    // Safety check for foodNutrients
+    if (!selectedFood.foodNutrients || selectedFood.foodNutrients.length === 0) {
+      return (
+        <View style={styles.foodDetails}>
+          <View style={styles.foodDetailsHeader}>
+            <Text style={styles.selectedFoodName}>{selectedFood.description}</Text>
+            <Text style={styles.perServing}>per 100g</Text>
+          </View>
+          <Text style={styles.noNutrients}>No nutrition data available for this food.</Text>
+        </View>
+      );
+    }
+
     const groupedNutrients = groupNutrientsByCategory(
       Object.fromEntries(
-        selectedFood.foodNutrients.map(n => [
-          n.nutrientName.toLowerCase(),
-          {
-            name: n.nutrientName,
-            value: n.value,
-            unit: n.unitName,
-          },
-        ])
+        selectedFood.foodNutrients
+          .filter(n => {
+            // Handle both nested and flat nutrient structures
+            const name = n.nutrient?.name || n.nutrientName;
+            const value = n.amount || n.value;
+            return name && value != null;
+          })
+          .map(n => {
+            // Handle both nested and flat nutrient structures
+            const name = (n.nutrient?.name || n.nutrientName)!;
+            const value = (n.amount || n.value)!;
+            const unit = n.nutrient?.unitName || n.unitName || '';
+            
+            return [
+              name.toLowerCase(),
+              {
+                name,
+                value,
+                unit,
+              },
+            ];
+          })
       )
     );
 
@@ -391,6 +440,12 @@ const styles = StyleSheet.create({
   perServing: {
     fontSize: 14,
     color: Colors.textLight,
+  },
+  noNutrients: {
+    fontSize: 14,
+    color: Colors.textLight,
+    textAlign: 'center',
+    marginTop: 10,
   },
   foodActions: {
     flexDirection: 'row',

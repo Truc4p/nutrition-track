@@ -33,11 +33,18 @@ export interface USDAFood {
 }
 
 export interface USDANutrient {
-  nutrientId: number;
-  nutrientName: string;
+  nutrientId?: number;
+  nutrientName?: string;
   nutrientNumber?: string;
-  unitName: string;
-  value: number;
+  unitName?: string;
+  value?: number;
+  // API also returns nested structure
+  amount?: number;
+  nutrient?: {
+    id: number;
+    name: string;
+    unitName: string;
+  };
 }
 
 export interface Recipe {
