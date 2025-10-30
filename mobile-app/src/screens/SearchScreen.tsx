@@ -158,10 +158,6 @@ const SearchScreen = () => {
       <View style={styles.searchResults}>
         <ScrollView style={styles.searchResultsScroll}>
           {searchResults.map((food) => {
-            const calories = food.foodNutrients?.find(n =>
-              n.nutrientName?.toLowerCase().includes('energy')
-            )?.value || 0;
-
             return (
               <TouchableOpacity
                 key={food.fdcId}
@@ -169,7 +165,6 @@ const SearchScreen = () => {
                 onPress={() => selectFood(food)}
               >
                 <Text style={styles.resultFoodName}>{food.description}</Text>
-                <Text style={styles.resultCalories}>{Math.round(calories)} kcal/100g</Text>
               </TouchableOpacity>
             );
           })}
@@ -201,7 +196,8 @@ const SearchScreen = () => {
             // Handle both nested and flat nutrient structures
             const name = n.nutrient?.name || n.nutrientName;
             const value = n.amount || n.value;
-            return name && value != null;
+            // Filter out nutrients with zero or null values
+            return name && value != null && value > 0;
           })
           .map(n => {
             // Handle both nested and flat nutrient structures
