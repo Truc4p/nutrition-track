@@ -364,13 +364,25 @@ async function searchUSDAFood(foodName) {
         // Strategy 1: Exact search
         foodName,
         
-        // Strategy 2: Clean version (remove descriptors)
+        // Strategy 2: Remove color descriptors but keep main food words
+        // "red bell pepper" -> "bell pepper", "red onion" -> "onion"
+        foodName.replace(/\b(red|green|yellow|orange|white|purple|black|brown)\s+/gi, '').trim(),
+        
+        // Strategy 3: Remove both color AND "bell" for peppers (USDA uses "peppers" not "bell peppers")
+        // "red bell pepper" -> "pepper", "bell pepper" -> "pepper"
+        foodName.replace(/\b(red|green|yellow|orange|white|purple|black|brown|bell)\s+/gi, '').trim(),
+        
+        // Strategy 4: Clean version (remove cooking descriptors)
         foodName.replace(/\b(raw|cooked|fresh|frozen|dried|steamed|baked|grilled|fried|boiled|roasted)\b/gi, '').trim(),
         
-        // Strategy 3: Just the main food word (first word usually)
-        foodName.split(/[\s,]+/)[0],
+        // Strategy 5: For compound foods, try just the last significant word
+        // "red bell pepper" -> "pepper", "red onion" -> "onion"
+        (() => {
+            const words = foodName.split(/[\s,]+/);
+            return words[words.length - 1];
+        })(),
         
-        // Strategy 4: Common variations
+        // Strategy 6: Common variations
         foodName.replace(/\bs\b/gi, ''), // Remove plural 's'
         foodName.replace(/\b(chicken|beef|pork|fish)\s+(breast|thigh|leg|fillet)\b/gi, '$1, $2'), // "chicken breast" -> "chicken, breast"
     ];
@@ -462,6 +474,15 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
     console.log(`🎯 Finding best match for "${originalFoodName}" from ${usdaFoods.length} options`);
     console.log(`🎯 Original words: [${originalWords.join(', ')}]`);
     
+    // Identify key food words (not color descriptors or common modifiers)
+    const colorWords = ['red', 'green', 'yellow', 'orange', 'white', 'purple', 'black', 'brown'];
+    const modifierWords = ['raw', 'cooked', 'fresh', 'frozen', 'dried', 'steamed', 'baked', 'grilled', 'fried', 'boiled', 'roasted'];
+    const keyFoodWords = originalWords.filter(word => 
+        !colorWords.includes(word) && !modifierWords.includes(word)
+    );
+    
+    console.log(`🎯 Key food words (excluding colors/modifiers): [${keyFoodWords.join(', ')}]`);
+    
     const scoredFoods = usdaFoods.map(food => {
         const description = food.description.toLowerCase();
         let score = 0;
@@ -485,39 +506,51 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
             }
         }
         
-        // 2. Exact match bonus (but much lower than data type preference)
+        // 2. CRITICAL: Must contain ALL key food words (not just any words)
+        const containsAllKeyWords = keyFoodWords.every(word => description.includes(word));
+        if (!containsAllKeyWords) {
+            score -= 800; // Massive penalty if missing key food words
+            console.log(`   ⚠️ "${description}" missing key food words - heavy penalty`);
+        } else {
+            score += 100; // Big bonus for having all key words
+            console.log(`   ✅ "${description}" contains all key food words`);
+        }
+        
+        // 3. Exact match bonus (but much lower than data type preference)
         if (description === originalLower) {
             score += 50;
         }
         
-        // 3. Contains all original words
+        // 4. Contains all original words (including color/modifiers)
         const containsAllWords = originalWords.every(word => description.includes(word));
         if (containsAllWords) {
             score += 30;
         }
         
-        // 4. Word match ratio (how many original words are found)
+        // 5. Word match ratio (how many original words are found)
         const foundWords = originalWords.filter(word => description.includes(word));
         const wordMatchRatio = foundWords.length / originalWords.length;
         score += wordMatchRatio * 20;
         
-        // 5. Starts with original food name
+        // 6. Starts with original food name or key food words
         if (description.startsWith(originalLower)) {
             score += 15;
+        } else if (keyFoodWords.length > 0 && keyFoodWords.some(word => description.startsWith(word))) {
+            score += 10;
         }
         
-        // 6. Description quality checks
+        // 7. Description quality checks
         const wordCount = description.split(/\s+/).length;
         if (wordCount > 8) {
             score -= 10; // Penalize very long descriptions
         }
         
-        // 7. Bonus for descriptive, detailed names
+        // 8. Bonus for descriptive, detailed names
         if (wordCount >= 3 && wordCount <= 6) {
             score += 10; // Bonus for appropriately detailed descriptions
         }
         
-        // 7. Bonus for common preparation states if original doesn't specify
+        // 9. Bonus for common preparation states if original doesn't specify
         const hasPreparation = /\b(raw|cooked|fresh|frozen|dried|steamed|baked|grilled|fried|boiled|roasted)\b/i.test(originalLower);
         if (!hasPreparation) {
             // Prefer "raw" for fruits/vegetables, "cooked" for meats/grains
@@ -531,9 +564,31 @@ function findBestFoodMatch(originalFoodName, usdaFoods) {
             }
         }
         
-        // 8. Penalize branded/restaurant items for generic searches
+        // 10. Penalize branded/restaurant items for generic searches
         if (food.dataType === 'Branded' && /\b(brand|restaurant|company|inc|llc|corp)\b/i.test(description)) {
             score -= 15;
+        }
+        
+        // 10b. CRITICAL: Penalize processed/prepared/fried foods - applies to ALL searches
+        const processedFoodTerms = [
+            'rings', 'fried', 'breaded', 'battered', 'par fried', 
+            'fast food', 'restaurant', 'snacks', 'chips', 'crackers',
+            'pickled', 'jarred', 'bottled',
+            'sandwich', 'burger', 'pizza', 'taco', 'sub',
+            'candy', 'dessert', 'cake', 'cookie', 'ice cream'
+        ];
+        
+        const hasProcessedTerms = processedFoodTerms.some(term => description.includes(term));
+        if (hasProcessedTerms) {
+            score -= 700; // Massive penalty for processed/fried foods
+            console.log(`   ⚠️⚠️ Penalizing "${description}" for being processed/fried food (-700)`);
+        }
+        
+        // 10c. Big bonus for raw/fresh whole foods
+        const isWholeFood = /\b(raw|fresh)\b/i.test(description) && !hasProcessedTerms;
+        if (isWholeFood) {
+            score += 200; // Big bonus for raw/fresh whole foods
+            console.log(`   ✅✅ Bonus for "${description}" being a raw/fresh whole food (+200)`);
         }
         
         // 9. Prefer actual food over processed products for generic searches
