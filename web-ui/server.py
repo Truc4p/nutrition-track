@@ -689,25 +689,70 @@ Return ONLY the JSON array, no other text."""
         
         print(f"✅ Parsed {len(parsed_foods)} food items")
         
-        # Step 2: Search USDA for each food
+        # Step 2: Search USDA for each food with intelligent matching
         results = []
         for food_item in parsed_foods:
             search_term = food_item.get('usda_search_term', food_item.get('food_name', ''))
-            print(f"🔍 Searching USDA for: {search_term}")
+            expected_name = food_item.get('food_name', '').lower()
+            print(f"🔍 Searching USDA for: {search_term} (expecting: {expected_name})")
             
             # Try local database first
             try:
                 local_response = requests.get(
-                    f'http://localhost:5001/api/usda/search?query={search_term}&limit=5'
+                    f'http://localhost:5001/api/usda/search?query={search_term}&limit=10'
                 )
                 if local_response.ok:
                     local_data = local_response.json()
                     if local_data.get('success') and local_data.get('foods'):
                         foods = local_data['foods']
-                        # Take the first result (Gemini should give us good search terms)
-                        if foods:
-                            best_match = foods[0]
-                            print(f"✅ Found: {best_match['description']}")
+                        
+                        # Find best match using intelligent scoring
+                        best_match = None
+                        best_score = -1000
+                        
+                        for food in foods:
+                            desc = food['description'].lower()
+                            score = 0
+                            
+                            # Prioritize Foundation, SR Legacy, Survey data over Branded
+                            if food.get('dataType') == 'Foundation':
+                                score += 1000
+                            elif food.get('dataType') == 'SR Legacy':
+                                score += 950
+                            elif food.get('dataType') == 'Survey (FNDDS)':
+                                score += 900
+                            elif food.get('dataType') == 'Branded':
+                                score -= 500  # Penalize branded foods
+                            
+                            # Penalize processed/restaurant foods
+                            if any(word in desc for word in ['restaurant', 'fast food', 'fried', 'breaded', 'candied']):
+                                score -= 800
+                            
+                            # Bonus for raw/cooked state matching
+                            if 'raw' in expected_name and 'raw' in desc:
+                                score += 200
+                            elif 'cooked' in expected_name and 'cooked' in desc:
+                                score += 200
+                            elif 'enriched' in expected_name and 'enriched' in desc:
+                                score += 150
+                            
+                            # Check if key words from expected name are in description
+                            expected_words = expected_name.replace(',', '').split()
+                            key_words = [w for w in expected_words if len(w) > 3 and w not in ['with', 'without', 'from']]
+                            
+                            matching_words = sum(1 for word in key_words if word in desc)
+                            score += matching_words * 50
+                            
+                            # Bonus if description starts with a key word
+                            if key_words and any(desc.startswith(word) for word in key_words):
+                                score += 100
+                            
+                            if score > best_score:
+                                best_score = score
+                                best_match = food
+                        
+                        if best_match and best_score > 0:
+                            print(f"✅ Found: {best_match['description']} (score: {best_score})")
                             results.append({
                                 'original_input': food_item,
                                 'usda_food': best_match,
@@ -715,20 +760,62 @@ Return ONLY the JSON array, no other text."""
                                 'unit': food_item['unit']
                             })
                             continue
+                        else:
+                            print(f"⚠️ No good match found (best score: {best_score})")
             except Exception as e:
                 print(f"⚠️ Local search failed: {e}")
             
-            # Fallback to USDA API
+            # Fallback to USDA API with same intelligent matching
             try:
                 api_response = requests.get(
-                    f'{USDA_API_URL}?api_key={USDA_API_KEY}&query={search_term}&pageSize=5'
+                    f'{USDA_API_URL}?api_key={USDA_API_KEY}&query={search_term}&pageSize=10'
                 )
                 if api_response.ok:
                     api_data = api_response.json()
                     foods = api_data.get('foods', [])
-                    if foods:
-                        best_match = foods[0]
-                        print(f"✅ Found (API): {best_match['description']}")
+                    
+                    # Apply same intelligent matching
+                    best_match = None
+                    best_score = -1000
+                    
+                    for food in foods:
+                        desc = food['description'].lower()
+                        score = 0
+                        
+                        if food.get('dataType') == 'Foundation':
+                            score += 1000
+                        elif food.get('dataType') == 'SR Legacy':
+                            score += 950
+                        elif food.get('dataType') == 'Survey (FNDDS)':
+                            score += 900
+                        elif food.get('dataType') == 'Branded':
+                            score -= 500
+                        
+                        if any(word in desc for word in ['restaurant', 'fast food', 'fried', 'breaded', 'candied']):
+                            score -= 800
+                        
+                        if 'raw' in expected_name and 'raw' in desc:
+                            score += 200
+                        elif 'cooked' in expected_name and 'cooked' in desc:
+                            score += 200
+                        elif 'enriched' in expected_name and 'enriched' in desc:
+                            score += 150
+                        
+                        expected_words = expected_name.replace(',', '').split()
+                        key_words = [w for w in expected_words if len(w) > 3 and w not in ['with', 'without', 'from']]
+                        
+                        matching_words = sum(1 for word in key_words if word in desc)
+                        score += matching_words * 50
+                        
+                        if key_words and any(desc.startswith(word) for word in key_words):
+                            score += 100
+                        
+                        if score > best_score:
+                            best_score = score
+                            best_match = food
+                    
+                    if best_match and best_score > 0:
+                        print(f"✅ Found (API): {best_match['description']} (score: {best_score})")
                         results.append({
                             'original_input': food_item,
                             'usda_food': best_match,
