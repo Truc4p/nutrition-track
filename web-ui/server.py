@@ -31,6 +31,11 @@ GEMINI_KEY = 'AIzaSyAZbp4SEeaAq8ioyvuWNF7kcwalhNA8h8I'
 GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_KEY}'
 GEMINI_VISION_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_KEY}'
 
+# USDA API Configuration
+USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx'
+USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search'
+USDA_DETAIL_URL = 'https://api.nal.usda.gov/fdc/v1/food'
+
 app = Flask(__name__, static_folder='.')
 CORS(app)  # Enable CORS for all routes
 
@@ -584,6 +589,152 @@ Example good response: "130g chicken breast, 175g brown rice, 80g corn, 90g toma
         traceback.print_exc()
         return jsonify({
             'error': 'An error occurred while analyzing the image',
+            'details': str(e)
+        }), 500
+
+
+# AI-Powered Food Parsing and USDA Matching
+@app.route('/ai/parse-and-match-foods', methods=['POST'])
+def parse_and_match_foods():
+    """Use Gemini AI to parse food input and intelligently match with USDA database."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
+        
+        text_input = data.get('text', '')
+        if not text_input:
+            return jsonify({'error': 'No text provided'}), 400
+        
+        print(f"🤖 AI Food Parser - Input: {text_input}")
+        
+        # Step 1: Use Gemini to parse and understand the food items
+        parse_prompt = f"""You are a nutrition expert. Parse this food text and extract individual food items with their quantities.
+
+Input text: "{text_input}"
+
+For each food item, provide:
+1. The exact quantity (number)
+2. The unit of measurement (g, cup, oz, etc.)
+3. The food name in a format that would match USDA FoodData Central database
+
+IMPORTANT USDA naming conventions:
+- Use simple, standard names like: "Peppers, sweet, red, raw" NOT "red bell pepper"
+- Use: "Onions, red, raw" NOT "red onion"
+- Use: "Chicken, broilers or fryers, breast" NOT just "chicken"
+- Include preparation state: raw, cooked, baked, etc.
+- Format: "[Food category], [variety/type], [preparation]"
+
+Return ONLY a JSON array in this exact format:
+[
+  {{"quantity": 60, "unit": "g", "food_name": "Peppers, sweet, red, raw", "usda_search_term": "peppers red"}},
+  {{"quantity": 40, "unit": "g", "food_name": "Onions, red, raw", "usda_search_term": "onions red"}}
+]
+
+The usda_search_term should be simple keywords to search USDA database.
+Return ONLY the JSON array, no other text."""
+
+        # Call Gemini API
+        response = requests.post(GEMINI_API_URL,
+            headers={'Content-Type': 'application/json'},
+            json={
+                'contents': [{'parts': [{'text': parse_prompt}]}]
+            }
+        )
+        
+        if not response.ok:
+            return jsonify({
+                'error': f'Gemini API error: {response.status_code}',
+                'details': response.text
+            }), 500
+        
+        result = response.json()
+        gemini_response = (
+            result.get('candidates', [{}])[0]
+            .get('content', {})
+            .get('parts', [{}])[0]
+            .get('text', '[]')
+        )
+        
+        print(f"🤖 Gemini parsed response: {gemini_response}")
+        
+        # Extract JSON from response (handle markdown code blocks)
+        gemini_response = gemini_response.strip()
+        if gemini_response.startswith('```'):
+            # Remove markdown code blocks
+            lines = gemini_response.split('\n')
+            gemini_response = '\n'.join(lines[1:-1] if len(lines) > 2 else lines)
+        
+        # Parse the JSON
+        try:
+            parsed_foods = json.loads(gemini_response)
+        except json.JSONDecodeError as e:
+            print(f"❌ JSON parse error: {e}")
+            print(f"Response was: {gemini_response}")
+            return jsonify({'error': 'Failed to parse AI response', 'details': str(e)}), 500
+        
+        print(f"✅ Parsed {len(parsed_foods)} food items")
+        
+        # Step 2: Search USDA for each food
+        results = []
+        for food_item in parsed_foods:
+            search_term = food_item.get('usda_search_term', food_item.get('food_name', ''))
+            print(f"🔍 Searching USDA for: {search_term}")
+            
+            # Try local database first
+            try:
+                local_response = requests.get(
+                    f'http://localhost:5001/api/usda/search?query={search_term}&limit=5'
+                )
+                if local_response.ok:
+                    local_data = local_response.json()
+                    if local_data.get('success') and local_data.get('foods'):
+                        foods = local_data['foods']
+                        # Take the first result (Gemini should give us good search terms)
+                        if foods:
+                            best_match = foods[0]
+                            print(f"✅ Found: {best_match['description']}")
+                            results.append({
+                                'original_input': food_item,
+                                'usda_food': best_match,
+                                'quantity': food_item['quantity'],
+                                'unit': food_item['unit']
+                            })
+                            continue
+            except Exception as e:
+                print(f"⚠️ Local search failed: {e}")
+            
+            # Fallback to USDA API
+            try:
+                api_response = requests.get(
+                    f'{USDA_API_URL}?api_key={USDA_API_KEY}&query={search_term}&pageSize=5'
+                )
+                if api_response.ok:
+                    api_data = api_response.json()
+                    foods = api_data.get('foods', [])
+                    if foods:
+                        best_match = foods[0]
+                        print(f"✅ Found (API): {best_match['description']}")
+                        results.append({
+                            'original_input': food_item,
+                            'usda_food': best_match,
+                            'quantity': food_item['quantity'],
+                            'unit': food_item['unit']
+                        })
+            except Exception as e:
+                print(f"❌ USDA API failed for {search_term}: {e}")
+        
+        return jsonify({
+            'success': True,
+            'foods': results
+        })
+        
+    except Exception as e:
+        print(f"❌ Error in parse_and_match_foods: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': 'An error occurred while processing the request',
             'details': str(e)
         }), 500
 

@@ -776,71 +776,51 @@ async function getUSDANutritionDetails(fdcId) {
 }
 
 // Process text using Django NLP + USDA API instead of backend
-// Process text using AI-powered parsing and USDA matching
 async function processText(inputText) {
-    console.log('🚀 STARTING processText function with AI');
+    console.log('🚀 STARTING processText function');
     console.log('📝 Input text:', inputText);
     
     try {
-        // Use the new AI-powered endpoint
-        console.log('🤖 Calling AI to parse and match foods...');
-        const response = await fetch('/ai/parse-and-match-foods', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                text: inputText
-            })
-        });
+        // Step 1: Use Django NLP to extract food information
+        console.log('🤖 Step 1: Extracting foods with Django NLP...');
+        const extractedFoods = await extractFoodsWithDjangoAPI(inputText);
         
-        if (!response.ok) {
-            throw new Error(`AI parsing error: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        console.log('✅ AI parse result:', result);
-        
-        if (!result.success || !result.foods || result.foods.length === 0) {
+        if (!extractedFoods || extractedFoods.length === 0) {
             console.log('⚠️ No foods found in text');
             foods = [];
             return;
         }
         
-        console.log(`✅ Found ${result.foods.length} food items`);
+        console.log(`✅ Found ${extractedFoods.length} food items`);
         
-        // Clear existing foods array
+        // Clear existing foods array to start fresh
         foods = [];
         
-        // Show results header
+        // Show results header immediately so user sees something is happening
         if (resultsHeader) resultsHeader.style.display = 'block';
         
-        // Process each food item
-        for (const item of result.foods) {
+        // Step 2: Search USDA database for each food and get nutrition data
+        console.log('� Step 2: Searching USDA database for each food...');
+        const foodPromises = extractedFoods.map(async (foodItem, index) => {
+            console.log(`📋 Processing food ${index + 1}/${extractedFoods.length}: ${foodItem.name}`);
+            
             try {
-                const usdaFood = item.usda_food;
-                const quantity = item.quantity;
-                const unit = item.unit;
-                
-                console.log(`📋 Processing: ${quantity}${unit} ${usdaFood.description}`);
+                // Search USDA database
+                const usdaFood = await searchUSDAFood(foodItem.name);
+                if (!usdaFood) {
+                    console.log(`⚠️ No USDA data found for: ${foodItem.name}`);
+                    return null;
+                }
                 
                 // Get detailed nutrition data
-                const fdcId = usdaFood.fdcId;
-                const detailResponse = await fetch(`/api/usda/food/${fdcId}`);
-                
-                if (!detailResponse.ok) {
-                    console.log(`⚠️ Failed to get details for: ${usdaFood.description}`);
-                    continue;
+                const detailedNutrition = await getUSDANutritionDetails(usdaFood.fdcId);
+                if (!detailedNutrition) {
+                    console.log(`⚠️ No detailed nutrition found for: ${foodItem.name}`);
+                    return null;
                 }
                 
-                const detailData = await detailResponse.json();
-                if (!detailData.success) {
-                    console.log(`⚠️ No detail data for: ${usdaFood.description}`);
-                    continue;
-                }
-                
-                const detailedNutrition = detailData.food;
-                console.log(`📊 Processing nutrition data for ${usdaFood.description}...`);
+                // Process nutrition data similar to original format
+                console.log(`� Processing nutrition data for ${foodItem.name}...`);
                 
                 // Extract key macronutrients
                 const nutrients = detailedNutrition.foodNutrients || [];
@@ -850,7 +830,7 @@ async function processText(inputText) {
                 let fiberValue = 0;
                 let totalCalories = 0;
                 
-                // Create allNutrients object
+                // Create allNutrients object similar to original format
                 const allNutrients = {};
                 let processedNutrientCount = 0;
                 
@@ -859,10 +839,10 @@ async function processText(inputText) {
                     
                     const name = nutrient.nutrient.name.toLowerCase();
                     const value = nutrient.amount;
-                    const unitName = nutrient.nutrient.unitName || '';
+                    const unit = nutrient.nutrient.unitName || '';
                     
                     // Extract macronutrients
-                    if (name.includes('energy') && unitName.toLowerCase() === 'kcal') {
+                    if (name.includes('energy') && unit.toLowerCase() === 'kcal') {
                         totalCalories = value;
                     } else if (name.includes('protein')) {
                         proteinValue = value;
@@ -874,10 +854,11 @@ async function processText(inputText) {
                         fiberValue = value;
                     }
                     
-                    // Add to allNutrients
+                    // Add to allNutrients with formatting similar to original
                     if (value > 0) {
                         processedNutrientCount++;
                         
+                        // Format nutrient name
                         let formattedName = nutrient.nutrient.name
                             .replace(/,\s*/g, ', ')
                             .replace(/\b\w/g, l => l.toUpperCase())
@@ -888,29 +869,29 @@ async function processText(inputText) {
                         allNutrients[key] = {
                             name: formattedName,
                             value: value,
-                            unit: unitName.toUpperCase(),
+                            unit: unit.toUpperCase(),
                         };
                     }
                 });
                 
-                console.log(`✅ Processed ${processedNutrientCount} nutrients`);
+                console.log(`✅ Processed ${processedNutrientCount} nutrients for ${foodItem.name}`);
                 console.log(`📊 Key values - Calories: ${totalCalories}, Protein: ${proteinValue}g, Carbs: ${carbsValue}g, Fat: ${fatsValue}g`);
                 
                 // Scale nutrition values based on quantity (USDA data is per 100g)
-                const scalingFactor = quantity / 100;
+                const scalingFactor = foodItem.quantity / 100;
                 
                 const foodObject = {
-                    id: `usda_${fdcId}_${foods.length}`,
-                    name: detailedNutrition.description,
-                    originalName: item.original_input.food_name,
-                    usdaDescription: detailedNutrition.description,
+                    id: `usda_${usdaFood.fdcId}_${index}`,
+                    name: detailedNutrition.description, // Use actual USDA description instead of original name
+                    originalName: foodItem.originalName || foodItem.name, // Keep original for reference
+                    usdaDescription: detailedNutrition.description, // Store USDA description
                     fats: fatsValue * scalingFactor,
                     carbohydrates: carbsValue * scalingFactor, 
                     protein: proteinValue * scalingFactor,
                     fiber: fiberValue * scalingFactor,
                     totalCalories: totalCalories * scalingFactor,
-                    quantity: quantity,
-                    measurementType: unit,
+                    quantity: foodItem.quantity,
+                    measurementType: foodItem.unit,
                     allNutrients: Object.fromEntries(
                         Object.entries(allNutrients).map(([key, nutrient]) => [
                             key, 
@@ -922,30 +903,50 @@ async function processText(inputText) {
                     )
                 };
                 
-                console.log(`✅ Created food object:`, foodObject);
+                console.log(`✅ Created food object for ${foodItem.name}:`, foodObject);
                 
-                // Add to global foods array and update UI immediately
+                // Add to global foods array and update UI immediately (progressive rendering)
                 foods.push(foodObject);
                 updateUI();
                 
+                return foodObject;
+                
             } catch (error) {
-                console.error(`❌ Failed to process food item:`, error);
+                console.error(`❌ Failed to process food ${foodItem.name}:`, error);
+                return null;
             }
-        }
+        });
         
-        console.log('✅ Successfully processed all foods');
+        // Wait for all food processing to complete
+        console.log('⏳ Processing foods progressively (updating UI as each completes)...');
+        await Promise.all(foodPromises);
+        
+        console.log('✅ Successfully processed foods');
         console.log('📊 Final foods array:', foods);
+        console.log(`📊 Successfully processed ${foods.length} out of ${extractedFoods.length} foods`);
         
     } catch (error) {
         console.error("💥 ERROR in processText function:", error);
         console.error("❌ Error details:", error.message);
         console.error("❌ Stack trace:", error.stack);
         
-        alert('Failed to process text. Please try again.');
-        foods = [];
+        // Provide more specific error messages
+        let errorMessage = 'Failed to process text';
+        if (error.message.includes('Django')) {
+            errorMessage = 'Failed to understand the text. Please try rephrasing your input.';
+        } else if (error.message.includes('USDA')) {
+            errorMessage = 'Failed to find nutrition data. Please check food names and try again.';
+        } else if (error.message.includes('API key')) {
+            errorMessage = 'API configuration error. Please contact support.';
+        }
+        
+        alert(errorMessage);
+        foods = []; // Clear data on error
+        console.log('🔄 Cleared foods array due to error');
     }
     
     console.log('🏁 FINISHED processText function');
+    console.log('📊 Final foods array length:', foods.length);
 }
 
 // Update the HTML based on the current state (foods array)
