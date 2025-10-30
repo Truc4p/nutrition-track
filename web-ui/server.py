@@ -496,21 +496,35 @@ def analyze_meal_image():
             return jsonify({'error': 'No image data provided'}), 400
         
         # Create a detailed prompt for ingredient estimation
-        prompt = """Analyze this meal image and estimate the weight in grams of each ingredient/component. 
-        
-Please provide your response in a format that can be directly used in a food tracking app, like this example:
+        prompt = """Analyze this meal image and estimate the weight in grams of each ingredient/component.
 
-"100g chicken breast, 150g rice, 70g corn, 80g tomatoes, 70g avocado, 40g jicama"
+CRITICAL: Use USDA FoodData Central naming conventions for ingredients so they can be accurately matched in the nutrition database.
 
-Important guidelines:
+USDA Naming Rules:
+- Vegetables: Use format "[Vegetable name], [type/color], raw" 
+  Examples: "Peppers, sweet, red, raw" NOT "red bell pepper"
+            "Onions, red, raw" NOT "red onion"
+            "Tomatoes, red, ripe, raw" NOT "tomatoes"
+- Proteins: Use format "[Protein], [cut/part]"
+  Examples: "Chicken, broilers or fryers, breast, meat only, raw" NOT "chicken breast"
+            "Beef, ground, 85% lean meat / 15% fat, raw" NOT "ground beef"
+- Grains: Specify type and preparation
+  Examples: "Rice, brown, long-grain, cooked" NOT "rice"
+            "Rice, white, long-grain, cooked" NOT "white rice"
+- Fruits: Use format "[Fruit name], raw"
+  Examples: "Avocados, raw" NOT "avocado"
+            "Corn, sweet, yellow, raw" NOT "corn"
+
+Format Requirements:
 1. Estimate weights in grams (g)
-2. Use simple, searchable ingredient names (e.g., "chicken breast" not "seasoned chicken")
-3. List each ingredient separately with its estimated weight
-4. Be as accurate as possible based on typical portion sizes
-5. Format as: "[weight]g [ingredient name], [weight]g [ingredient name], ..."
-6. Do NOT include detailed explanations or ranges - just provide the comma-separated list
+2. List as: "[weight]g [USDA food name], [weight]g [USDA food name], ..."
+3. Always include preparation state: raw, cooked, baked, etc.
+4. Be specific about variety/color when visible
+5. No explanations or ranges - just the comma-separated list
 
-Example good response: "130g chicken breast, 175g brown rice, 80g corn, 90g tomatoes, 75g avocado, 40g jicama"
+Good Example: "100g Chicken, broilers or fryers, breast, meat only, raw, 150g Rice, brown, long-grain, cooked, 70g Corn, sweet, yellow, raw, 80g Tomatoes, red, ripe, raw, 70g Avocados, raw"
+
+Bad Example: "100g chicken, 150g rice, 70g corn" (too generic, missing preparation state)
 """
         
         print(f"Analyzing image with mime type: {mime_type}")
