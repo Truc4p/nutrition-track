@@ -56,15 +56,19 @@ export interface Recipe {
 }
 
 export interface YouTubeVideo {
-  id: string;
+  id: string | number;
+  video_id: string;
   title: string;
   description: string;
   thumbnail_url: string;
-  video_url: string;
+  channel_id: string;
   channel_title: string;
   published_at: string;
-  duration: string;
-  view_count: number;
+  duration: number; // Duration in seconds
+  view_count?: number; // Optional as it may not be in the response
+  keywords?: string;
+  // Computed properties for backward compatibility
+  video_url?: string;
 }
 
 export interface ChatMessage {

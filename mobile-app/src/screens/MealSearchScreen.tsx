@@ -68,8 +68,24 @@ const MealSearchScreen = () => {
     Linking.openURL(url);
   };
 
-  const openVideo = (url: string) => {
-    Linking.openURL(url);
+  const openVideo = (videoId: string) => {
+    if (videoId) {
+      const url = `https://www.youtube.com/watch?v=${videoId}`;
+      Linking.openURL(url);
+    } else {
+      console.warn('Video ID is undefined');
+    }
+  };
+
+  const formatDuration = (seconds?: number): string => {
+    if (!seconds) return 'N/A';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
   };
 
   const renderRecipeCard = (recipe: Recipe) => (
@@ -93,7 +109,8 @@ const MealSearchScreen = () => {
     <TouchableOpacity
       key={video.id}
       style={styles.card}
-      onPress={() => openVideo(video.video_url)}
+      onPress={() => video.video_id && openVideo(video.video_id)}
+      disabled={!video.video_id}
     >
       <Image source={{ uri: video.thumbnail_url }} style={styles.cardImage} />
       <View style={styles.cardContent}>
@@ -101,9 +118,7 @@ const MealSearchScreen = () => {
         <Text style={styles.cardChannel} numberOfLines={1}>{video.channel_title}</Text>
         <View style={styles.cardInfo}>
           <Ionicons name="time-outline" size={16} color={Colors.textLight} />
-          <Text style={styles.cardTime}>{video.duration}</Text>
-          <Ionicons name="eye-outline" size={16} color={Colors.textLight} style={{ marginLeft: 10 }} />
-          <Text style={styles.cardViews}>{video.view_count.toLocaleString()}</Text>
+          <Text style={styles.cardTime}>{formatDuration(video.duration)}</Text>
         </View>
       </View>
     </TouchableOpacity>
