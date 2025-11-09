@@ -73,7 +73,7 @@
 
             <!-- AI Health Advice Section -->
             <div id="health-advice-section" class="health-advice-section" style="display: none;">
-                <h3>🎓 Evidence-Based Health Advice</h3>
+                <h3>Evidence-Based Health Advice</h3>
                 <div id="health-advice-loading" class="loading-indicator" style="display: none;">
                     <div class="spinner"></div>
                     <p>Analyzing your health condition and generating evidence-based recommendations...</p>
@@ -84,7 +84,15 @@
 
         <!-- Right Section -->
         <div class="right-section">
-            <h3>Nutrition Recommendations</h3>
+            <h3>
+                Nutrition Recommendations
+                <button id="references-button" class="reference-icon" title="View Academic References">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                </button>
+            </h3>
             <p id="recommendation-text"></p>
         </div>
     </div>
@@ -92,6 +100,19 @@
     <!-- Floating Chat Interface -->
     <!-- Placeholder for Floating Chat Interface -->
     <div id="float-chat-placeholder"></div>
+
+    <!-- References Modal -->
+    <div id="references-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content references-modal">
+            <div class="modal-header">
+                <h2>Academic References for Nutritional Recommendations</h2>
+                <button id="close-references-modal" class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="references-content">
+                <p class="loading-text">Loading references...</p>
+            </div>
+        </div>
+    </div>
 
     <script src="nutrient-tooltip/nutrient-database.js"></script>
     <script src="nutrient-tooltip/nutrient-tooltip.js"></script>

@@ -272,6 +272,11 @@ def serve_js(filename):
 def serve_css(filename):
     return send_from_directory('.', f'{filename}.css')
 
+# Serve markdown files
+@app.route('/<path:filename>.md')
+def serve_md(filename):
+    return send_from_directory('.', f'{filename}.md', mimetype='text/markdown')
+
 # Serve images from the images directory
 @app.route('/images/<path:filename>')
 def serve_local_image(filename):
@@ -553,10 +558,10 @@ def health_advice():
 
 **Required Format:**
 
-## 🏥 Condition Overview
+## Condition Overview
 [Brief clinical overview of the condition and its nutritional implications]
 
-## 🔬 Evidence-Based Dietary Recommendations
+## Evidence-Based Dietary Recommendations
 
 ### 1. [Recommendation Category - e.g., Macronutrient Distribution]
 **Recommendation:** [Specific, measurable recommendation]
@@ -567,16 +572,16 @@ def health_advice():
 ### 2. [Next Category]
 [Continue pattern...]
 
-## 📊 Specific Nutrient Targets
+## Specific Nutrient Targets
 [List specific nutrients with amounts and evidence]
 
-## ⚠️ Foods to Limit or Avoid
+## Foods to Limit or Avoid
 [Evidence-based restrictions with citations]
 
-## ✅ Recommended Foods
+## Recommended Foods
 [Specific food examples with nutritional benefits and citations]
 
-## 📚 Key Academic References
+## Key Academic References
 [Complete reference list in Harvard style]
 
 **CRITICAL REQUIREMENTS:**

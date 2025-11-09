@@ -1,126 +1,5 @@
 # Visual Guide: Health Problem Field & AI Advice Feature
 
-## Before & After
-
-### BEFORE:
-```
-┌─────────────────────────────────────┐
-│  Enter Your Details                 │
-├─────────────────────────────────────┤
-│  Weight: [____]                     │
-│  Height: [____]                     │
-│  Age: [____]                        │
-│  Gender: [▼]                        │
-│  Activity Level: [▼]                │
-│  Weight Goal: [▼]                   │
-│                                     │
-│  [Get Recommendation]               │
-└─────────────────────────────────────┘
-```
-
-### AFTER:
-```
-┌─────────────────────────────────────┐
-│  Enter Your Details                 │
-├─────────────────────────────────────┤
-│  Weight: [____]                     │
-│  Height: [____]                     │
-│  Age: [____]                        │
-│  Gender: [▼]                        │
-│  Activity Level: [▼]                │
-│  Weight Goal: [▼]                   │
-│                                     │
-│  Health Problem (Optional)          │ ← NEW!
-│  ┌───────────────────────────────┐  │
-│  │ e.g., diabetes, high blood... │  │
-│  │                               │  │
-│  │                               │  │
-│  └───────────────────────────────┘  │
-│  💡 Enter health conditions to get  │
-│     personalized academic advice    │
-│                                     │
-│  [Get Recommendation]               │
-└─────────────────────────────────────┘
-
-When health problem is entered:
-                     ↓
-
-┌─────────────────────────────────────┐
-│  🎓 Evidence-Based Health Advice   │ ← NEW SECTION!
-├─────────────────────────────────────┤
-│  ┌───────────────────────────────┐ │
-│  │   🔄 Analyzing your health... │ │ ← Loading state
-│  │                               │ │
-│  └───────────────────────────────┘ │
-└─────────────────────────────────────┘
-
-                     ↓
-
-┌─────────────────────────────────────┐
-│  🎓 Evidence-Based Health Advice   │
-├─────────────────────────────────────┤
-│  ┌───────────────────────────────┐ │
-│  │ ## 🏥 Condition Overview     │ │
-│  │                               │ │
-│  │ [Clinical explanation...]     │ │
-│  │                               │ │
-│  │ ## 🔬 Evidence-Based         │ │
-│  │    Recommendations            │ │
-│  │                               │ │
-│  │ ### 1. Carbohydrate Mgmt     │ │
-│  │ **Recommendation:** 45-60g... │ │
-│  │ **Reference:** Smith et al... │ │
-│  │                               │ │ ← Scrollable
-│  │ ### 2. Fiber Intake          │ │    content
-│  │ [More recommendations...]     │ │
-│  │                               │ │
-│  │ ## 📚 Key Academic Refs      │ │
-│  │ [Harvard-style citations...] │ │
-│  │                               │ │
-│  └───────────────────────────────┘ │
-└─────────────────────────────────────┘
-```
-
----
-
-## Page Layout
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                        NAVIGATION BAR                         │
-└──────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────┬─────────────────────────────────┐
-│                             │                                 │
-│      LEFT SECTION           │       RIGHT SECTION             │
-│                             │                                 │
-│  ┌─────────────────────┐   │  ┌─────────────────────────┐   │
-│  │  Enter Your Details │   │  │ Nutrition Recommendations│   │
-│  │                     │   │  │                         │   │
-│  │  [Form fields...]   │   │  │  GROUP 1: ENERGY &      │   │
-│  │                     │   │  │          FOUNDATION     │   │
-│  │  Health Problem     │◄──┼──┼─ Same as before        │   │
-│  │  [textarea]  ◄ NEW! │   │  │                         │   │
-│  │                     │   │  │  GROUP 2: MACRONUTRIENTS│   │
-│  │  [Get Recommend]    │   │  │  [Calories, Protein...] │   │
-│  └─────────────────────┘   │  │                         │   │
-│                             │  │  GROUP 3: VITAMINS      │   │
-│  ┌─────────────────────┐   │  │  [Vitamin A, B, C...]   │   │
-│  │ 🎓 Evidence-Based  │   │  │                         │   │
-│  │    Health Advice   │◄──┼──┼─ Shows if health       │   │
-│  │                    │   │  │   problem entered       │   │
-│  │  [AI-generated     │   │  │                         │   │
-│  │   academic advice  │   │  │  [More groups...]       │   │
-│  │   with references] │   │  │                         │   │
-│  │                    │   │  │                         │   │
-│  │  NEW! ──────────►  │   │  └─────────────────────────┘   │
-│  └─────────────────────┘   │                                 │
-│                             │                                 │
-└─────────────────────────────┴─────────────────────────────────┘
-```
-
----
-
 ## User Interaction Flow
 
 ```
@@ -223,12 +102,12 @@ recommend.html
     ├── left-section
     │   ├── user-details-form
     │   │   ├── Form fields (existing)
-    │   │   ├── health-problem (textarea) ◄── NEW!
+    │   │   ├── health-problem (textarea) 
     │   │   │   └── form-hint (helper text)
     │   │   └── recommend-button
     │   │
-    │   └── health-advice-section ◄── NEW SECTION!
-    │       ├── h3 (🎓 Evidence-Based...)
+    │   └── health-advice-section 
+    │       ├── h3 (Evidence-Based...)
     │       ├── health-advice-loading
     │       │   ├── spinner (animation)
     │       │   └── p (loading text)
@@ -239,84 +118,6 @@ recommend.html
         ├── h3 (Nutrition Recommendations)
         └── recommendation-text
             └── [Nutrition groups...]
-```
-
----
-
-## Styling Hierarchy
-
-```
-CSS Classes & Styling:
-
-.health-advice-section
-  │
-  ├─► Background: Blue gradient
-  ├─► Border: 2px solid blue
-  ├─► Shadow: Soft blue glow
-  ├─► Padding: 25px
-  │
-  ├── h3
-  │   ├─► Color: Dark blue
-  │   └─► Display: flex with gap
-  │
-  ├── .loading-indicator
-  │   ├─► Text align: center
-  │   │
-  │   └── .spinner
-  │       ├─► Border animation
-  │       └─► Rotation: 1s infinite
-  │
-  └── .health-advice-content
-      ├─► Background: White
-      ├─► Max height: 600px
-      ├─► Overflow: Scrollable
-      │
-      ├── h2, h3, h4
-      │   └─► Colors: Blue shades
-      │
-      ├── p
-      │   └─► Color: Gray
-      │
-      ├── strong
-      │   └─► Color: Dark blue
-      │
-      ├── ul, li
-      │   └─► Markers: Blue
-      │
-      └── ::-webkit-scrollbar
-          └─► Custom blue theme
-```
-
----
-
-## Color Scheme
-
-```
-Health Advice Section Colors:
-
-Background Gradient:
-  └─► #f0f9ff → #e0f2fe (Light to medium blue)
-
-Border:
-  └─► #bfdbfe (Medium blue)
-
-Headers:
-  ├─► h2: #1e40af (Dark blue)
-  ├─► h3: #2563eb (Medium blue)
-  └─► h4: #3b82f6 (Bright blue)
-
-Text:
-  ├─► Body: #374151 (Gray)
-  └─► Strong: #1e40af (Dark blue)
-
-Accents:
-  ├─► Spinner: #3b82f6 (Bright blue)
-  └─► Scrollbar: #3b82f6 (Bright blue)
-
-Error States:
-  ├─► Background: #fee2e2 (Light red)
-  ├─► Border: #fca5a5 (Medium red)
-  └─► Text: #991b1b (Dark red)
 ```
 
 ---
@@ -356,37 +157,4 @@ Output:
   - Hematology research citations
 ```
 
----
 
-## Responsive Behavior
-
-### Desktop (>1024px):
-```
-┌─────────────────┬─────────────────┐
-│  Left Section   │  Right Section  │
-│  (50% width)    │  (50% width)    │
-└─────────────────┴─────────────────┘
-```
-
-### Tablet (768px - 1024px):
-```
-┌─────────────────┬─────────────────┐
-│  Left Section   │  Right Section  │
-│  (45% width)    │  (55% width)    │
-└─────────────────┴─────────────────┘
-```
-
-### Mobile (<768px):
-```
-┌───────────────────┐
-│  Left Section     │
-│  (Full width)     │
-├───────────────────┤
-│  Right Section    │
-│  (Full width)     │
-└───────────────────┘
-```
-
----
-
-**Status**: All visual components implemented and styled! ✅
