@@ -62,7 +62,23 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label for="health-problem">Health Problem (Optional)</label>
+                    <textarea id="health-problem" rows="3" placeholder="e.g., diabetes, high blood pressure, anemia, etc."></textarea>
+                    <small class="form-hint">If you have any health conditions, enter them here to receive personalized nutrition advice supported by academic research.</small>
+                </div>
+
                 <button id="recommend-button">Get Recommendation</button>
+            </div>
+
+            <!-- AI Health Advice Section -->
+            <div id="health-advice-section" class="health-advice-section" style="display: none;">
+                <h3>🎓 Evidence-Based Health Advice</h3>
+                <div id="health-advice-loading" class="loading-indicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Analyzing your health condition and generating evidence-based recommendations...</p>
+                </div>
+                <div id="health-advice-content" class="health-advice-content"></div>
             </div>
         </div>
 

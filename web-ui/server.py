@@ -509,6 +509,128 @@ Provide a thoughtful, expert response that empowers the user to make informed nu
         }), 500
 
 
+# Health Advice API Route with Academic References
+@app.route('/ai/health-advice', methods=['POST'])
+def health_advice():
+    """Generate evidence-based nutrition advice for health conditions with academic references."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
+        
+        health_problem = data.get('healthProblem', '')
+        user_details = data.get('userDetails', {})
+        
+        if not health_problem:
+            return jsonify({'error': 'No health problem provided'}), 400
+        
+        # Extract user details for context
+        age = user_details.get('age', 'not specified')
+        gender = user_details.get('gender', 'not specified')
+        weight = user_details.get('weight', 'not specified')
+        height = user_details.get('height', 'not specified')
+        activity_level = user_details.get('activityLevel', 'not specified')
+        goal = user_details.get('goal', 'not specified')
+        
+        # Create a specialized prompt for evidence-based nutrition advice
+        prompt = f"""You are a clinical nutrition researcher with expertise in evidence-based medicine and nutritional science. Provide comprehensive, scientifically-backed nutrition recommendations for the following health condition.
+
+**Patient Profile:**
+- Health Condition: {health_problem}
+- Age: {age} years
+- Gender: {gender}
+- Weight: {weight} kg
+- Height: {height} cm
+- Activity Level: {activity_level}
+- Weight Goal: {goal}
+
+**Instructions:**
+1. Analyze the health condition from a nutritional science perspective
+2. Provide specific, actionable dietary recommendations
+3. Support EVERY recommendation with academic references (journal papers, clinical trials, meta-analyses, academic books)
+4. Use Harvard referencing style for all citations
+5. Focus on evidence-based interventions, not general advice
+
+**Required Format:**
+
+## 🏥 Condition Overview
+[Brief clinical overview of the condition and its nutritional implications]
+
+## 🔬 Evidence-Based Dietary Recommendations
+
+### 1. [Recommendation Category - e.g., Macronutrient Distribution]
+**Recommendation:** [Specific, measurable recommendation]
+**Scientific Rationale:** [Explain the mechanism]
+**Evidence:** [Cite peer-reviewed research]
+**Academic Reference:** [Full Harvard-style citation]
+
+### 2. [Next Category]
+[Continue pattern...]
+
+## 📊 Specific Nutrient Targets
+[List specific nutrients with amounts and evidence]
+
+## ⚠️ Foods to Limit or Avoid
+[Evidence-based restrictions with citations]
+
+## ✅ Recommended Foods
+[Specific food examples with nutritional benefits and citations]
+
+## 📚 Key Academic References
+[Complete reference list in Harvard style]
+
+**CRITICAL REQUIREMENTS:**
+- ONLY cite peer-reviewed journal articles, clinical trials, systematic reviews, meta-analyses, or academic textbooks
+- NO blogs, websites, or non-academic sources
+- Include author names, publication year, article/book title, journal name, volume, issue, and page numbers
+- Provide at least 5-10 high-quality academic references
+- Focus on recent research (within last 10 years when possible) unless citing seminal studies
+- Be specific about nutrient amounts (e.g., "1200mg calcium daily" not just "increase calcium")
+
+Generate comprehensive, evidence-based nutrition advice now:"""
+        
+        print(f"🎓 Generating health advice for: {health_problem}")
+        
+        # Send request to Gemini API
+        response = requests.post(GEMINI_API_URL,
+            headers={'Content-Type': 'application/json'},
+            json={
+                'contents': [{'parts': [{'text': prompt}]}]
+            }
+        )
+        
+        if not response.ok:
+            print(f"❌ Gemini API error: {response.status_code}")
+            return jsonify({
+                'error': f'Gemini API error: {response.status_code}',
+                'details': response.text
+            }), 500
+        
+        result = response.json()
+        advice = (
+            result.get('candidates', [{}])[0]
+            .get('content', {})
+            .get('parts', [{}])[0]
+            .get('text', 'Unable to generate health advice.')
+        )
+        
+        print(f"✅ Generated {len(advice)} characters of health advice")
+        
+        return jsonify({
+            'success': True,
+            'advice': advice
+        })
+        
+    except Exception as e:
+        print(f"❌ Error in health_advice: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': 'An error occurred while generating health advice',
+            'details': str(e)
+        }), 500
+
+
 # Meal Image Analysis API Route
 @app.route('/ai/analyze-meal-image', methods=['POST'])
 def analyze_meal_image():

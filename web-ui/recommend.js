@@ -97,7 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const genderField = document.getElementById('gender');
             const activityField = document.getElementById('activity-level');
             const goalField = document.getElementById('goal');
+            const healthProblemField = document.getElementById('health-problem');
             const recommendationField = document.getElementById('recommendation-text');
+            const healthAdviceContent = document.getElementById('health-advice-content');
 
             const state = {
                 recommendation: recommendation,
@@ -109,7 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     gender: genderField ? genderField.value : '',
                     activityLevel: activityField ? activityField.value : '',
                     goalValue: goalField ? goalField.value : '',
-                    recommendationText: recommendationField ? recommendationField.innerHTML : ''
+                    healthProblem: healthProblemField ? healthProblemField.value : '',
+                    recommendationText: recommendationField ? recommendationField.innerHTML : '',
+                    healthAdviceText: healthAdviceContent ? healthAdviceContent.innerHTML : ''
                 }
             };
 
@@ -139,8 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const genderField = document.getElementById('gender');
                     const activityField = document.getElementById('activity-level');
                     const goalField = document.getElementById('goal');
-                    const healthConditionField = document.getElementById('health-condition');
+                    const healthProblemField = document.getElementById('health-problem');
                     const recommendationField = document.getElementById('recommendation-text');
+                    const healthAdviceSection = document.getElementById('health-advice-section');
+                    const healthAdviceContent = document.getElementById('health-advice-content');
 
                     if (weightField && form.weight) weightField.value = form.weight;
                     if (heightField && form.height) heightField.value = form.height;
@@ -148,12 +154,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (genderField && form.gender) genderField.value = form.gender;
                     if (activityField && form.activityLevel) activityField.value = form.activityLevel;
                     if (goalField && form.goalValue) goalField.value = form.goalValue;
-                    if (healthConditionField && form.healthConditionValue) healthConditionField.value = form.healthConditionValue;
+                    if (healthProblemField && form.healthProblem) healthProblemField.value = form.healthProblem;
                     if (recommendationField && form.recommendationText) {
                         recommendationField.innerHTML = form.recommendationText;
                         // Refresh nutrient tooltips after restoring recommendation content
                         if (window.nutrientTooltip) {
                             setTimeout(() => window.nutrientTooltip.refresh(), 100);
+                        }
+                    }
+                    if (healthAdviceContent && form.healthAdviceText) {
+                        healthAdviceContent.innerHTML = form.healthAdviceText;
+                        if (healthAdviceSection) {
+                            healthAdviceSection.style.display = 'block';
                         }
                     }
                 }
@@ -169,7 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const genderField = document.getElementById('gender');
         const activityField = document.getElementById('activity-level');
         const goalField = document.getElementById('goal');
+        const healthProblemField = document.getElementById('health-problem');
         const recommendationField = document.getElementById('recommendation-text');
+        const healthAdviceSection = document.getElementById('health-advice-section');
+        const healthAdviceContent = document.getElementById('health-advice-content');
 
         if (weightField) weightField.value = '';
         if (heightField) heightField.value = '';
@@ -177,7 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (genderField) genderField.value = 'female';  // Default option to match HTML
         if (activityField) activityField.value = 'sedentary';  // Default option
         if (goalField) goalField.value = 'maintain';  // Default option
+        if (healthProblemField) healthProblemField.value = '';
         if (recommendationField) recommendationField.innerHTML = '';
+        if (healthAdviceSection) healthAdviceSection.style.display = 'none';
+        if (healthAdviceContent) healthAdviceContent.innerHTML = '';
 
         // Reset global variables
         recommendation = null;
@@ -195,9 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const age = parseInt(ageInput.value, 10);
             const gender = document.getElementById('gender').value;
             const activityLevel = document.getElementById('activity-level').value;
+            const healthProblem = document.getElementById('health-problem').value.trim();
 
             if (!weight || !height || !age || !gender || !activityLevel || !goal) {
-                alert("Please fill in all fields.");
+                alert("Please fill in all required fields.");
                 return;
             }
 
@@ -207,6 +226,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Add console.log to debug the recommendation variable
                 console.log("Recommendation data:", recommendation);
+
+                // If health problem is provided, fetch AI advice
+                if (healthProblem) {
+                    await fetchHealthAdvice({
+                        healthProblem,
+                        age,
+                        gender,
+                        weight,
+                        height,
+                        activityLevel,
+                        goal
+                    });
+                } else {
+                    // Hide health advice section if no health problem
+                    const healthAdviceSection = document.getElementById('health-advice-section');
+                    if (healthAdviceSection) {
+                        healthAdviceSection.style.display = 'none';
+                    }
+                }
 
                 // Clear and rebuild recommendation section
                 recommendationText.innerHTML = '';
@@ -599,4 +637,100 @@ function calculateWeightNutrition(weight, height, age, gender, activityLevel, go
 // Helper function to format numerical values
 function formatValue(value) {
     return typeof value === 'number' ? Math.round(value) : value;
+}
+
+// Function to fetch health advice from AI
+async function fetchHealthAdvice(userDetails) {
+    const healthAdviceSection = document.getElementById('health-advice-section');
+    const healthAdviceLoading = document.getElementById('health-advice-loading');
+    const healthAdviceContent = document.getElementById('health-advice-content');
+
+    if (!healthAdviceSection || !healthAdviceLoading || !healthAdviceContent) {
+        console.error('Health advice elements not found');
+        return;
+    }
+
+    try {
+        // Show section and loading indicator
+        healthAdviceSection.style.display = 'block';
+        healthAdviceLoading.style.display = 'block';
+        healthAdviceContent.innerHTML = '';
+
+        console.log('🎓 Fetching health advice for:', userDetails.healthProblem);
+
+        // Fetch advice from API
+        const response = await fetch('http://localhost:5001/ai/health-advice', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                healthProblem: userDetails.healthProblem,
+                userDetails: {
+                    age: userDetails.age,
+                    gender: userDetails.gender,
+                    weight: userDetails.weight,
+                    height: userDetails.height,
+                    activityLevel: userDetails.activityLevel,
+                    goal: userDetails.goal
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.advice) {
+            // Convert markdown-style formatting to HTML
+            let htmlContent = data.advice;
+            
+            // Convert headers
+            htmlContent = htmlContent.replace(/^### (.*$)/gim, '<h4>$1</h4>');
+            htmlContent = htmlContent.replace(/^## (.*$)/gim, '<h3>$1</h3>');
+            htmlContent = htmlContent.replace(/^# (.*$)/gim, '<h2>$1</h2>');
+            
+            // Convert bold
+            htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert lists
+            htmlContent = htmlContent.replace(/^\* (.*$)/gim, '<li>$1</li>');
+            htmlContent = htmlContent.replace(/^- (.*$)/gim, '<li>$1</li>');
+            
+            // Wrap consecutive list items in ul tags
+            htmlContent = htmlContent.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            
+            // Convert line breaks to paragraphs
+            const paragraphs = htmlContent.split('\n\n');
+            htmlContent = paragraphs
+                .filter(p => p.trim())
+                .map(p => {
+                    if (!p.startsWith('<h') && !p.startsWith('<ul') && !p.startsWith('<li')) {
+                        return `<p>${p}</p>`;
+                    }
+                    return p;
+                })
+                .join('');
+
+            healthAdviceContent.innerHTML = htmlContent;
+            console.log('✅ Health advice displayed successfully');
+        } else {
+            throw new Error(data.error || 'Failed to generate health advice');
+        }
+
+    } catch (error) {
+        console.error('❌ Error fetching health advice:', error);
+        healthAdviceContent.innerHTML = `
+            <div class="error-message">
+                <p><strong>⚠️ Unable to generate health advice</strong></p>
+                <p>An error occurred while fetching personalized nutrition recommendations. Please try again later.</p>
+                <p class="error-details">${error.message}</p>
+            </div>
+        `;
+    } finally {
+        // Hide loading indicator
+        healthAdviceLoading.style.display = 'none';
+    }
 } 
