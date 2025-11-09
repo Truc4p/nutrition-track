@@ -4,6 +4,43 @@
 
 **Track Nutrition** is a comprehensive multi-platform nutrition tracking and analysis system that combines AI-powered food recognition, USDA nutritional database, recipe discovery, YouTube content integration, and personalized nutrition recommendations. The platform features a web interface, mobile app (React Native), and multiple backend services for data scraping and management.
 
+## Platform Compatibility
+
+### Web Application Browser Support
+- **Chrome**: Version 90+ (recommended)
+- **Firefox**: Version 88+
+- **Safari**: Version 14+
+- **Edge**: Version 90+
+- **Opera**: Version 76+
+
+**Minimum Requirements:**
+- JavaScript enabled
+- Cookies and local storage enabled
+- Modern CSS support (Flexbox, Grid)
+- Canvas API for image processing
+- File API for image uploads
+- ES6+ JavaScript support
+
+### Mobile Application Support
+- **iOS**: Version 13.0 and above
+  - iPhone 6s and newer
+  - iPad 5th generation and newer
+  - iPad Air 2 and newer
+  - iPad Pro (all models)
+  - iPad mini 4 and newer
+- **Android**: Version 5.0 (Lollipop, API Level 21) and above
+  - Minimum 2GB RAM recommended
+  - OpenGL ES 2.0 support
+  - 64-bit and 32-bit architectures supported
+
+**Mobile Features:**
+- Native camera and gallery access
+- Photo capture and upload
+- AsyncStorage for offline data
+- Expo Camera integration
+- Expo Image Picker support
+- Native charts rendering
+
 ## Project Architecture
 
 ```
