@@ -739,12 +739,12 @@ async function fetchHealthAdvice(userDetails) {
 // REFERENCES MODAL FUNCTIONALITY
 // ============================================
 
-// Function to load and display NUTRITION_REFERENCES.md
+// Function to load and display NUTRITION_REFERENCES_USER.md
 async function loadNutritionReferences() {
     const referencesContent = document.getElementById('references-content');
     
     try {
-        const response = await fetch('NUTRITION_REFERENCES.md');
+        const response = await fetch('NUTRITION_REFERENCES_USER.md');
         if (!response.ok) {
             throw new Error('Failed to load references');
         }
