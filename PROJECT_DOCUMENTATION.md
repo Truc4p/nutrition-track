@@ -110,6 +110,7 @@ web-ui/
 │   ├── meal-search.html      # Recipe & video discovery
 │   ├── chat.html             # AI nutrition assistant
 │   ├── recommend.html        # Personal nutrition calculator with health advice
+│   ├── nutrition-references.html   # User-friendly academic references
 │   ├── float-chat.html       # Floating chat widget
 │   └── nav-bar.html          # Navigation component
 │
@@ -135,7 +136,6 @@ web-ui/
 │
 ├── Documentation/
 │   ├── NUTRITION_REFERENCES.md        # Technical academic references
-│   ├── NUTRITION_REFERENCES_USER.md   # User-friendly academic references
 │   ├── VERIFICATION_REPORT.md         # Code verification against sources
 │   ├── HEALTH_ADVICE_FEATURE.md       # Health advice feature docs
 │   └── VISUAL_GUIDE.md                # Visual diagrams and layouts
@@ -391,9 +391,6 @@ youtube-scraper/
   - Sources from Institute of Medicine (IOM), FAO/WHO/UNU, USDA
   - Peer-reviewed journal articles and official guidelines
   - Detailed methodology explanations
-- **User-Friendly Documentation**: 
-  - `NUTRITION_REFERENCES_USER.md` - Easy-to-read format for general users
-  - `NUTRITION_REFERENCES.md` - Technical documentation with code mappings
 - **Modal Features**:
   - Responsive design (desktop & mobile)
   - Smooth animations (fade-in, slide-in)
@@ -1122,7 +1119,6 @@ This project is developed for educational purposes as part of a university final
 
 ### Web-UI Documentation
 - `track-nutrition/web-ui/NUTRITION_REFERENCES.md` - Technical academic references with code mappings
-- `track-nutrition/web-ui/NUTRITION_REFERENCES_USER.md` - User-friendly academic references
 - `track-nutrition/web-ui/VERIFICATION_REPORT.md` - Code verification report (97% accuracy)
 - `track-nutrition/web-ui/HEALTH_ADVICE_FEATURE.md` - Health advice feature technical docs
 - `track-nutrition/web-ui/VISUAL_GUIDE.md` - Visual diagrams and UI layouts
@@ -1155,9 +1151,6 @@ This project is developed for educational purposes as part of a university final
 
 #### 1. Academic References System
 - **Feature**: Interactive reference viewer with clickable book icon
-- **Documentation**: 
-  - Technical references with code mappings (`NUTRITION_REFERENCES.md`)
-  - User-friendly version for general public (`NUTRITION_REFERENCES_USER.md`)
 - **Content**: 35+ nutritional components with Harvard-style citations
 - **Sources**: Institute of Medicine (IOM), FAO/WHO/UNU, USDA, peer-reviewed journals
 - **Verification**: 97% accuracy rate (66/68 exact matches, 2 acceptable variations)

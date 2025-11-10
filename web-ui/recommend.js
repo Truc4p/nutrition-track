@@ -793,75 +793,37 @@ async function fetchHealthAdvice(userDetails) {
 // REFERENCES MODAL FUNCTIONALITY
 // ============================================
 
-// Function to load and display NUTRITION_REFERENCES_USER.md
+// Function to load and display nutrition-references.html
 async function loadNutritionReferences() {
     const referencesContent = document.getElementById('references-content');
     
     try {
-        const response = await fetch('NUTRITION_REFERENCES_USER.md');
+        const response = await fetch('nutrition-references.html');
         if (!response.ok) {
             throw new Error('Failed to load references');
         }
         
-        const markdownText = await response.text();
+        const htmlText = await response.text();
         
-        // Convert markdown to HTML
-        let htmlContent = markdownText;
+        // Create a temporary DOM element to parse the HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlText;
         
-        // Convert headers
-        htmlContent = htmlContent.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-        htmlContent = htmlContent.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-        htmlContent = htmlContent.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        // Extract just the body content (without the full HTML structure)
+        const bodyContent = tempDiv.querySelector('body');
         
-        // Convert bold
-        htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        
-        // Convert italic
-        htmlContent = htmlContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        
-        // Convert table (simplified - works for well-formed markdown tables)
-        const tableRegex = /\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|\n?)+)/g;
-        htmlContent = htmlContent.replace(tableRegex, (match, header, rows) => {
-            const headers = header.split('|').filter(h => h.trim()).map(h => `<th>${h.trim()}</th>`).join('');
-            const rowsHtml = rows.trim().split('\n').map(row => {
-                const cells = row.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
-                return `<tr>${cells}</tr>`;
-            }).join('');
-            return `<table class="references-table"><thead><tr>${headers}</tr></thead><tbody>${rowsHtml}</tbody></table>`;
-        });
-        
-        // Convert unordered lists
-        htmlContent = htmlContent.replace(/^\- (.*$)/gim, '<li>$1</li>');
-        
-        // Wrap consecutive list items in ul tags
-        htmlContent = htmlContent.replace(/(<li>.*?<\/li>\s*)+/gs, match => `<ul>${match}</ul>`);
-        
-        // Convert line breaks to paragraphs (but not for tables, headers, lists)
-        const lines = htmlContent.split('\n');
-        let inTable = false;
-        const processedLines = lines.map(line => {
-            if (line.includes('<table')) inTable = true;
-            if (line.includes('</table>')) inTable = false;
-            
-            if (!inTable && line.trim() && 
-                !line.startsWith('<h') && 
-                !line.startsWith('<ul') && 
-                !line.startsWith('<li') && 
-                !line.startsWith('<table') &&
-                !line.startsWith('</')) {
-                return `<p>${line}</p>`;
-            }
-            return line;
-        });
-        htmlContent = processedLines.join('\n');
-        
-        referencesContent.innerHTML = htmlContent;
+        if (bodyContent) {
+            referencesContent.innerHTML = bodyContent.innerHTML;
+        } else {
+            // If no body tag found, use the entire content
+            referencesContent.innerHTML = htmlText;
+        }
         
     } catch (error) {
         console.error('Error loading references:', error);
         referencesContent.innerHTML = `
             <div class="error-message">
-                <p><strong>⚠️ Unable to load references</strong></p>
+                <p><strong>Unable to load references</strong></p>
                 <p>Could not load the academic references document. Please try again later.</p>
             </div>
         `;

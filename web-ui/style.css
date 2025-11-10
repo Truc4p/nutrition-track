@@ -100,7 +100,7 @@ body {
 
 h1 {
     font-size: 1.25em; /* Similar to .headline */
-    margin-top: 24px;
+    margin-top: 12px;
     margin-bottom: 0;
 }
 
@@ -1824,10 +1824,6 @@ button:disabled {
     margin: 0 auto;
 }
 
-.recommendation-food-item:hover {
-    transform: translateX(5px);
-}
-
 .total-item {
     display: flex;
     justify-content: space-between;
@@ -2278,12 +2274,14 @@ button:disabled {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 5px 8px;
-    margin-left: 10px;
     color: #3498db;
-    transition: all 0.3s ease;
-    border-radius: 5px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
     vertical-align: middle;
+    margin-left: 8px;
+    width: auto;
+    min-width: unset;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2291,13 +2289,13 @@ button:disabled {
 
 .reference-icon:hover {
     background: rgba(52, 152, 219, 0.1);
-    color: #2980b9;
     transform: scale(1.1);
 }
 
 .reference-icon svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    display: block;
 }
 
 /* Modal Overlay */
@@ -2351,8 +2349,7 @@ button:disabled {
 
 /* Modal Header */
 .modal-header {
-    padding: 25px 30px;
-    border-bottom: 2px solid #e5e7eb;
+    padding: 10px 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2419,20 +2416,17 @@ button:disabled {
 }
 
 .references-modal h1 {
+    text-align: center;
     color: #1e40af;
     font-size: 2rem;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid #3b82f6;
 }
 
 .references-modal h2 {
-    color: #2563eb;
+    text-align: center;
+    color: #339CD1;
     font-size: 1.5rem;
-    margin-top: 30px;
+    margin-top: 15px;
     margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #bfdbfe;
 }
 
 .references-modal h3 {
