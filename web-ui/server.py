@@ -28,8 +28,8 @@ load_dotenv()
 
 # Gemini API Configuration
 GEMINI_KEY = 'AIzaSyAZbp4SEeaAq8ioyvuWNF7kcwalhNA8h8I'
-GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_KEY}'
-GEMINI_VISION_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_KEY}'
+GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
+GEMINI_VISION_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
 
 # USDA API Configuration
 USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx'
@@ -490,6 +490,15 @@ Provide a thoughtful, expert response that empowers the user to make informed nu
         )
         
         if not response.ok:
+            # Handle rate limiting specifically
+            if response.status_code == 429:
+                return jsonify({
+                    'error': 'Rate limit exceeded',
+                    'message': 'Too many requests to the AI service. Please wait a moment and try again.',
+                    'code': 'RATE_LIMIT',
+                    'details': response.text
+                }), 429
+            
             return jsonify({
                 'error': f'Gemini API error: {response.status_code}',
                 'details': response.text
@@ -606,6 +615,16 @@ Generate comprehensive, evidence-based nutrition advice now:"""
         
         if not response.ok:
             print(f"❌ Gemini API error: {response.status_code}")
+            
+            # Handle rate limiting specifically
+            if response.status_code == 429:
+                return jsonify({
+                    'error': 'Rate limit exceeded',
+                    'message': 'Too many requests to the AI service. Please wait a moment and try again.',
+                    'code': 'RATE_LIMIT',
+                    'details': response.text
+                }), 429
+            
             return jsonify({
                 'error': f'Gemini API error: {response.status_code}',
                 'details': response.text

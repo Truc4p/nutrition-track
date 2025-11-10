@@ -2140,7 +2140,6 @@ button:disabled {
     padding: 25px;
     margin-top: 30px;
     box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
-    border: 2px solid #bfdbfe;
 }
 
 .health-advice-section h3 {
@@ -2148,7 +2147,7 @@ button:disabled {
     margin-top: 0;
     margin-bottom: 20px;
     font-size: 1.5rem;
-    display: flex;
+    display: center;
     align-items: center;
     gap: 10px;
 }
@@ -2183,9 +2182,6 @@ button:disabled {
     background: white;
     border-radius: 10px;
     padding: 25px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    max-height: 600px;
-    overflow-y: auto;
     line-height: 1.8;
 }
 
@@ -2257,7 +2253,6 @@ button:disabled {
 
 .error-message {
     background: #fee2e2;
-    border: 1px solid #fca5a5;
     border-radius: 8px;
     padding: 20px;
     margin: 10px 0;

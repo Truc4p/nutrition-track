@@ -655,6 +655,7 @@ async function fetchHealthAdvice(userDetails) {
         healthAdviceSection.style.display = 'block';
         healthAdviceLoading.style.display = 'block';
         healthAdviceContent.innerHTML = '';
+        healthAdviceContent.style.display = 'none'; // Hide content while loading
 
         console.log('🎓 Fetching health advice for:', userDetails.healthProblem);
 
@@ -678,6 +679,13 @@ async function fetchHealthAdvice(userDetails) {
         });
 
         if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            
+            // Handle rate limit errors specifically
+            if (response.status === 429 || errorData.code === 'RATE_LIMIT') {
+                throw new Error('RATE_LIMIT');
+            }
+            
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
@@ -715,6 +723,7 @@ async function fetchHealthAdvice(userDetails) {
                 .join('');
 
             healthAdviceContent.innerHTML = htmlContent;
+            healthAdviceContent.style.display = 'block'; // Show content when ready
             console.log('✅ Health advice displayed successfully');
         } else {
             throw new Error(data.error || 'Failed to generate health advice');
@@ -722,13 +731,33 @@ async function fetchHealthAdvice(userDetails) {
 
     } catch (error) {
         console.error('❌ Error fetching health advice:', error);
-        healthAdviceContent.innerHTML = `
-            <div class="error-message">
-                <p><strong>⚠️ Unable to generate health advice</strong></p>
-                <p>An error occurred while fetching personalized nutrition recommendations. Please try again later.</p>
-                <p class="error-details">${error.message}</p>
-            </div>
-        `;
+        
+        // Show content div to display error
+        healthAdviceContent.style.display = 'block';
+        
+        // Check if it's a rate limit error
+        if (error.message === 'RATE_LIMIT') {
+            healthAdviceContent.innerHTML = `
+                <div class="error-message" style="background: #fff8deff;">
+                    <p><strong>Rate Limit Reached</strong></p>
+                    <p>The AI service has received too many requests. This is normal and the limit resets automatically.</p>
+                    <p><strong>What to do:</strong></p>
+                    <ul>
+                        <li>Wait 1-2 minutes before trying again</li>
+                        <li>The service typically resets every 60 seconds</li>
+                        <li>If you continue to see this message, the daily quota may be reached</li>
+                    </ul>
+                </div>
+            `;
+        } else {
+            healthAdviceContent.innerHTML = `
+                <div class="error-message">
+                    <p><strong>⚠️ Unable to generate health advice</strong></p>
+                    <p>An error occurred while fetching personalized nutrition recommendations. Please try again later.</p>
+                    <p class="error-details">${error.message}</p>
+                </div>
+            `;
+        }
     } finally {
         // Hide loading indicator
         healthAdviceLoading.style.display = 'none';

@@ -26,6 +26,13 @@ class ChatbotService {
             });
 
             if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                
+                // Handle rate limit errors specifically
+                if (response.status === 429 || errorData.code === 'RATE_LIMIT') {
+                    throw new Error('RATE_LIMIT');
+                }
+                
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -34,6 +41,12 @@ class ChatbotService {
 
         } catch (error) {
             console.error('ChatbotService: Error communicating with chatbot server:', error);
+            
+            // Check if it's a rate limit error
+            if (error.message === 'RATE_LIMIT') {
+                throw new Error('⏱️ Rate limit reached. The AI service has received too many requests. Please wait 1-2 minutes and try again.');
+            }
+            
             throw new Error('Failed to get response from the server. Please try again later.');
         }
     }

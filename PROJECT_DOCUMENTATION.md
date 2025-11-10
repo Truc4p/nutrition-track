@@ -109,7 +109,7 @@ web-ui/
 │   ├── search.html           # USDA food database search
 │   ├── meal-search.html      # Recipe & video discovery
 │   ├── chat.html             # AI nutrition assistant
-│   ├── recommend.html        # Personal nutrition calculator
+│   ├── recommend.html        # Personal nutrition calculator with health advice
 │   ├── float-chat.html       # Floating chat widget
 │   └── nav-bar.html          # Navigation component
 │
@@ -132,6 +132,13 @@ web-ui/
 │   ├── purge-css.js          # PurgeCSS for unused CSS
 │   ├── css-cleanup-analyzer.js
 │   └── css-compare.js
+│
+├── Documentation/
+│   ├── NUTRITION_REFERENCES.md        # Technical academic references
+│   ├── NUTRITION_REFERENCES_USER.md   # User-friendly academic references
+│   ├── VERIFICATION_REPORT.md         # Code verification against sources
+│   ├── HEALTH_ADVICE_FEATURE.md       # Health advice feature docs
+│   └── VISUAL_GUIDE.md                # Visual diagrams and layouts
 │
 ├── images/                   # Static assets
 └── __pycache__/             # Python cache
@@ -351,6 +358,10 @@ youtube-scraper/
   - Maintain weight
   - Gain weight (+500 cal/day)
   - Lose weight (-500 cal/day)
+- **Health Problem (Optional)**:
+  - User can enter specific health conditions
+  - Triggers AI-powered personalized health advice
+  - Generates evidence-based recommendations with academic citations
 
 #### Calculations
 - **BMR (Basal Metabolic Rate)**: Mifflin-St Jeor Equation
@@ -370,6 +381,52 @@ youtube-scraper/
   - Electrolytes (sodium, potassium)
 - **Hydration**: Water intake recommendations
 - **Fiber**: Daily fiber goals
+
+#### Academic References Feature
+- **Reference Icon**: Clickable book icon next to "Nutrition Recommendations" heading
+- **Reference Modal**: Professional modal displaying comprehensive academic sources
+- **Content Includes**:
+  - 35+ nutritional components with academic citations
+  - Harvard-style referencing format
+  - Sources from Institute of Medicine (IOM), FAO/WHO/UNU, USDA
+  - Peer-reviewed journal articles and official guidelines
+  - Detailed methodology explanations
+- **User-Friendly Documentation**: 
+  - `NUTRITION_REFERENCES_USER.md` - Easy-to-read format for general users
+  - `NUTRITION_REFERENCES.md` - Technical documentation with code mappings
+- **Modal Features**:
+  - Responsive design (desktop & mobile)
+  - Smooth animations (fade-in, slide-in)
+  - Professional table styling with hover effects
+  - Custom scrollbar
+  - Multiple close options (button, outside click, Escape key)
+  - Blue gradient medical theme
+
+#### AI-Powered Health Advice
+- **Powered by**: Google Gemini 2.0 Flash API
+- **Trigger**: When user enters health problem and clicks "Get Recommendation"
+- **Features**:
+  - Personalized nutrition recommendations for specific health conditions
+  - Evidence-based advice with academic references
+  - Clinical overview format
+  - Specific nutrient amounts and explanations
+  - Harvard-style citations from peer-reviewed sources only
+  - Loading indicators with smooth animations
+  - Markdown to HTML conversion for formatted display
+  - Error handling with user-friendly messages
+- **Display Section**:
+  - Located in left section below user details form
+  - Blue gradient medical theme (#f0f9ff to #e0f2fe)
+  - Professional card layout with custom scrollbar
+  - Formatted headers, bold text, and bulleted lists
+  - Maximum height with scrollable content
+- **Example Health Conditions**:
+  - Type 2 diabetes
+  - High blood pressure (hypertension)
+  - Anemia
+  - High cholesterol
+  - PCOS (Polycystic Ovary Syndrome)
+  - And more...
 
 ### 6. **USDA Database Service**
 
@@ -552,6 +609,40 @@ Response:
   "conversation_id": "uuid"
 }
 ```
+
+#### Health Advice Endpoint
+
+**POST `/ai/health-advice`**
+Generate personalized health advice with academic references.
+
+Request:
+```json
+{
+  "weight": 48,
+  "height": 158,
+  "age": 27,
+  "gender": "female",
+  "activityLevel": "sedentary",
+  "goal": "maintain",
+  "healthProblem": "type 2 diabetes"
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "advice": "## Clinical Overview\n\nFor a 27-year-old female...\n\n## Key Nutritional Recommendations\n\n**1. Carbohydrate Management**\n- Focus on low glycemic index (GI) foods...\n\n### References\n\nAmerican Diabetes Association (2023)..."
+}
+```
+
+**Features:**
+- Specialized Gemini AI prompt for evidence-based advice
+- Requires peer-reviewed sources only
+- Harvard citation format enforced
+- Clinical overview format
+- Specific nutrient amounts
+- Tailored to user's personal details and health condition
 
 #### USDA Endpoints
 
@@ -962,6 +1053,16 @@ CREATE TABLE youtube_videos (
 
 ## Future Enhancements
 
+### Recently Implemented Features ✅
+- [x] **Academic References System**: Comprehensive academic documentation with modal display
+- [x] **AI Health Advice**: Personalized evidence-based recommendations for health conditions
+- [x] **Reference Citations**: Harvard-style citations from peer-reviewed sources
+- [x] **Interactive Modal**: Professional reference viewer with responsive design
+- [x] **Health Problem Input**: Optional field for targeted nutrition advice
+- [x] **Evidence-Based AI**: Gemini AI constrained to academic sources only
+- [x] **User Documentation**: Both technical and user-friendly reference guides
+- [x] **Verification System**: Code validation against academic standards (97% accuracy)
+
 ### Planned Features
 - [ ] User authentication and profiles
 - [ ] Save meal history
@@ -1016,11 +1117,22 @@ This project is developed for educational purposes as part of a university final
 
 ## Documentation Files
 
-- `track-nutrition/web-ui/` - No specific README
+### Main Documentation
+- `track-nutrition/PROJECT_DOCUMENTATION.md` - Complete project documentation (this file)
+
+### Web-UI Documentation
+- `track-nutrition/web-ui/NUTRITION_REFERENCES.md` - Technical academic references with code mappings
+- `track-nutrition/web-ui/NUTRITION_REFERENCES_USER.md` - User-friendly academic references
+- `track-nutrition/web-ui/VERIFICATION_REPORT.md` - Code verification report (97% accuracy)
+- `track-nutrition/web-ui/HEALTH_ADVICE_FEATURE.md` - Health advice feature technical docs
+- `track-nutrition/web-ui/VISUAL_GUIDE.md` - Visual diagrams and UI layouts
+
+### Module Documentation
 - `track-nutrition/mobile-app/README.md` - Mobile app full docs
 - `track-nutrition/mobile-app/QUICKSTART.md` - Quick start guide
 - `track-nutrition/mobile-app/PROJECT_SUMMARY.md` - Feature summary
 - `track-nutrition/usda-database/README.md` - USDA database setup
+- `track-nutrition/usda-database/QUICKSTART.md` - USDA quick reference
 - `track-nutrition/youtube-scraper/README.md` - YouTube scraper docs
 
 ## Support & Resources
@@ -1037,10 +1149,48 @@ This project is developed for educational purposes as part of a university final
 - [YouTube Data API](https://developers.google.com/youtube/v3)
 - [Google Gemini API](https://ai.google.dev/docs)
 
+## Recent Updates & Improvements
+
+### November 9, 2025 - Academic References & Health Advice Features
+
+#### 1. Academic References System
+- **Feature**: Interactive reference viewer with clickable book icon
+- **Documentation**: 
+  - Technical references with code mappings (`NUTRITION_REFERENCES.md`)
+  - User-friendly version for general public (`NUTRITION_REFERENCES_USER.md`)
+- **Content**: 35+ nutritional components with Harvard-style citations
+- **Sources**: Institute of Medicine (IOM), FAO/WHO/UNU, USDA, peer-reviewed journals
+- **Verification**: 97% accuracy rate (66/68 exact matches, 2 acceptable variations)
+- **UI/UX**: Professional modal with blue medical theme, responsive design, smooth animations
+
+#### 2. AI-Powered Health Advice
+- **Feature**: Personalized nutrition advice for health conditions
+- **AI Model**: Google Gemini 2.0 Flash with specialized prompt engineering
+- **Input**: Optional health problem field in personal calculator
+- **Output**: Evidence-based recommendations with academic citations
+- **Format**: Clinical overview with specific nutrient amounts and explanations
+- **Constraints**: Peer-reviewed sources only, Harvard citation format enforced
+- **Display**: Professional card layout in left section with loading indicators
+
+#### 3. Technical Implementation
+- **Backend**: New `/ai/health-advice` POST endpoint in Flask
+- **Frontend**: Modal system with markdown-to-HTML conversion
+- **Styling**: ~350 lines of new CSS for modal, references, and health advice sections
+- **State Management**: Enhanced to include health problem and advice text
+- **Error Handling**: User-friendly error messages and loading states
+- **Performance**: Fast markdown parsing and responsive modal interactions
+
+#### 4. Quality Assurance
+- **Documentation**: 5 new comprehensive documentation files
+- **Verification**: Systematic verification of all nutrition values against academic sources
+- **Code Quality**: No syntax errors, follows existing code patterns
+- **User Experience**: Intuitive interface with multiple interaction methods
+- **Accessibility**: Keyboard support (Escape key), clear visual hierarchy
+
 ---
 
 **Project**: Track Nutrition - AI-Powered Nutrition Platform  
-**Version**: 1.0.0  
-**Last Updated**: November 1, 2025  
-**Repository**: Truc4p/final-project  
+**Version**: 1.1.0  
+**Last Updated**: November 9, 2025  
+**Repository**: Truc4p/FYP  
 **Type**: Final Year Project (FYP)
