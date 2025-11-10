@@ -27,7 +27,7 @@ except ImportError as e:
 load_dotenv()
 
 # Gemini API Configuration
-GEMINI_KEY = 'AIzaSyAZbp4SEeaAq8ioyvuWNF7kcwalhNA8h8I'
+GEMINI_KEY = 'AIzaSyDg9XGvb1qb58I5Z5hI427EOoubjHoKqLI'
 GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
 GEMINI_VISION_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
 
