@@ -227,26 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add console.log to debug the recommendation variable
                 console.log("Recommendation data:", recommendation);
 
-                // If health problem is provided, fetch AI advice
-                if (healthProblem) {
-                    await fetchHealthAdvice({
-                        healthProblem,
-                        age,
-                        gender,
-                        weight,
-                        height,
-                        activityLevel,
-                        goal
-                    });
-                } else {
-                    // Hide health advice section if no health problem
-                    const healthAdviceSection = document.getElementById('health-advice-section');
-                    if (healthAdviceSection) {
-                        healthAdviceSection.style.display = 'none';
-                    }
-                }
-
-                // Clear and rebuild recommendation section
+                // Clear and rebuild recommendation section IMMEDIATELY
                 recommendationText.innerHTML = '';
 
                 // Create a single list item for recommendations (same structure as totals)
@@ -355,6 +336,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Refresh nutrient tooltips after adding recommendations
                 if (window.nutrientTooltip) {
                     window.nutrientTooltip.refresh();
+                }
+
+                // After displaying nutrition recommendations, fetch AI advice in the background (non-blocking)
+                if (healthProblem) {
+                    // Don't await - let it run in the background
+                    fetchHealthAdvice({
+                        healthProblem,
+                        age,
+                        gender,
+                        weight,
+                        height,
+                        activityLevel,
+                        goal
+                    }).catch(error => {
+                        console.error("Error fetching health advice:", error);
+                    });
+                } else {
+                    // Hide health advice section if no health problem
+                    const healthAdviceSection = document.getElementById('health-advice-section');
+                    if (healthAdviceSection) {
+                        healthAdviceSection.style.display = 'none';
+                    }
                 }
             } catch (error) {
                 console.error("Error calculating recommendation:", error);
