@@ -33,6 +33,11 @@ class ChatbotService {
                     throw new Error('RATE_LIMIT');
                 }
                 
+                // Handle authentication errors (403)
+                if (response.status === 403 || errorData.code === 'AUTH_ERROR') {
+                    throw new Error('AUTH_ERROR');
+                }
+                
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -45,6 +50,11 @@ class ChatbotService {
             // Check if it's a rate limit error
             if (error.message === 'RATE_LIMIT') {
                 throw new Error('⏱️ Rate limit reached. The AI service has received too many requests. Please wait 1-2 minutes and try again.');
+            }
+            
+            // Check if it's an authentication error
+            if (error.message === 'AUTH_ERROR') {
+                throw new Error('🔑 API authentication error. The AI service key may be invalid or expired. Please contact support.');
             }
             
             throw new Error('Failed to get response from the server. Please try again later.');

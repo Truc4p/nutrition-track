@@ -686,6 +686,11 @@ async function fetchHealthAdvice(userDetails) {
                 throw new Error('RATE_LIMIT');
             }
             
+            // Handle authentication errors (403)
+            if (response.status === 403 || errorData.code === 'AUTH_ERROR') {
+                throw new Error('AUTH_ERROR');
+            }
+            
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
@@ -749,10 +754,30 @@ async function fetchHealthAdvice(userDetails) {
                     </ul>
                 </div>
             `;
+        } else if (error.message === 'AUTH_ERROR') {
+            healthAdviceContent.innerHTML = `
+                <div class="error-message" style="background: #fee2e2; border: 1px solid #fca5a5;">
+                    <p><strong>🔑 API Authentication Error</strong></p>
+                    <p>The AI service is experiencing authentication issues.</p>
+                    <p><strong>Possible causes:</strong></p>
+                    <ul>
+                        <li>API key is invalid or expired</li>
+                        <li>Billing not enabled in Google Cloud Console</li>
+                        <li>Gemini API not enabled for this project</li>
+                        <li>Geographic restrictions may apply</li>
+                    </ul>
+                    <p><strong>To fix:</strong></p>
+                    <ul>
+                        <li>Check your API key at <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></li>
+                        <li>Ensure billing is enabled in your Google Cloud project</li>
+                        <li>Verify the Gemini API is enabled</li>
+                    </ul>
+                </div>
+            `;
         } else {
             healthAdviceContent.innerHTML = `
                 <div class="error-message">
-                    <p><strong>⚠️ Unable to generate health advice</strong></p>
+                    <p><strong>Unable to generate health advice</strong></p>
                     <p>An error occurred while fetching personalized nutrition recommendations. Please try again later.</p>
                     <p class="error-details">${error.message}</p>
                 </div>

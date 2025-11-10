@@ -499,6 +499,15 @@ Provide a thoughtful, expert response that empowers the user to make informed nu
                     'details': response.text
                 }), 429
             
+            # Handle forbidden errors (API key issues)
+            if response.status_code == 403:
+                return jsonify({
+                    'error': 'API authentication failed',
+                    'message': 'The API key is invalid, expired, or not authorized. Please check your Gemini API configuration.',
+                    'code': 'AUTH_ERROR',
+                    'details': response.text
+                }), 403
+            
             return jsonify({
                 'error': f'Gemini API error: {response.status_code}',
                 'details': response.text
@@ -624,6 +633,15 @@ Generate comprehensive, evidence-based nutrition advice now:"""
                     'code': 'RATE_LIMIT',
                     'details': response.text
                 }), 429
+            
+            # Handle forbidden errors (API key issues)
+            if response.status_code == 403:
+                return jsonify({
+                    'error': 'API authentication failed',
+                    'message': 'The API key is invalid, expired, or not authorized. Please check your Gemini API configuration.',
+                    'code': 'AUTH_ERROR',
+                    'details': response.text
+                }), 403
             
             return jsonify({
                 'error': f'Gemini API error: {response.status_code}',
