@@ -27,12 +27,12 @@ except ImportError as e:
 load_dotenv()
 
 # Gemini API Configuration
-GEMINI_KEY = 'AIzaSyDg9XGvb1qb58I5Z5hI427EOoubjHoKqLI'
+GEMINI_KEY = os.getenv('GEMINI_KEY')
 GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
 GEMINI_VISION_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
 
 # USDA API Configuration
-USDA_API_KEY = '7bf0q1sg6jba188aZpaYE9oeSvcifU9S1sCJQHgx'
+USDA_API_KEY = os.getenv('USDA_API_KEY')
 USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search'
 USDA_DETAIL_URL = 'https://api.nal.usda.gov/fdc/v1/food'
 
