@@ -790,74 +790,17 @@ async function fetchHealthAdvice(userDetails) {
 }
 
 // ============================================
-// REFERENCES MODAL FUNCTIONALITY
+// REFERENCES BUTTON FUNCTIONALITY
 // ============================================
 
-// Function to load and display nutrition-references.html
-async function loadNutritionReferences() {
-    const referencesContent = document.getElementById('references-content');
-    
-    try {
-        const response = await fetch('nutrition-references.html');
-        if (!response.ok) {
-            throw new Error('Failed to load references');
-        }
-        
-        const htmlText = await response.text();
-        
-        // Create a temporary DOM element to parse the HTML
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlText;
-        
-        // Extract just the body content (without the full HTML structure)
-        const bodyContent = tempDiv.querySelector('body');
-        
-        if (bodyContent) {
-            referencesContent.innerHTML = bodyContent.innerHTML;
-        } else {
-            // If no body tag found, use the entire content
-            referencesContent.innerHTML = htmlText;
-        }
-        
-    } catch (error) {
-        console.error('Error loading references:', error);
-        referencesContent.innerHTML = `
-            <div class="error-message">
-                <p><strong>Unable to load references</strong></p>
-                <p>Could not load the academic references document. Please try again later.</p>
-            </div>
-        `;
-    }
-}
-
-// Event listeners for references modal
+// Event listeners for references button - open in new tab
 document.addEventListener('DOMContentLoaded', () => {
     const referencesButton = document.getElementById('references-button');
-    const referencesModal = document.getElementById('references-modal');
-    const closeModalBtn = document.getElementById('close-references-modal');
     
-    // Open modal
-    referencesButton.addEventListener('click', () => {
-        referencesModal.style.display = 'flex';
-        loadNutritionReferences();
-    });
-    
-    // Close modal when clicking the close button
-    closeModalBtn.addEventListener('click', () => {
-        referencesModal.style.display = 'none';
-    });
-    
-    // Close modal when clicking outside the modal content
-    referencesModal.addEventListener('click', (e) => {
-        if (e.target === referencesModal) {
-            referencesModal.style.display = 'none';
-        }
-    });
-    
-    // Close modal with Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && referencesModal.style.display === 'flex') {
-            referencesModal.style.display = 'none';
-        }
-    });
+    if (referencesButton) {
+        referencesButton.addEventListener('click', () => {
+            // Open nutrition-references.html in a new tab
+            window.open('nutrition-references.html', '_blank');
+        });
+    }
 }); 
