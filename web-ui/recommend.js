@@ -700,7 +700,7 @@ async function fetchHealthAdvice(userDetails) {
             // Convert markdown-style formatting to HTML
             let htmlContent = data.advice;
             
-            // Convert headers
+            // Convert headers (must be done before list processing)
             htmlContent = htmlContent.replace(/^### (.*$)/gim, '<h4>$1</h4>');
             htmlContent = htmlContent.replace(/^## (.*$)/gim, '<h3>$1</h3>');
             htmlContent = htmlContent.replace(/^# (.*$)/gim, '<h2>$1</h2>');
@@ -708,24 +708,69 @@ async function fetchHealthAdvice(userDetails) {
             // Convert bold
             htmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             
-            // Convert lists
-            htmlContent = htmlContent.replace(/^\* (.*$)/gim, '<li>$1</li>');
-            htmlContent = htmlContent.replace(/^- (.*$)/gim, '<li>$1</li>');
+            // Split into lines and process lists more carefully
+            const lines = htmlContent.split('\n');
+            const processedLines = [];
+            let inList = false;
             
-            // Wrap consecutive list items in ul tags
-            htmlContent = htmlContent.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-            
-            // Convert line breaks to paragraphs
-            const paragraphs = htmlContent.split('\n\n');
-            htmlContent = paragraphs
-                .filter(p => p.trim())
-                .map(p => {
-                    if (!p.startsWith('<h') && !p.startsWith('<ul') && !p.startsWith('<li')) {
-                        return `<p>${p}</p>`;
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+                
+                // Check if line is a bullet point
+                if (trimmedLine.match(/^[\*\-•] /)) {
+                    if (!inList) {
+                        processedLines.push('<ul>');
+                        inList = true;
                     }
-                    return p;
-                })
-                .join('');
+                    // Remove bullet and wrap in <li>
+                    const content = trimmedLine.replace(/^[\*\-•] /, '');
+                    processedLines.push(`<li>${content}</li>`);
+                } else if (trimmedLine.match(/^\d+\. /)) {
+                    // Numbered list support
+                    if (!inList) {
+                        processedLines.push('<ol>');
+                        inList = true;
+                    }
+                    const content = trimmedLine.replace(/^\d+\. /, '');
+                    processedLines.push(`<li>${content}</li>`);
+                } else {
+                    // Not a list item
+                    if (inList) {
+                        // Close the list (check if it was ul or ol)
+                        const lastListStart = processedLines.lastIndexOf('<ul>');
+                        const lastOlStart = processedLines.lastIndexOf('<ol>');
+                        if (lastOlStart > lastListStart) {
+                            processedLines.push('</ol>');
+                        } else {
+                            processedLines.push('</ul>');
+                        }
+                        inList = false;
+                    }
+                    
+                    // Add the line as-is if it's a header or empty, otherwise wrap in <p>
+                    if (trimmedLine === '') {
+                        processedLines.push('');
+                    } else if (!trimmedLine.startsWith('<h')) {
+                        processedLines.push(`<p>${line}</p>`);
+                    } else {
+                        processedLines.push(line);
+                    }
+                }
+            }
+            
+            // Close list if still open at end
+            if (inList) {
+                const lastListStart = processedLines.lastIndexOf('<ul>');
+                const lastOlStart = processedLines.lastIndexOf('<ol>');
+                if (lastOlStart > lastListStart) {
+                    processedLines.push('</ol>');
+                } else {
+                    processedLines.push('</ul>');
+                }
+            }
+            
+            htmlContent = processedLines.join('\n');
 
             healthAdviceContent.innerHTML = htmlContent;
             healthAdviceContent.style.display = 'block'; // Show content when ready
