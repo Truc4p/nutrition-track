@@ -48,7 +48,7 @@ app = Flask(__name__, static_folder='.')
 CORS(app)  # Enable cross-origin requests from frontend
 
 # API Configuration
-GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}'
+GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_KEY}'
 USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search'
 ```
 
