@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Markdown from 'react-native-markdown-display';
 import { Colors } from '../constants/colors';
 import { aiService } from '../services/api';
 import { ChatMessage } from '../types';
@@ -104,7 +105,38 @@ const ChatScreen = () => {
         message.isUser ? styles.userMessage : styles.botMessage,
       ]}
     >
-      <Text style={styles.messageText}>{message.text}</Text>
+      <Markdown
+        style={{
+          body: {
+            color: Colors.text,
+            fontSize: 15,
+          },
+          paragraph: {
+            marginTop: 0,
+            marginBottom: 8,
+          },
+          bullet_list: {
+            marginTop: 0,
+            marginBottom: 8,
+          },
+          ordered_list: {
+            marginTop: 0,
+            marginBottom: 8,
+          },
+          list_item: {
+            marginTop: 2,
+            marginBottom: 2,
+          },
+          strong: {
+            fontWeight: '700',
+          },
+          em: {
+            fontStyle: 'italic',
+          },
+        }}
+      >
+        {message.text}
+      </Markdown>
     </View>
   );
 
