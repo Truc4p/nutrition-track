@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mobile app (not needed for web deployment)
+mobile-app/
+
+# Development files
+.DS_Store
+.vscode/
+.git/
+.github/
+
+# Documentation
+docs/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+youtube-scraper/db/*.db
+
+# Logs
+logs/
+*.log
+
+# USDA data (too large)
+usda-database/usda_data/
+usda-database/usda_foods.db
+usda-database/*.db
+
+# Meal scraper data
+meal-scraper/pickup_limes_database/images/
