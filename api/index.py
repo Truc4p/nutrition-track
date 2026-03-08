@@ -131,7 +131,7 @@ def search_recipes():
 def ai_chat():
     try:
         data = request.json
-        user_message = data.get('message', '')
+        user_message = data.get('userMessage', data.get('message', ''))
         
         if not GEMINI_KEY:
             return jsonify({'error': 'Gemini API key not configured'}), 500
@@ -142,13 +142,13 @@ def ai_chat():
             }]
         }
         
-        response = requests.post(GEMINI_API_URL, json=payload)
+        response = requests.post(GEMINI_API_URL, json=payload, timeout=25)
         response.raise_for_status()
         
         result = response.json()
         ai_response = result['candidates'][0]['content']['parts'][0]['text']
         
-        return jsonify({'response': ai_response})
+        return jsonify({'recommendation': ai_response})
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
