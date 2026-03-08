@@ -29,6 +29,11 @@ USDA_API_KEY = os.getenv('USDA_API_KEY')
 USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search'
 USDA_DETAIL_URL = 'https://api.nal.usda.gov/fdc/v1/food'
 
+# YouTube API Configuration
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
+YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3/search'
+YOUTUBE_VIDEO_URL = 'https://www.googleapis.com/youtube/v3/videos'
+
 # Create Flask app
 app = Flask(__name__, static_folder=os.path.join(project_root, 'web-ui'))
 CORS(app)
@@ -305,13 +310,124 @@ Return ONLY a JSON array like:
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# YouTube endpoint (stub - database not available in serverless)
+# YouTube endpoint - Direct API integration
 @app.route('/api/youtube/videos', methods=['GET'])
 def youtube_videos():
+    """Fetch videos directly from YouTube Data API v3"""
+    try:
+        query = request.args.get('query', 'healthy recipes')
+        limit = int(request.args.get('limit', 40))
+        
+        if not YOUTUBE_API_KEY:
+            return jsonify({
+                'success': False,
+                'message': 'YouTube API key not configured',
+                'videos': []
+            })
+        
+        # Search for videos using YouTube Data API
+        search_params = {
+            'part': 'snippet',
+            'q': query,
+            'type': 'video',
+            'maxResults': min(limit, 50),  # YouTube API max is 50
+            'key': YOUTUBE_API_KEY,
+            'relevanceLanguage': 'en',
+            'safeSearch': 'moderate',
+            'order': 'relevance'
+        }
+        
+        search_response = requests.get(YOUTUBE_API_URL, params=search_params)
+        search_response.raise_for_status()
+        search_data = search_response.json()
+        
+        if 'items' not in search_data or len(search_data['items']) == 0:
+            return jsonify({
+                'success': True,
+                'message': 'No videos found',
+                'videos': []
+            })
+        
+        # Get video IDs to fetch detailed statistics
+        video_ids = ','.join([item['id']['videoId'] for item in search_data['items']])
+        
+        # Fetch video details (duration, views, etc.)
+        video_params = {
+            'part': 'snippet,statistics,contentDetails',
+            'id': video_ids,
+            'key': YOUTUBE_API_KEY
+        }
+        
+        video_response = requests.get(YOUTUBE_VIDEO_URL, params=video_params)
+        video_response.raise_for_status()
+        video_data = video_response.json()
+        
+        # Format videos for frontend
+        videos = []
+        for item in video_data.get('items', []):
+            video = {
+                'id': item['id'],
+                'video_id': item['id'],
+                'title': item['snippet']['title'],
+                'description': item['snippet']['description'],
+                'channel': item['snippet']['channelTitle'],
+                'channel_title': item['snippet']['channelTitle'],
+                'thumbnail': item['snippet']['thumbnails'].get('high', {}).get('url', ''),
+                'url': f"https://www.youtube.com/watch?v={item['id']}",
+                'published_at': item['snippet']['publishedAt'],
+                'view_count': int(item['statistics'].get('viewCount', 0)),
+                'like_count': int(item['statistics'].get('likeCount', 0)),
+                'duration': item['contentDetails'].get('duration', 'PT0S'),
+                'tags': item['snippet'].get('tags', [])
+            }
+            videos.append(video)
+        
+        return jsonify({
+            'success': True,
+            'videos': videos,
+            'total': len(videos)
+        })
+    
+    except requests.exceptions.HTTPError as e:
+        error_msg = str(e)
+        if e.response.status_code == 403:
+            error_msg = 'YouTube API quota exceeded or invalid API key'
+        elif e.response.status_code == 400:
+            error_msg = 'Invalid YouTube API request'
+        
+        return jsonify({
+            'success': False,
+            'error': error_msg,
+            'videos': []
+        }), 200  # Return 200 to avoid frontend errors
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'videos': []
+        }), 200
+
+# YouTube refresh endpoint (for compatibility)
+@app.route('/api/youtube/refresh', methods=['POST'])
+def youtube_refresh():
+    """Refresh endpoint - returns success since we fetch in real-time"""
     return jsonify({
-        'success': False,
-        'message': 'YouTube integration requires database migration',
-        'videos': []
+        'success': True,
+        'message': 'Videos are fetched in real-time from YouTube',
+        'videos_scraped': 0
+    })
+
+# YouTube stats endpoint (for compatibility)
+@app.route('/api/youtube/stats', methods=['GET'])
+def youtube_stats():
+    """Stats endpoint - returns info about real-time fetching"""
+    return jsonify({
+        'success': True,
+        'total_videos': 'Real-time',
+        'unique_channels': 'Real-time',
+        'message': 'Videos are fetched directly from YouTube API',
+        'api_status': 'active' if YOUTUBE_API_KEY else 'not_configured'
     })
 
 # USDA food details endpoint
