@@ -363,10 +363,11 @@ async function fetchYoutubeVideos(customQuery = '') {
         
         if (!response.ok) throw new Error(data.message || 'Failed to fetch videos');
         
-        if (!data.results || data.results.length === 0) {
+        const videos = data.results || data.videos || [];
+        if (videos.length === 0) {
             showError('No videos found matching your criteria. Try a different search term.', youtubeResults);
         } else {
-            displayYoutubeVideos(data.results);
+            displayYoutubeVideos(videos);
         }
     } catch (error) {
         console.error('YouTube search error:', error);
@@ -405,8 +406,8 @@ function displayYoutubeVideos(videos) {
         videoCard.className = 'video-card';
         
         // Create a clickable thumbnail
-        const thumbnailUrl = video.thumbnail_url;
-        const videoId = video.video_id;
+        const thumbnailUrl = video.thumbnail_url || video.thumbnail;
+        const videoId = video.video_id || video.id;
         
         videoCard.innerHTML = `
             <div class="video-thumbnail">
