@@ -353,13 +353,16 @@ async function processText(inputText) {
         const result = await response.json();
         console.log('✅ AI parse result:', result);
         
-        if (!result.success || !result.foods || result.foods.length === 0) {
+        // API returns 'parsed_foods', not 'foods'
+        const foodItems = result.parsed_foods || result.foods;
+        
+        if (!result.success || !foodItems || foodItems.length === 0) {
             console.log('⚠️ No foods found in text');
             foods = [];
             return;
         }
         
-        console.log(`✅ Found ${result.foods.length} food items`);
+        console.log(`✅ Found ${foodItems.length} food items`);
         
         // Clear existing foods array
         foods = [];
@@ -368,11 +371,19 @@ async function processText(inputText) {
         if (resultsHeader) resultsHeader.style.display = 'block';
         
         // Process each food item
-        for (const item of result.foods) {
+        for (const item of foodItems) {
             try {
-                const usdaFood = item.usda_food;
+                // API returns usda_matches array; pick the best match (first)
+                const usdaFood = (item.usda_matches && item.usda_matches.length > 0)
+                    ? item.usda_matches[0]
+                    : item.usda_food;
                 const quantity = item.quantity;
                 const unit = item.unit;
+                
+                if (!usdaFood || !usdaFood.fdcId) {
+                    console.warn(`⚠️ No USDA match for: ${item.food_name}`);
+                    continue;
+                }
                 
                 console.log(`📋 Processing: ${quantity}${unit} ${usdaFood.description}`);
                 
@@ -454,7 +465,7 @@ async function processText(inputText) {
                 const foodObject = {
                     id: `usda_${fdcId}_${foods.length}`,
                     name: detailedNutrition.description,
-                    originalName: item.original_input.food_name,
+                    originalName: item.food_name || item.original_input?.food_name || detailedNutrition.description,
                     usdaDescription: detailedNutrition.description,
                     fats: fatsValue * scalingFactor,
                     carbohydrates: carbsValue * scalingFactor, 
