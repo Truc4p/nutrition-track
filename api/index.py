@@ -443,7 +443,8 @@ def usda_food_details(fdc_id):
         response = requests.get(url, params=params)
         response.raise_for_status()
         
-        return jsonify(response.json())
+        food_data = response.json()
+        return jsonify({'success': True, 'food': food_data})
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
