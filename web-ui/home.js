@@ -240,6 +240,8 @@ async function handleAnalyzeImage() {
         // Remove the data URL prefix to get just the base64 string
         const base64Data = base64Image.split(',')[1];
         
+        console.log('[AnalyzeImage] Sending request — file type:', file.type, '| base64 length:', base64Data.length);
+        
         // Send to server for Gemini analysis
         const response = await fetch('/ai/analyze-meal-image', {
             method: 'POST',
@@ -252,27 +254,41 @@ async function handleAnalyzeImage() {
             })
         });
         
+        console.log('[AnalyzeImage] Response status:', response.status, response.statusText);
+        
         if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
         }
         
         const result = await response.json();
         
+        // BUG WAS HERE: API returns { success, foods, raw_response } — NOT result.analysis
+        console.log('[AnalyzeImage] Full response JSON:', result);
+        
         if (result.error) {
             throw new Error(result.error);
         }
         
-        // Parse the response and populate the food input
-        if (result.analysis) {
-            foodInput.value = result.analysis;
+        // API returns foods as an array: [{quantity, unit, food_name}, ...]
+        if (result.foods && result.foods.length > 0) {
+            const analysisText = result.foods
+                .map(f => `${f.quantity}${f.unit} ${f.food_name}`)
+                .join(', ');
+            console.log('[AnalyzeImage] Converted foods to text:', analysisText);
+            foodInput.value = analysisText;
             handleInputChange();
-            
-            // Optionally auto-submit the analysis
-            // await handleSubmit();
+        } else if (result.raw_response) {
+            // Fallback: no structured foods parsed, use raw AI text
+            console.warn('[AnalyzeImage] No structured foods found, falling back to raw_response:', result.raw_response);
+            foodInput.value = result.raw_response;
+            handleInputChange();
+        } else {
+            console.warn('[AnalyzeImage] Empty or unexpected response shape:', result);
+            alert('Could not identify food items in the image. Please try again or describe your meal manually.');
         }
         
     } catch (error) {
-        console.error('Error analyzing image:', error);
+        console.error('[AnalyzeImage] Error:', error);
         alert(`Failed to analyze image: ${error.message}`);
     } finally {
         setLoading(false);
